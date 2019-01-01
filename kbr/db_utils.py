@@ -112,7 +112,7 @@ class DB( object ):
         q = "SELECT * FROM {table}".format( table=table )
 
         if order is not None:
-            q += " order by {order}".format( order )
+            q += " order by {order}".format( order=order )
 
         return self.get( q )
             
@@ -123,7 +123,7 @@ class DB( object ):
         q = q.format( table=table, key=key, value=value )
 
         if order is not None:
-            q += " order by {order}".format( order )
+            q += " order by {order}".format( order=order )
 
         return self.get( q )
 
@@ -132,77 +132,93 @@ class DB( object ):
         return self.get_by_value( table, 'id', value)
 
 
+    def escape_string(self, string):
+
+        return "'{}'".format( string )
+    
+    
     def get_id(self, table, key, value ) -> id:
         q = "SELECT id from {table} where {key} = '{value}'"
         q = q.format( table=table, key=key, value=value )
         res = self.get( q )
-        if 'id' in res[0]:
+        if len(res):
             return res[0][ 'id' ]
         else:
             return None
     
     def add( self, table:str, entry:{}):
 
+        if entry == {}:
+            raise RuntimeError('No values provided')
+
         keys = list( entry.keys())
-        values = []
-
-
-        for key, value in entry:
-
-            keys.append( key )
-            values.append( value )
+        values = entry.values()
 
         q = "INSERT INTO {table} ({keys}) VALUES ({values})".format( table = table,
                                                                      keys=",".join(keys),
-                                                                     values=",".join(values))
+                                                                     values=",".join(map( self.escape_string, values)))
         self.do( q )
 
 
+
+    def add_unique( self, table:str, entry:{}, key:str):
+        if entry == {}:
+            raise RuntimeError('No values provided')
+
+        id =  self.get_id( table, key, entry[ key ])
+
+        if id is not None:
+            return id
+        
+        try:
+            self.add( table, entry )
+        except:
+            # Expect the value already to be present in the mean time...
+            pass
+
+        return self.get_id( table, key, entry[ key ])
+
+        
     def add_bulk( self, table:str, entries:[] ):
+
+
+        if entries == [] or entries == {}:
+            raise RuntimeError('No values provided')
 
         all_values = []
         keys = list(entries[ 0 ].keys())
 
-
-        for key in keys:
-            if key not in column_name:
-                raise RuntimeError("column {key} is not present in table {table}",format(key=key, table=table))
-
-        
         for entry in entries:
 
             if  keys  != list(entry.keys()):
-                raise RuntimeError( 'Not the same number of values in all entries!')
-            values = []
-            for key, value in entry:
-                values.append
-                
-            all_values.append( "( {values}) )".format( ",".join( self.escape_str(values))))
+                raise RuntimeError( 'Not the same keys in all entries!')
 
-        q = "INSERT INTO {table} ({keys}) VALUES ({values})".format( table = table,
-                                                                     keys=",".join(keys),
-                                                                     values=",".join(all_values))
+            values = entry.values()
+                
+            all_values.append( "({values})".format( values=",".join( map(self.escape_string, values))))
+
+        pp.pprint( all_values )
+        q = "INSERT INTO {table} ({keys}) VALUES {values}".format( table = table,
+                                                                   keys=",".join(keys),
+                                                                   values=",".join(all_values))
         self.do( q )
 
                             
                 
-    def update(self, table:str, values:[], conditions):
+    def update(self, table:str, entry:{}, conditions:[]):
         
-        keys = list( entry.keys())
-        values = []
-
 
         updates = []
-        for key, value in entry:
-
+        
+        for key, value in entry.items():
+            if ( key in conditions ):
+                continue
+            
             updates.append( "{key} = '{value}'".format( key=key, value=value))
 
-        cond_values = []
-        cond_keys = list( conditions.keys())
-        self.check_column_names( table, cond_keys)
         conds = []
-        for key, value in condition:
-            conds.append( "{key} = '{value}'".format( key=key, value=value))
+        for key in conditions:
+            conds.append( "{key} = '{value}'".format( key=key, value=entry[ key ]))
 
 
             

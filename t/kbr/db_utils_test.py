@@ -105,3 +105,174 @@ def test_get_all():
     assert res == [{'id': 1, 'value': 'a'},
                    {'id': 2, 'value': 'b'},
                    {'id': 3, 'value': 'c'}]
+
+
+def test_get_all_order():
+
+    db = make_database()
+    db.do("insert into test (value) values ('c'), ('b'), ('a');")
+    
+    res = db.get_all( 'test', "value")
+    assert res == [{'id': 3, 'value': 'a'},
+                   {'id': 2, 'value': 'b'},
+                   {'id': 1, 'value': 'c'}]
+    
+def test_get_all_empty():
+
+    db = make_database()
+    
+    res = db.get_all( 'test')
+    assert res == []
+    
+
+
+def test_get_by_value():
+
+    db = make_database()
+    db.do("insert into test (value) values ('a'), ('b'), ('c');")
+    
+    res = db.get_by_value( 'test', 'value', 'b')
+    assert res == [{'id': 2, 'value': 'b'}]
+
+def test_get_by_value_empty():
+
+    db = make_database()
+    db.do("insert into test (value) values ('a'), ('b'), ('c');")
+    
+    res = db.get_by_value( 'test', 'value', 'd')
+    assert res == []
+    
+def test_get_by_value_order():
+
+    db = make_database()
+    db.do("insert into test (value) values ('a'), ('b'), ('c'), ('c');")
+    
+    res = db.get_by_value( 'test', 'value', 'c', 'id desc')
+    assert res == [{'id': 4, 'value': 'c'},
+                   {'id': 3, 'value': 'c'}]
+
+    
+def test_get_by_id():
+
+    db = make_database()
+    db.do("insert into test (value) values ('a'), ('b'), ('c');")
+    
+    res = db.get_by_id( 'test', 2)
+    assert res == [{'id': 2, 'value': 'b'}]
+
+def test_get_by_id_empty():
+
+    db = make_database()
+    db.do("insert into test (value) values ('a'), ('b'), ('c');")
+    
+    res = db.get_by_id( 'test', 8)
+    assert res == []
+    
+
+
+def  test_get_id():
+    db = make_database()
+    db.do("insert into test (value) values ('a'), ('b'), ('c');")
+    
+    res = db.get_id( 'test', 'value', 'b')
+    assert res == 2
+    
+def test_get_id_empty():
+    db = make_database()
+    db.do("insert into test (value) values ('a'), ('b'), ('c');")
+    
+    res = db.get_id( 'test', 'value', 'f')
+    assert res == None
+
+
+
+def test_add():
+    db = make_database()
+    db.do("insert into test (value) values ('a'), ('b'), ('c');")
+    res = db.add( 'test', {'value': 'f'})
+
+    res = db.get_all('test')
+    assert res == [{'id': 1, 'value': 'a'},
+                   {'id': 2, 'value': 'b'},
+                   {'id': 3, 'value': 'c'},
+                   {'id': 4, 'value': 'f'}]
+
+def test_add_error():
+    db = make_database()
+    db.do("insert into test (value) values ('a'), ('b'), ('c');")
+    with pytest.raises( OperationalError ):
+        res = db.add( 'test', {'values': 'f'})
+
+def test_add_empty():
+    db = make_database()
+    with pytest.raises( RuntimeError ):
+        res = db.add( 'test', {})
+        
+
+def test_add_unique_empty():
+    db = make_database()
+    db.do("insert into test (value) values ('a'), ('b'), ('c');")
+
+    with pytest.raises( RuntimeError ):
+        id = db.add_unique( 'test', {}, 'value')
+
+
+def test_add_unique():
+    db = make_database()
+    db.do("insert into test (value) values ('a'), ('b'), ('c');")
+
+    id = db.add_unique( 'test', {'value':'b'}, 'value')
+
+    assert id == 2
+    
+
+
+def test_add_unique_new():
+    db = make_database()
+    db.do("insert into test (value) values ('a'), ('b'), ('c');")
+
+    id = db.add_unique( 'test', {'value':'f'}, 'value')
+
+    assert id == 4
+
+def test_add_bulk():
+    db = make_database()
+    res = db.add_bulk( 'test', [{'value': 'a'},
+                                {'value': 'c'},
+                                {'value': 'f'}])
+
+    res = db.get_all('test')
+    assert res == [{'id': 1, 'value': 'a'},
+                   {'id': 2, 'value': 'c'},
+                   {'id': 3, 'value': 'f'}]
+
+def test_add_bulk_diff():
+    db = make_database()
+    with pytest.raises( RuntimeError ):
+        res = db.add_bulk( 'test', [{'value': 'a'},
+                                    {'value': 'c', 'state':'q'},
+                                    {'value': 'f'}])
+
+def test_add_bulk_empty():
+    db = make_database()
+    with pytest.raises( RuntimeError ):
+        res = db.add_bulk( 'test', [])
+    
+    with pytest.raises( RuntimeError ):
+        res = db.add_bulk( 'test', {})
+
+
+        
+def test_update():
+
+    db = make_database()
+    res = db.add_bulk( 'test', [{'value': 'a'},
+                                {'value': 'c'},
+                                {'value': 'f'}])
+
+    entry = db.get_by_id( 'test',2)[0]
+    assert entry == {'id': 2, 'value': 'c'}
+
+
+    entry['value'] = 'c'
+    db.update( 'test', entry, ['id'])
