@@ -276,3 +276,16 @@ def test_update():
 
     entry['value'] = 'c'
     db.update( 'test', entry, ['id'])
+
+
+def test_update_no_values():
+
+    db = make_database()
+    res = db.add_bulk( 'test', [{'value': 'a'},
+                                {'value': 'c'},
+                                {'value': 'f'}])
+
+    entry = db.get_by_id( 'test',2)[0]
+    with pytest.raises( RuntimeError ):
+        db.update( 'test', {}, ['id'])
+    
