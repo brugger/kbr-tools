@@ -289,3 +289,24 @@ def test_update_no_values():
     with pytest.raises( RuntimeError ):
         db.update( 'test', {}, ['id'])
     
+def test_update_no_cond():
+
+    db = make_database()
+    res = db.add_bulk( 'test', [{'value': 'a'},
+                                {'value': 'c'},
+                                {'value': 'f'}])
+
+    entry = db.get_by_id( 'test',2)[0]
+    with pytest.raises( RuntimeError ):
+        db.update( 'test', entry, [])
+    
+def test_update_wrong_cond():
+
+    db = make_database()
+    res = db.add_bulk( 'test', [{'value': 'a'},
+                                {'value': 'c'},
+                                {'value': 'f'}])
+
+    entry = db.get_by_id( 'test',2)[0]
+    with pytest.raises( RuntimeError ):
+        db.update( 'test', entry, ['ids'])

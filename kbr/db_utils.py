@@ -207,6 +207,11 @@ class DB( object ):
                 
     def update(self, table:str, entry:{}, conditions:[]):
         
+        if entry == {}:
+            raise RuntimeError('No values provided')
+        
+        if conditions == [] :
+            raise RuntimeError('No conditions provided')
 
         updates = []
         
@@ -218,10 +223,13 @@ class DB( object ):
 
         conds = []
         for key in conditions:
+            if ( key not in entry ):
+                raise RuntimeError('condition key not in the entry dict')
+
             conds.append( "{key} = '{value}'".format( key=key, value=entry[ key ]))
 
 
-            
+
         
         q = "UPDATE {table} set {updates} WHERE {conds}".format( table = table,
                                                                  updates=" and ".join(updates),
