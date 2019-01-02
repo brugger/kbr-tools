@@ -7,10 +7,9 @@ Generica low level function for interacting with a database through the records 
 
 
 import sys
+import os
 import pprint
 pp = pprint.PrettyPrinter(indent=4)
-import time
-import datetime
 
 import records
 
@@ -50,6 +49,9 @@ class DB( object ):
         Raises:
           error on file not exist or sql errors
         """
+
+        if not os.path.isfile( filename ):
+            raise RuntimeError( "Files does not exist '{}'".format( filename ))
         
         file_handle = open(filename, 'r')
         content = file_handle.read()
@@ -58,8 +60,26 @@ class DB( object ):
         for command in content.replace("\n", " ").split(';'):
             if command.strip() == "":
                 continue
-        self.do(command)
 
+            
+            self.do(command)
+
+    def table_names(self) -> []:
+        """ get the names of the tables in the database
+
+        Args:
+          None
+
+        returns
+          table names in a list
+
+        raises:
+          None
+        """
+
+        return self._db.get_table_names()
+
+            
     def do(self, sql:str) -> None:
         """ execute a query 
 
@@ -72,6 +92,9 @@ class DB( object ):
         raises:
           None
         """
+
+#        print( sql )
+        
         return self._db.query( sql )
 
     def get(self, sql:str) -> {}:
@@ -197,7 +220,6 @@ class DB( object ):
                 
             all_values.append( "({values})".format( values=",".join( map(self.escape_string, values))))
 
-        pp.pprint( all_values )
         q = "INSERT INTO {table} ({keys}) VALUES {values}".format( table = table,
                                                                    keys=",".join(keys),
                                                                    values=",".join(all_values))

@@ -13,7 +13,7 @@ setup(name='kbr',
       packages=['kbr'],
       install_requires=[
           'records',
-          'tornadoweb',
+          'tornado',
       ],
       classifiers=[
         'Development Status :: 0.0.1',
