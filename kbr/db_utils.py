@@ -38,7 +38,7 @@ class DB( object ):
         
 
 
-    def execute_file(self, filename:str):
+    def from_file(self, filename:str):
         """ readin a sql file and execute the content 
 
         Args:
@@ -51,11 +51,11 @@ class DB( object ):
           error on file not exist or sql errors
         """
         
-        file_handle = open(file_path, 'r')
+        file_handle = open(filename, 'r')
         content = file_handle.read()
         file_handle.close()
 
-        for command in content(sql_file).replace("\n", " ").split(';'):
+        for command in content.replace("\n", " ").split(';'):
             if command.strip() == "":
                 continue
         self.do(command)

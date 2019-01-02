@@ -1,0 +1,5 @@
+CREATE TABLE test2 (
+id INTEGER PRIMARY KEY AUTOINCREMENT,
+value      VARCHAR(200),
+state      VARCHAR(20)
+);

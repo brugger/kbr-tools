@@ -49,6 +49,12 @@ def test_do_error():
         db.do("insert into test (value) values (1) (2);")
 
 
+
+def test_from_file():
+
+    db = make_database()
+    db.from_file( 't/data/test.sql')
+    
 def test_get():
     db = make_database()
     db.do("insert into test (value) values ('a'), ('b'), ('c');")
