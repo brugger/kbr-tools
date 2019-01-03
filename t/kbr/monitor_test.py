@@ -49,17 +49,19 @@ def test_create_tables():
 
 
 def fill_tables():
-    monitor.add_stat( "localhost1", "ehos3", "nodes_all4", 10 )
-    monitor.add_stat( "localhost2", "ehos4", "nodes_all5", 11 )
-    monitor.add_stat( "localhost3", "ehos5", "nodes_all6", 12 )
-    monitor.add_stat( "localhost4", "ehos6", "nodes_all7", 13 )
+
+    monitor.add_stat( "localhost1", "ehos3", "nodes_all4", 10)
+    monitor.add_stat( "localhost2", "ehos4", "nodes_all5", 11)
+    monitor.add_stat( "localhost3", "ehos5", "nodes_all6", 12)
+    monitor.add_stat( "localhost4", "ehos3", "nodes_all7", 13)
 
 
     
-    monitor.add_event( "localhost1", "ehos3", "start_all4", 9  )
-    monitor.add_event( "localhost2", "ehos4", "start_all5", 11 )
-    monitor.add_event( "localhost3", "ehos5", "start_all6", 12 )
-    monitor.add_event( "localhost4", "ehos6", "start_all4", 13 )
+    monitor.add_event( "localhost1", "ehos3", "start_all4", 9 )  
+    monitor.add_event( "localhost2", "ehos4", "start_all5", 11)
+    monitor.add_event( "localhost3", "ehos5", "start_all6", 12)
+    monitor.add_event( "localhost4", "ehos6", "start_all4", 13)
+
     
 def test_create_stat():
 
@@ -123,7 +125,7 @@ def test_get_order():
                       'id': 4,
                       'log': '13',
                       'origin': 'localhost4',
-                      'source': 'ehos6',
+                      'source': 'ehos3',
                       'ts': 'T'},
                      {'context': 'nodes_all6',
                       'id': 3,
@@ -173,7 +175,7 @@ def test_get_start():
                       'id': 4,
                       'log': '13',
                       'origin': 'localhost4',
-                      'source': 'ehos6',
+                      'source': 'ehos3',
                       'ts': 'T'},]
 
 
@@ -251,7 +253,7 @@ def test_get_limit():
                       'id': 4,
                       'log': '13',
                       'origin': 'localhost4',
-                      'source': 'ehos6',
+                      'source': 'ehos3',
                       'ts': 'T'},
                      {'context': 'nodes_all6',
                       'id': 3,
@@ -312,9 +314,7 @@ def test_stat_source():
                         {'id': 2,
                          'source': 'ehos4'},
                         {'id': 3,
-                         'source': 'ehos5'},
-                        {'id': 4,
-                         'source': 'ehos6'}]
+                         'source': 'ehos5'}]
 
 
 def test_stat_context():
@@ -389,6 +389,169 @@ def test_event_context():
                          'context': 'start_all6'}]
     
 
+
+
+def test_filters_origins():    
+    test_create_tables()
+    fill_tables()
+    
+    stats = monitor.get_stats()
+
+    
+
+    assert remove_ts(monitor.filter( stats, origins='localhost1')) == [{'context': 'nodes_all4',
+                                                            'id': 1,
+                                                            'log': '10',
+                                                            'origin': 'localhost1',
+                                                            'source': 'ehos3',
+                                                            'ts': 'T'}]
+
+
+
+
+def test_filters_sources():    
+    test_create_tables()
+    fill_tables()
+    
+    stats = monitor.get_stats()
+
+    
+    assert remove_ts(monitor.filter( stats, sources='ehos3')) == [{'context': 'nodes_all4',
+                                                                   'id': 1,
+                                                                   'log': '10',
+                                                                   'origin': 'localhost1',
+                                                                   'source': 'ehos3',
+                                                                   'ts': 'T'}]
+def test_filters_contexts():    
+    test_create_tables()
+    fill_tables()
+    
+    stats = monitor.get_stats()
+
+
+    assert remove_ts(monitor.filter( stats, contexts='nodes_all4')) == [{'context': 'nodes_all4',
+                                                                    'id': 1,
+                                                                    'log': '10',
+                                                                    'origin': 'localhost1',
+                                                                    'source': 'ehos3',
+                                                                    'ts': 'T'}]
+
+    
+
+
+
+def test_filters_origins():    
+    test_create_tables()
+    fill_tables()
+    
+    stats = monitor.get_stats()
+
+    
+
+    assert remove_ts(monitor.filter( stats, origins='localhost1')) == [{'context': 'nodes_all4',
+                                                            'id': 1,
+                                                            'log': '10',
+                                                            'origin': 'localhost1',
+                                                            'source': 'ehos3',
+                                                            'ts': 'T'}]
+
+
+
+
+def test_filters_sources():    
+    test_create_tables()
+    fill_tables()
+    
+    stats = monitor.get_stats()
+
+    
+    assert remove_ts(monitor.filter( stats, sources='ehos3')) == [{'context': 'nodes_all4',
+                                                                   'id': 1,
+                                                                   'log': '10',
+                                                                   'origin': 'localhost1',
+                                                                   'source': 'ehos3',
+                                                                   'ts': 'T'},
+                                                                  {'context': 'nodes_all7',
+                                                                   'id': 4,
+                                                                   'log': '13',
+                                                                   'origin': 'localhost4',
+                                                                   'source': 'ehos3',
+                                                                   'ts': 'T'}]
+def test_filters_and():    
+    test_create_tables()
+    fill_tables()
+    
+    stats = monitor.get_stats()
+
+
+    assert remove_ts(monitor.filter( stats, origins=['localhost1'],
+                                            sources='ehos3',
+                                            contexts='nodes_all4')) == [{'context': 'nodes_all4',
+                                                                    'id': 1,
+                                                                    'log': '10',
+                                                                    'origin': 'localhost1',
+                                                                    'source': 'ehos3',
+                                                                    'ts': 'T'}]
+
+    
+
+def test_filters_or():    
+    test_create_tables()
+    fill_tables()
+    
+    stats = monitor.get_stats()
+
+
+    assert remove_ts(monitor.filter( stats, origins=['localhost1'],
+                                            sources='ehos4',
+                                            contexts='nodes_all6',
+                                            logic='or')) == [    {'context': 'nodes_all4',
+                                                                  'id': 1,
+                                                                  'log': '10',
+                                                                  'origin': 'localhost1',
+                                                                  'source': 'ehos3',
+                                                                  'ts': 'T'},
+                                                                 
+                                                                 {'context': 'nodes_all5',
+                                                                  'id': 2,
+                                                                  'log': '11',
+                                                                  'origin': 'localhost2',
+                                                                  'source': 'ehos4',
+                                                                  'ts': 'T'},
+                                                                 
+                                                                 {'context': 'nodes_all6',
+                                                                  'id': 3,
+                                                                  'log': '12',
+                                                                  'origin': 'localhost3',
+                                                                  'source': 'ehos5',
+                                                                  'ts': 'T'},
+                                            ]
+    
+    
+
+
+def tyt():
+    {'context': 'nodes_all7',
+     'id': 4,
+     'log': '13',
+     'origin': 'localhost4',
+     'source': 'ehos3',
+     'ts': 'T'},
+    
+
+
+
+    
+def test_make_bins():
+
+    
+    bins = monitor._make_bins( start = 10001, end= 10122)
+
+    pp.pprint( bins )
+
+    assert bins == [9960, 10020, 10080, 10140]
+    
+    
     
 def _timeseries_bulk_stat():
 

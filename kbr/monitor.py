@@ -223,8 +223,40 @@ def get_events( start=None, end=None, limit=None, offset=None, order='ts'):
 
 
 
+def none_or_contains_value( data, value ):
+    if ( data is None or
+         not data or
+         value in data ):
+        return True
 
-def _make_timeserie(start:str, end:str, res:int=60):
+    return False
+
+
+def filter(entries, origins=None, sources=None, contexts=None, logic='AND'):
+
+    logic = logic.upper()
+    if logic != 'AND' and logic !='OR':
+        raise RuntimeError( "logic operators for filtering have to be either 'AND' or 'OR'")
+
+    filtered = []
+    for entry in entries:
+        if ( logic == 'AND' and
+             none_or_contains_value(origins, entry['origin']) and
+             none_or_contains_value(sources, entry['source']) and
+             none_or_contains_value(contexts, entry['context'])):
+            filtered.append( entry )
+
+        elif ( logic == 'OR' and
+             (none_or_contains_value(origins, entry['origin']) or
+              none_or_contains_value(sources, entry['source']) or
+              none_or_contains_value(contexts, entry['context']))):
+            filtered.append( entry )
+                  
+    return filtered
+
+
+
+def _make_bins(start:int, end:int, size:int=60):
     """Extract a timeserie from the database. The values are filtered by
        keys if provided. The timerange is divided into bins of res
        size. If multiple values occur for a key the mean value is
@@ -233,7 +265,7 @@ def _make_timeserie(start:str, end:str, res:int=60):
     Args:
     start: datatime format start time
     end: datatime format start time
-    res: size of bins in seconds
+    size: size of bins in seconds
 
     Returns
       list of times
@@ -243,22 +275,18 @@ def _make_timeserie(start:str, end:str, res:int=60):
 
     """
 
-    start = int(start.timestamp())
-    end   = int(end.timestamp())
 
     bins = []
-    for i in range(start, end+res, res):
+    for i in range(start, end+size, size):
+        i = int( i/size)*size
+        
+        bins.append( i )
+
         if i > end:
             break
         
-        i = int( i/res)*res
-        
-        bins.append( datetime.datetime.fromtimestamp( i ))
 
     return bins
-
-
-
     
 def _get_timeserie_range(table:str, start:str, end:str, keys:list=[], res:int=60, method:str='mean') -> {}:
     """Extract a timeserie from the database. The values are filtered by
@@ -352,8 +380,6 @@ def transform_timeserie_to_dict( timeserie:dict):
                 trans[ key ] = []
             trans[ key ].append( timeserie[ timestamp ][key] )
 
-    
-
     return trans
 
 
@@ -374,7 +400,6 @@ def _get_timeserie_offset(table:str, seconds:int, keys:list=[], method:str='mean
 
     now = time.time()
 
-    now -= 3600
     
     start = datetime.datetime.fromtimestamp( now - seconds)
     end   = datetime.datetime.fromtimestamp( now )
