@@ -34,7 +34,15 @@ def connect(url:str) -> None:
     db = db_utils.DB( url )
     
 
-def _get_or_add_id(table:str, value:str):
+def disconnect():
+    """ disconnect a db connection if is open """
+
+    if db is not None:
+        db.close()
+    
+
+    
+def _get_or_add_id(table:str, key:str, value:str):
     """ adds a standard stat/event entry to a table function, that will be wrapped by simpler functions below
 
 
@@ -49,10 +57,10 @@ def _get_or_add_id(table:str, value:str):
       None
     """
 
-    return db.add_unique(table, {'value': value}, 'value' )
+    return db.add_unique(table, {key: value}, key )
 
     
-def _add_entry(table:str, context:int, target:int, value:str):
+def _add_entry(table:str, origin:str, source:int, context:int, log:str):
     """ adds a standard stat/event entry to a table function, that will be wrapped by simpler functions below
 
 
@@ -69,25 +77,26 @@ def _add_entry(table:str, context:int, target:int, value:str):
       None
     """
 
-    context_id = _get_or_add_id( "{}_context".format(table), context);
-    target_id  = _get_or_add_id( "{}_target".format(table), target);
+    origin_id  = _get_or_add_id( "{}_origin".format(table), 'origin', origin);
+    source_id  = _get_or_add_id( "{}_source".format(table), 'source', source);
+    context_id = _get_or_add_id( "{}_context".format(table), 'context', context);
 
-    db.add(table, {'context_id': context_id, 'target_id': target_id, 'value': value})
+    db.add(table, {'origin_id': origin_id, 'source_id': source_id, 'context_id': context_id, 'log': log})
     
 
     
 
     
     
-def add_stat(context:int, target:int, value:str):
+def add_stat(origin:str, source:str, context:int, log:str):
     """ adds a standard stat/event entry to a table function, that will be wrapped by simpler functions below
 
 
     Args:
-      table: table to add to
-      context:  
-      target:
-      value: what happened, nr or something else
+      origin: where the log originates from, eg hostname or IP
+      source: the source of the log, eg program or user
+      context: The keyword for the log, eg all_idle 
+      log: what happened, nr or something else
 
     returns:
       None
@@ -96,18 +105,18 @@ def add_stat(context:int, target:int, value:str):
       None
     """
 
-    _add_entry( 'stat', context, target, value )
+    _add_entry( 'stat', origin,  source, context, log )
 
 
-def add_event(context:int, target:int, value:str):
+def add_event(origin:str, source:str, context:int, log:str):
     """ adds a standard stat/event entry to a table function, that will be wrapped by simpler functions below
 
 
     Args:
-      table: table to add to
-      context_id:  
-      target_id:
-      value: what happened, nr or something else
+      origin: where the log originates from, eg hostname or IP
+      source: the source of the log, eg program or user
+      context: The keyword for the log, eg all_idle 
+      log: what happened, nr or something else
 
     returns:
       None
@@ -116,16 +125,104 @@ def add_event(context:int, target:int, value:str):
       None
     """
 
-    _add_entry( 'event', context, target, value )
-
-
+    _add_entry( 'event', origin,  source, context, log )
 
     
 
-    
+def stat_origins():
+    return db.get_all( "stat_origin")
+
+def stat_sources():
+    return db.get_all( "stat_source")
+
+def stat_contexts():
+    return db.get_all( "stat_context")
+
+
+def event_origins():
+    return db.get_all( "event_origin")
+
+def event_sources():
+    return db.get_all( "event_source")
+
+def event_contexts():
+    return db.get_all( "event_context")
+
+
+def _get_entries(table, start=None, end=None, limit=None, offset=None, order='ts'):
+    """ get data from the stats tables
+
+    Args:
+      start: start time to extract from
+      end: end time to extract from
+      limit: nr of items to return
+      offset: offset into the list of items to return
+      order: default is timestamp
+
+    return
+      list of dicts of entries
+
+    Raises:
+      None
+    """
+
+    q  = "SELECT t.id, t.ts, o.origin, s.source, c.context, t.log "
+    q += "FROM {table} t, {table}_origin o, {table}_source s, {table}_context c ".format( table=table)
+    q += "WHERE t.origin_id = o.id AND t.source_id = s.id AND t.context_id = c.id  "
+
+    if start is not None:
+        q += " AND ts >= '{}' ".format(start)
+
+    if end is not None:
+        q += " AND ts <= '{}' ".format(end)
 
     
-    
+    if order is not None:
+        q += " ORDER BY {} ".format( order )
+
+    if limit is not None:
+        q += " LIMIT {} ".format( limit )
+
+    if offset is not None:
+        q += " OFFSET {}".format( offset )
+
+    return db.get( q )
+
+def get_stats( start=None, end=None, limit=None, offset=None, order='ts'):
+    """ get data from the stats tables
+
+    Args:
+      limit: nr of items to return
+      offset: offset into the list of items to return
+      order: default is timestamp
+
+    return
+      list of dicts of entries
+
+    Raises:
+      None
+    """
+    return _get_entries('stat', start, end, limit, offset, order)
+
+
+def get_events( start=None, end=None, limit=None, offset=None, order='ts'):
+    """ get data from the stats tables
+
+    Args:
+      limit: nr of items to return
+      offset: offset into the list of items to return
+      order: default is timestamp
+
+    return
+      list of dicts of entries
+
+    Raises:
+      None
+    """
+    return _get_entries('event', start, end,limit, offset, order)
+
+
+
 
 def _make_timeserie(start:str, end:str, res:int=60):
     """Extract a timeserie from the database. The values are filtered by
@@ -160,10 +257,10 @@ def _make_timeserie(start:str, end:str, res:int=60):
 
     return bins
 
+
+
     
-    
-    
-def _get_timeserie_range(start:str, end:str, keys:list=[], res:int=60, method:str='mean') -> {}:
+def _get_timeserie_range(table:str, start:str, end:str, keys:list=[], res:int=60, method:str='mean') -> {}:
     """Extract a timeserie from the database. The values are filtered by
        keys if provided. The timerange is divided into bins of res
        size. If multiple values occur for a key the mean value is
@@ -184,14 +281,14 @@ def _get_timeserie_range(start:str, end:str, keys:list=[], res:int=60, method:st
     """
 
 
-    Q =  "select s.ts, st.value as target, sc.value as context, s.value as count "
-    Q += "from stat s, stat_context sc, stat_target st where s.context_id = sc.id and s.target_id=st.id "
-    Q += " and ts >= '{}' and ts <= '{}' order by ts;"
+    Q =  "SELECT s.ts, st.value AS target, sc.value AS context, s.value AS count "
+    Q += "FROM {table} s, {table}_context sc, {table}_target st WHERE s.context_id = sc.id AND s.target_id=st.id ".format(table=table)
+    Q += " AND ts >= '{}' AND ts <= '{}' ORDER BY ts;"
 
 
     Q = Q.format( start, end )
 
-    db_data =  db.query( Q ).as_dict()
+    db_data =  db.get( Q )
 
     keys_in_dataset = [] + keys
 
@@ -272,49 +369,51 @@ def timeserie_max_value( timeserie:dict ):
     return max_value
 
 
-def _get_timeserie_offset(seconds:int, keys:list=[], method:str='mean'):
+def _get_timeserie_offset(table:str, seconds:int, keys:list=[], method:str='mean'):
 
 
     now = time.time()
+
+    now -= 3600
     
     start = datetime.datetime.fromtimestamp( now - seconds)
     end   = datetime.datetime.fromtimestamp( now )
 
-    return _get_timeserie_range(start = start, end=end, keys=keys, method=method, res=30)
+    return _get_timeserie_range(table, start = start, end=end, keys=keys, method=method, res=30)
 
 
-def timeserie_5min(keys:list=[], method:str='mean'):
+def timeserie_5min(table:str, keys:list=[], method:str='mean'):
 
-    return _get_timeserie_offset(5*60, keys=keys, method=method)
+    return _get_timeserie_offset(table, 5*60, keys=keys, method=method)
 
-def timeserie_10min(keys:list=[], method:str='mean'):
+def timeserie_10min(table:str, keys:list=[], method:str='mean'):
 
-    return _get_timeserie_offset(10*60, keys=keys, method=method)
+    return _get_timeserie_offset(table, 10*60, keys=keys, method=method)
 
-def timeserie_15min(keys:list=[], method:str='mean'):
+def timeserie_15min(table:str, keys:list=[], method:str='mean'):
 
-    return _get_timeserie_offset(15*60, keys=keys, method=method)
+    return _get_timeserie_offset(table, 15*60, keys=keys, method=method)
 
-def timeserie_30min(keys:list=[], method:str='mean'):
+def timeserie_30min(table:str, keys:list=[], method:str='mean'):
 
-    return _get_timeserie_offset(30*60, keys=keys, method=method)
+    return _get_timeserie_offset(table, 30*60, keys=keys, method=method)
 
-def timeserie_1hour(keys:list=[], method:str='mean'):
+def timeserie_1hour(table:str, keys:list=[], method:str='mean'):
 
-    return _get_timeserie_offset(1*60*60, keys=keys, method=method)
+    return _get_timeserie_offset(table, 1*60*60, keys=keys, method=method)
 
-def timeserie_2hour(keys:list=[], method:str='mean'):
+def timeserie_2hour(table:str, keys:list=[], method:str='mean'):
 
-    return _get_timeserie_offset(2*60*60, keys=keys, method=method)
+    return _get_timeserie_offset(table, 2*60*60, keys=keys, method=method)
 
-def timeserie_5hour(keys:list=[], method:str='mean'):
+def timeserie_5hour(table:str, keys:list=[], method:str='mean'):
 
-    return _get_timeserie_offset(5*60*60, keys=keys, method=method)
+    return _get_timeserie_offset(table, 5*60*60, keys=keys, method=method)
 
-def timeserie_10hour(keys:list=[], method:str='mean'):
+def timeserie_10hour(table:str, keys:list=[], method:str='mean'):
 
-    return _get_timeserie_offset(10*60*60, keys=keys, method=method)
+    return _get_timeserie_offset(table, 10*60*60, keys=keys, method=method)
 
-def timeserie_1day(keys:list=[], method:str='mean'):
+def timeserie_1day(table:str, keys:list=[], method:str='mean'):
 
-    return _get_timeserie_offset(1*24*60*60, keys=keys, method=method)
+    return _get_timeserie_offset(table, 1*24*60*60, keys=keys, method=method)

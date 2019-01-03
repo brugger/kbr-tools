@@ -36,6 +36,13 @@ class DB( object ):
         self._db = records.Database( url )
         
 
+    def close(self):
+        """ Closes the db connection
+
+        """
+
+        self._db.close()
+        
 
     def from_file(self, filename:str):
         """ readin a sql file and execute the content 
