@@ -391,6 +391,12 @@ def test_event_context():
 
 
 
+def test_filters_illegal_logic():    
+    with pytest.raises( RuntimeError ):
+        monitor.filter( {}, logic='xor')
+
+
+    
 def test_filters_origins():    
     test_create_tables()
     fill_tables()
@@ -528,19 +534,6 @@ def test_filters_or():
                                             ]
     
     
-
-
-def tyt():
-    {'context': 'nodes_all7',
-     'id': 4,
-     'log': '13',
-     'origin': 'localhost4',
-     'source': 'ehos3',
-     'ts': 'T'},
-    
-
-
-
     
 def test_make_bins():
 
@@ -551,23 +544,400 @@ def test_make_bins():
 
     assert bins == [9960, 10020, 10080, 10140]
     
+
+def test_aggregate_mean():
+
+    d = []
+
+    for i in range(0, 300):
+        d.append( {'context': 'nodes_all4',
+                   'id': 1,
+                   'log': 3,
+                   'origin': 'localhost1',
+                   'source': 'ehos3',
+                   'ts': 1546527918  + i  } )
+
+        d.append( {'context': 'nodes_all4',
+                   'id': 1,
+                   'log': 6 + i,
+                   'origin': 'localhost1',
+                   'source': 'ehos4',
+                   'ts': 1546527918  + i } )
+
+        d.append( {'context': 'nodes_all4',
+                   'id': 1,
+                   'log': 7 + i*2,
+                   'origin': 'localhost2',
+                   'source': 'ehos4',
+                   'ts': 1546527918  + i } )
+
+
+#    pp.pprint( d )
+
+    md = monitor.aggregate( d, size=10 )
+
+#    pp.pprint( md )
+    assert md[ 1546527910] == {'localhost1.ehos3.nodes_all4': 3.0,
+                               'localhost1.ehos4.nodes_all4': 6.5,
+                               'localhost2.ehos4.nodes_all4': 8.0}
+
+
+    assert md[ 1546528210 ] == {'localhost1.ehos3.nodes_all4': 3.0,
+                                'localhost1.ehos4.nodes_all4': 301.5,
+                                'localhost2.ehos4.nodes_all4': 598.0}
+    
+
+
+def test_aggregate_median():
+
+    d = []
+
+    for i in range(0, 300):
+        d.append( {'context': 'nodes_all4',
+                   'id': 1,
+                   'log': 3,
+                   'origin': 'localhost1',
+                   'source': 'ehos3',
+                   'ts': 1546527918  + i  } )
+
+        d.append( {'context': 'nodes_all4',
+                   'id': 1,
+                   'log': 6 + i,
+                   'origin': 'localhost1',
+                   'source': 'ehos4',
+                   'ts': 1546527918  + i } )
+
+        d.append( {'context': 'nodes_all4',
+                   'id': 1,
+                   'log': 7 + i*2,
+                   'origin': 'localhost2',
+                   'source': 'ehos4',
+                   'ts': 1546527918  + i } )
+
+
+#    pp.pprint( d )
+
+    md = monitor.aggregate( d, size=30, method='median' )
+
+#    pp.pprint( md )
+    assert md[ 1546527900] == {'localhost1.ehos3.nodes_all4': 3.0,
+                               'localhost1.ehos4.nodes_all4': 12.0,
+                               'localhost2.ehos4.nodes_all4': 19.0}
+
+    assert md[ 1546528200 ] == {'localhost1.ehos3.nodes_all4': 3.0,
+                                'localhost1.ehos4.nodes_all4': 297.0,
+                                'localhost2.ehos4.nodes_all4': 589.0}
+
+    
+
+    
+def test_aggregate_sum():
+
+    d = []
+
+    for i in range(0, 300):
+        d.append( {'context': 'nodes_all4',
+                   'id': 1,
+                   'log': 3,
+                   'origin': 'localhost1',
+                   'source': 'ehos3',
+                   'ts': 1546527918  + i  } )
+
+        d.append( {'context': 'nodes_all4',
+                   'id': 1,
+                   'log': 6 + i,
+                   'origin': 'localhost1',
+                   'source': 'ehos4',
+                   'ts': 1546527918  + i } )
+
+        d.append( {'context': 'nodes_all4',
+                   'id': 1,
+                   'log': 7 + i*2,
+                   'origin': 'localhost2',
+                   'source': 'ehos4',
+                   'ts': 1546527918  + i } )
+
+
+#    pp.pprint( d )
+
+    md = monitor.aggregate( d, size=30, method='sum' )
+
+#    pp.pprint( md )
+#    assert 1 == 3
+    assert md[ 1546527900] == {'localhost1.ehos3.nodes_all4': 36.0,
+                               'localhost1.ehos4.nodes_all4': 138.0,
+                               'localhost2.ehos4.nodes_all4': 216.0}
+
+    assert md[ 1546528200 ] == {'localhost1.ehos3.nodes_all4': 54.0,
+                                'localhost1.ehos4.nodes_all4': 5337.0,
+                                'localhost2.ehos4.nodes_all4': 10584.0}
+
+    
+
+def test_aggregate_illegal_method():
+
+    d = []
+
+    for i in range(0, 300):
+        d.append( {'context': 'nodes_all4',
+                   'id': 1,
+                   'log': 3,
+                   'origin': 'localhost1',
+                   'source': 'ehos3',
+                   'ts': 1546527918  + i  } )
+
+
+#    pp.pprint( d )
+
+    with pytest.raises( RuntimeError ):
+        md = monitor.aggregate( d, size=30, method='medians' )
+
+
+def test_aggregate_illegal_value():
+
+    d = []
+
+    for i in range(0, 300):
+        d.append( {'context': 'nodes_all4',
+                   'id': 1,
+                   'log': '3k',
+                   'origin': 'localhost1',
+                   'source': 'ehos3',
+                   'ts': 1546527918  + i  } )
+
+
+#    pp.pprint( d )
+
+    with pytest.raises( RuntimeError ):
+        md = monitor.aggregate( d, size=30, method='medians' )
+
+
+        
+
+
+def test_aggregate_left_padding():
+
+    d = []
+
+    for i in range(0, 300):
+        d.append( {'context': 'nodes_all4',
+                   'id': 1,
+                   'log': 3,
+                   'origin': 'localhost1',
+                   'source': 'ehos3',
+                   'ts': 1546527918  + i  } )
+
+        d.append( {'context': 'nodes_all4',
+                   'id': 1,
+                   'log': 6 + i,
+                   'origin': 'localhost1',
+                   'source': 'ehos4',
+                   'ts': 1546527918  + i } )
+
+        d.append( {'context': 'nodes_all4',
+                   'id': 1,
+                   'log': 7 + i*2,
+                   'origin': 'localhost2',
+                   'source': 'ehos4',
+                   'ts': 1546527918  + i } )
+
+    
+    for i in range(0, 300):
+        d.append( {'context': 'nodes_all4',
+                   'id': 1,
+                   'log': 3,
+                   'origin': 'localhost1',
+                   'source': 'ehos3',
+                   'ts': 1546527918  + i  } )
+
+        d.append( {'context': 'nodes_all4',
+                   'id': 1,
+                   'log': 6 + i,
+                   'origin': 'localhost1',
+                   'source': 'ehos4',
+                   'ts': 1546527918  + i } )
+
+        d.append( {'context': 'nodes_all4',
+                   'id': 1,
+                   'log': 7 + i*2,
+                   'origin': 'localhost2',
+                   'source': 'ehos4',
+                   'ts': 1546527918  + i } )
+
+
+    md = monitor.aggregate( d, size=30, method='sum', start=1546527918-60, end=1546527918+350)
+
+    assert md[ 1546527840 ] == {'localhost1.ehos3.nodes_all4': 0,
+                               'localhost1.ehos4.nodes_all4': 0,
+                               'localhost2.ehos4.nodes_all4': 0}
+
+
+    assert md[ 1546528260 ] == {'localhost1.ehos3.nodes_all4': 0,
+                               'localhost1.ehos4.nodes_all4': 0,
+                               'localhost2.ehos4.nodes_all4': 0}
+        
+
+def test_transform_timeserie_to_dict():
+    
+    d = []
+
+    for i in range(0, 40):
+        d.append( {'context': 'nodes_all4',
+                   'id': 1,
+                   'log': 3,
+                   'origin': 'localhost1',
+                   'source': 'ehos3',
+                   'ts': 1546527918  + i  } )
+
+        d.append( {'context': 'nodes_all4',
+                   'id': 1,
+                   'log': 6 + i,
+                   'origin': 'localhost1',
+                   'source': 'ehos4',
+                   'ts': 1546527918  + i } )
+
+        d.append( {'context': 'nodes_all4',
+                   'id': 1,
+                   'log': 7 + i*2,
+                   'origin': 'localhost2',
+                   'source': 'ehos4',
+                   'ts': 1546527918  + i } )
+
+
+#    pp.pprint( d )
+
+    md = monitor.aggregate( d, size=30, method='sum' )
+    md = monitor.transform_timeserie_to_dict( md )
+
+
+    assert md == {'localhost1.ehos3.nodes_all4': [36.0, 84.0, 0],
+                  'localhost1.ehos4.nodes_all4': [138.0, 882.0, 0],
+                  'localhost2.ehos4.nodes_all4': [216.0, 1624.0, 0],
+                  'x': ['1546527900', '1546527930', '1546527960']}
+    
+
+
+def test_timeserie_max_value( ):
+
+    d = []
+
+    for i in range(0, 40):
+        d.append( {'context': 'nodes_all4',
+                   'id': 1,
+                   'log': 3,
+                   'origin': 'localhost1',
+                   'source': 'ehos3',
+                   'ts': 1546527918  + i  } )
+
+        d.append( {'context': 'nodes_all4',
+                   'id': 1,
+                   'log': 6 + i,
+                   'origin': 'localhost1',
+                   'source': 'ehos4',
+                   'ts': 1546527918  + i } )
+
+        d.append( {'context': 'nodes_all4',
+                   'id': 1,
+                   'log': 7 + i*2,
+                   'origin': 'localhost2',
+                   'source': 'ehos4',
+                   'ts': 1546527918  + i } )
+
+
+#    pp.pprint( d )
+
+    md = monitor.aggregate( d, size=30, method='sum' )
+
+    max_value = monitor.timeserie_max_value( md )
+    
+    assert max_value == 1624.0
+
+
+def test_purge_origin_field():
+    data =  [    {'context': 'nodes_all4',
+                  'id': 1,
+                  'log': '10',
+                  'origin': 'localhost1',
+                  'source': 'ehos3',
+                  'ts': 'T'},
+                 
+                 {'context': 'nodes_all5',
+                  'id': 2,
+                  'log': '11',
+                  'origin': 'localhost2',
+                  'source': 'ehos4',
+                  'ts': 'T'},
+                 
+                 {'context': 'nodes_all6',
+                  'id': 3,
+                  'log': '12',
+                  'source': 'ehos5',
+                  'ts': 'T'} ]
+
+
+    data = monitor.purge_field( data, 'origin')
+
+
+    assert data == [    {'context': 'nodes_all4',
+                         'id': 1,
+                         'log': '10',
+                         'source': 'ehos3',
+                         'ts': 'T'},
+                        
+                        {'context': 'nodes_all5',
+                         'id': 2,
+                         'log': '11',
+                         'source': 'ehos4',
+                         'ts': 'T'},
+                        
+                        {'context': 'nodes_all6',
+                         'id': 3,
+                         'log': '12',
+                         'source': 'ehos5',
+                         'ts': 'T'} ]
+ 
+
+def test_time_range_from_now_seconds():
+
+    
+    start_time, end_time = monitor.time_range_from_now('500s', offset=3600)
+
+    now = time.time() - 3600
+    
+
+    assert int(start_time) == int(now - 500)
+    assert int(end_time) == int(now )
+
+
+def test_time_range_from_now_min():
+
+    now = time.time()
+    
+    start_time, end_time = monitor.time_range_from_now('5m')
+
+    assert int(start_time) == int(now - 5*60)
+    assert int(end_time) == int(now )
+    
+
+def test_time_range_from_now_hour():
+
+    now = time.time()
+    
+    start_time, end_time = monitor.time_range_from_now('5h')
+
+    assert int(start_time) == int(now - 5*3600)
+    assert int(end_time) == int(now )
+
+
     
     
-def _timeseries_bulk_stat():
+def test_time_range_from_now_illegal():
 
-    print( "This one will take some time... ")
+    now = time.time()
     
-    test_create_tables()
-    for i in range(0, 5000):
-        v = randint(300,500)
-        time.sleep( randint( 30,40)/1000000.0)
-        monitor.add_stat( "localhost", "nodes", "idle", v )
+    with pytest.raises( RuntimeError ):
+        start_time, end_time = monitor.time_range_from_now('5ms')
+
+
     
-
-def _timeserie_extract():
-
-    m = monitor.connect( postgres_url )
-
-    pp.pprint( monitor.timeserie_30min('stat'))
-
-    assert 1==4, 'm'
+    

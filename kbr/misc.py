@@ -7,6 +7,7 @@ def isnumber(value):
     if (isinstance(value, int) or
         isinstance( value, float )):
 
+        
         return True
 
     return False

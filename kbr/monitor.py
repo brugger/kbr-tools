@@ -10,9 +10,10 @@ import pprint
 pp = pprint.PrettyPrinter(indent=4)
 import time
 import datetime
-
+import re
 
 import kbr.db_utils as db_utils
+import kbr.misc as misc
 
 db = None
 
@@ -223,13 +224,6 @@ def get_events( start=None, end=None, limit=None, offset=None, order='ts'):
 
 
 
-def none_or_contains_value( data, value ):
-    if ( data is None or
-         not data or
-         value in data ):
-        return True
-
-    return False
 
 
 def filter(entries, origins=None, sources=None, contexts=None, logic='AND'):
@@ -241,31 +235,29 @@ def filter(entries, origins=None, sources=None, contexts=None, logic='AND'):
     filtered = []
     for entry in entries:
         if ( logic == 'AND' and
-             none_or_contains_value(origins, entry['origin']) and
-             none_or_contains_value(sources, entry['source']) and
-             none_or_contains_value(contexts, entry['context'])):
+             misc.none_or_contains_value(origins, entry['origin']) and
+             misc.none_or_contains_value(sources, entry['source']) and
+             misc.none_or_contains_value(contexts, entry['context'])):
             filtered.append( entry )
 
         elif ( logic == 'OR' and
-             (none_or_contains_value(origins, entry['origin']) or
-              none_or_contains_value(sources, entry['source']) or
-              none_or_contains_value(contexts, entry['context']))):
+             (misc.none_or_contains_value(origins, entry['origin']) or
+              misc.none_or_contains_value(sources, entry['source']) or
+              misc.none_or_contains_value(contexts, entry['context']))):
             filtered.append( entry )
                   
     return filtered
 
 
 
+
 def _make_bins(start:int, end:int, size:int=60):
-    """Extract a timeserie from the database. The values are filtered by
-       keys if provided. The timerange is divided into bins of res
-       size. If multiple values occur for a key the mean value is
-       returned.
+    """Makes bins for binning of data. The first bin will contain start, and the last one the end.
 
     Args:
-    start: datatime format start time
-    end: datatime format start time
-    size: size of bins in seconds
+      start: datatime format start time
+      end: datatime format start time
+      size: size of bins in seconds
 
     Returns
       list of times
@@ -274,7 +266,6 @@ def _make_bins(start:int, end:int, size:int=60):
       None
 
     """
-
 
     bins = []
     for i in range(start, end+size, size):
@@ -287,21 +278,17 @@ def _make_bins(start:int, end:int, size:int=60):
         
 
     return bins
-    
-def _get_timeserie_range(table:str, start:str, end:str, keys:list=[], res:int=60, method:str='mean') -> {}:
-    """Extract a timeserie from the database. The values are filtered by
-       keys if provided. The timerange is divided into bins of res
-       size. If multiple values occur for a key the mean value is
-       returned.
+
+def aggregate( entries, size=60, method='mean',  start=None, end=None):
+    """ aggregates numerical entries into bins and using means by default
 
     Args:
-    start: datatime format start time
-    end: datatime format start time
-    keys: if provided keys to filter on
-    method: how to handle multipl occurences in a bin. Possibilites are: mean, median, sum
+    entries: data to aggregate
+    size: of bins
+    method: Possibilites are: mean, median, sum
 
     Returns
-      dict of times and observations seen in each one
+      list of dict of aggregated observations
 
     Raises:
       None
@@ -309,63 +296,69 @@ def _get_timeserie_range(table:str, start:str, end:str, keys:list=[], res:int=60
     """
 
 
-    Q =  "SELECT s.ts, st.value AS target, sc.value AS context, s.value AS count "
-    Q += "FROM {table} s, {table}_context sc, {table}_target st WHERE s.context_id = sc.id AND s.target_id=st.id ".format(table=table)
-    Q += " AND ts >= '{}' AND ts <= '{}' ORDER BY ts;"
+    aggregate = {}
 
-
-    Q = Q.format( start, end )
-
-    db_data =  db.get( Q )
-
-    keys_in_dataset = [] + keys
-
-    data = {}
-    for entry in db_data:
-        key = "{}-{}".format( entry['target'], entry['context'])
-        if ( keys != [] and key not in keys):
-            continue
-
-        if ( key not in keys_in_dataset ):
-            keys_in_dataset.append( key )
+#    print( start, end )
+    if start is None:
+        start = entries[0]['ts']
         
-        ts   = entry[ 'ts' ].timestamp()
-        ts = int( ts/res)*res
+    if end is None:
+        end = entries[-1]['ts']
 
-        ts = datetime.datetime.fromtimestamp( ts )
 
-        if ( ts not in data ):
-            data[ ts ] = {}
-            
-        if key not in data[ ts ]:
-            data[ ts ][ key ] = []
+#    print( start, end )
+        
+    bins = _make_bins( start, end, size)
+    for ts in bins:
+        aggregate[ ts ] = {}
 
-        data[ ts ][ key ].append( int(entry['count']))
+    
+    keys = {}
+    for entry in entries:
+#        ts   = entry[ 'ts' ].timestamp()
+        ts   = entry[ 'ts' ]
+        ts = int( ts/size)*size
+
+        key = "{}.{}.{}".format( entry['origin'], entry['source'], entry['context'])
+        
+        if key not in aggregate[ ts ]:
+            aggregate[ ts ][ key ] = []
+
+        keys[ key ] = 1
+        
+
+        if not misc.isnumber( entry['log']):
+            raise RuntimeError( "Can only aggregate on numbers, {} is not a valid number".format( entry['log'] ))
+
+        aggregate[ ts ][ key ].append( float(entry['log']))
+        
 
     left_padding = True
-        
+
+#    pp.pprint( aggregate[1546527840])
+    
+    
 #    for timestamp in data:
-    for timestamp in _make_timeserie(start, end, res):
+    for ts in sorted( aggregate.keys() ):
 
-        if timestamp not in data:
-            data[ timestamp] = {}
+        for key in keys:
 
-        
-        for key in keys_in_dataset:
-            if left_padding and key not in data[ timestamp ]:
-                data[ timestamp][ key ] = 0
-            elif key in data[ timestamp ]:
-                left_padding = False
+            if left_padding and key not in aggregate[ ts ]:
+                aggregate[ ts][ key ] = 0
+            elif key in aggregate[ ts ]:
+#                left_padding = False
                  
                 if method == 'sum':
-                    data[ timestamp][ key ] = sum(data[ timestamp][ key ])
+                    aggregate[ ts][ key ] = sum(aggregate[ ts ][ key ])
                 elif method == 'mean':
-                    data[ timestamp][ key ] = sum(data[ timestamp][ key ])/len(data[ timestamp][ key ])
+                    aggregate[ ts ][ key ] = sum(aggregate[ ts ][ key ])/len(aggregate[ ts ][ key ])
                 elif method == 'median':
-                    data[ timestamp][ key ] = sorted( data[ timestamp][ key ])
-                    data[ timestamp][ key ] = data[ timestamp][ key ][ int(len ( data[ timestamp][ key ])/2)]
-        
-    return data
+                    aggregate[ ts ][ key ] = sorted( aggregate[ ts ][ key ])
+                    aggregate[ ts ][ key ] = aggregate[ ts ][ key ][ int(len ( aggregate[ ts ][ key ])/2)]
+                else:
+                    raise RuntimeError("Illegal aggregate method '{}', use either mean, median or sum".format( method )) 
+                    
+    return aggregate
 
 
 def transform_timeserie_to_dict( timeserie:dict):
@@ -395,50 +388,33 @@ def timeserie_max_value( timeserie:dict ):
     return max_value
 
 
-def _get_timeserie_offset(table:str, seconds:int, keys:list=[], method:str='mean'):
 
-
-    now = time.time()
-
+def purge_field( entries, field ):
+    for entry in entries:
+        if 'origin' in entry:
+            del entry[ 'origin']
     
-    start = datetime.datetime.fromtimestamp( now - seconds)
-    end   = datetime.datetime.fromtimestamp( now )
-
-    return _get_timeserie_range(table, start = start, end=end, keys=keys, method=method, res=30)
+    return entries
 
 
-def timeserie_5min(table:str, keys:list=[], method:str='mean'):
+def time_range_from_now( window, offset=0  ):
 
-    return _get_timeserie_offset(table, 5*60, keys=keys, method=method)
+    now = time.time() - offset
 
-def timeserie_10min(table:str, keys:list=[], method:str='mean'):
+    if re.match( r'^(\d+)s$', window):
 
-    return _get_timeserie_offset(table, 10*60, keys=keys, method=method)
+        match = re.match( r'^(\d+)s$', window)
+        return now - int(match.group( 1 )), now
 
-def timeserie_15min(table:str, keys:list=[], method:str='mean'):
+    elif re.match( r'^(\d+)m$', window):
 
-    return _get_timeserie_offset(table, 15*60, keys=keys, method=method)
+        match = re.match( r'^(\d+)m$', window)
+        return now - 60*int(match.group( 1 )), now
 
-def timeserie_30min(table:str, keys:list=[], method:str='mean'):
+    elif re.match( r'^(\d+)h$', window):
 
-    return _get_timeserie_offset(table, 30*60, keys=keys, method=method)
+        match = re.match( r'^(\d+)h$', window)
+        return now - 3600*int(match.group( 1 )), now
 
-def timeserie_1hour(table:str, keys:list=[], method:str='mean'):
-
-    return _get_timeserie_offset(table, 1*60*60, keys=keys, method=method)
-
-def timeserie_2hour(table:str, keys:list=[], method:str='mean'):
-
-    return _get_timeserie_offset(table, 2*60*60, keys=keys, method=method)
-
-def timeserie_5hour(table:str, keys:list=[], method:str='mean'):
-
-    return _get_timeserie_offset(table, 5*60*60, keys=keys, method=method)
-
-def timeserie_10hour(table:str, keys:list=[], method:str='mean'):
-
-    return _get_timeserie_offset(table, 10*60*60, keys=keys, method=method)
-
-def timeserie_1day(table:str, keys:list=[], method:str='mean'):
-
-    return _get_timeserie_offset(table, 1*24*60*60, keys=keys, method=method)
+    else:
+        raise RuntimeError("Illegal timeformat {}, it has to be a integer followed by either s, m or h. Eg: 31m for 31 minuttes".format( window ))
