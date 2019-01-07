@@ -3,14 +3,21 @@
 
 def isnumber(value):
     ''' check if value is either an int or float '''
-    
+
+   
     if (isinstance(value, int) or
         isinstance( value, float )):
 
         
         return True
 
-    return False
+    try:
+        
+        value = float( value )
+        return True
+    except:
+        return False
+
 
 
 

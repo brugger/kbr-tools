@@ -7,6 +7,7 @@ from tornado.options import define, options
 from tornado.web import Application
 
 from tornado.web import RequestHandler
+import tornado.gen as gen
 
 import pprint as pp
 
@@ -15,6 +16,14 @@ import pprint as pp
 
 class BaseHandler( RequestHandler ):
 
+    def remote_ip(self):
+        x_real_ip = self.request.headers.get("X-Real-IP")
+        remote_ip = x_real_ip or self.request.remote_ip
+
+        return remote_ip
+
+
+    
     def prepare(self):
         ''' change the strings from bytestring to utf8 '''
         
@@ -31,49 +40,57 @@ class BaseHandler( RequestHandler ):
     # Success
     def send_response(self, data, status=200):
         """Construct and send a JSON response with appropriate status code."""
+
+        # check if the data is already in valid json format, otherwise make it
+        try:
+            json_object = json.loads( data )
+        except:
+            data = json.dumps(data)
+
+
         self.set_status(status)
-        self.write(json.dumps(data))
-        raise gen.Return()
+        return self.write( data )
 
     # Created
     def send_response_201(self, data):
-        return self.send_response( self, data, status=201)
+        return self.send_response( data, status=201)
 
     # Accecpted
     def send_response_202(self, data):
-        return self.send_response( self, data, status=202)
+        return self.send_response( data, status=202)
 
     # No content
     def send_response_204(self, data):
-        return self.send_response( self, data, status=204)
+        return self.send_response( data, status=204)
 
     # bad request
     def send_response_400(self, data):
-        return self.send_response( self, data, status=400)
+        pp.pprint( data )
+        return self.send_response( data, 400)
 
     # Unauthorized
     def send_response_401(self, data):
-        return self.send_response( self, data, status=401)
+        return self.send_response( data, status=401)
 
     # Forbidden
     def send_response_403(self, data):
-        return self.send_response( self, data, status=403)
+        return self.send_response( data, status=403)
 
     # Not fund
     def send_response_404(self, data):
-        return self.send_response( self, data, status=404)
+        return self.send_response( data, status=404)
 
     # Internal Server Error
     def send_response_500(self, data):
-        return self.send_response( self, data, status=500)
+        return self.send_response( data, status=500)
 
     # Not Implemented
     def send_response_501(self, data):
-        return self.send_response( self, data, status=501)
+        return self.send_response( data, status=501)
 
     # Service Unavailable
     def send_response_503(self, data):
-        return self.send_response( self, data, status=503)
+        return self.send_response( data, status=503)
 
         
 

@@ -50,24 +50,24 @@ def test_create_tables():
 
 def fill_tables():
 
-    monitor.add_stat( "localhost1", "ehos3", "nodes_all4", 10)
-    monitor.add_stat( "localhost2", "ehos4", "nodes_all5", 11)
-    monitor.add_stat( "localhost3", "ehos5", "nodes_all6", 12)
-    monitor.add_stat( "localhost4", "ehos3", "nodes_all7", 13)
+    monitor.add_stat( "localhost1", "ehos3", "nodes_all4", 10, 'i')
+    monitor.add_stat( "localhost2", "ehos4", "nodes_all5", 11, 'i')
+    monitor.add_stat( "localhost3", "ehos5", "nodes_all6", 12, 'i')
+    monitor.add_stat( "localhost4", "ehos3", "nodes_all7", 13, 'i')
 
 
     
-    monitor.add_event( "localhost1", "ehos3", "start_all4", 9 )  
-    monitor.add_event( "localhost2", "ehos4", "start_all5", 11)
-    monitor.add_event( "localhost3", "ehos5", "start_all6", 12)
-    monitor.add_event( "localhost4", "ehos6", "start_all4", 13)
+    monitor.add_event( "localhost1", "ehos3", "start_all4", 9, 's' )  
+    monitor.add_event( "localhost2", "ehos4", "start_all5", 11, 's')
+    monitor.add_event( "localhost3", "ehos5", "start_all6", 12, 's')
+    monitor.add_event( "localhost4", "ehos6", "start_all4", 13, 's')
 
     
 def test_create_stat():
 
     test_create_tables()
-    monitor.add_stat( "localhost", "ehos", "nodes_all", 10 )
-    monitor.add_stat( "localhost", "ehos", "nodes_all", 11 )
+    monitor.add_stat( "localhost", "ehos", "nodes_all", 10, 'i' )
+    monitor.add_stat( "localhost", "ehos", "nodes_all", 11, 'i' )
     
     stats = monitor.get_stats()
     
@@ -909,7 +909,7 @@ def test_time_range_from_now_seconds():
     assert int(end_time) == int(now )
 
 
-def test_time_range_from_now_min():
+def test_time_range_from_now_mins():
 
     now = time.time()
     
@@ -919,7 +919,7 @@ def test_time_range_from_now_min():
     assert int(end_time) == int(now )
     
 
-def test_time_range_from_now_hour():
+def test_time_range_from_now_hours():
 
     now = time.time()
     
@@ -928,8 +928,6 @@ def test_time_range_from_now_hour():
     assert int(start_time) == int(now - 5*3600)
     assert int(end_time) == int(now )
 
-
-    
     
 def test_time_range_from_now_illegal():
 
@@ -940,4 +938,19 @@ def test_time_range_from_now_illegal():
 
 
     
+    
+def test_check_type():
+    assert monitor._check_type('f')
+    assert monitor._check_type('float')
+    assert monitor._check_type('i')
+    assert monitor._check_type('int')
+    assert monitor._check_type('j')
+    assert monitor._check_type('json')
+    assert monitor._check_type('str')
+    assert monitor._check_type('s')
+    
+
+def test_check_type_illegal():
+    with pytest.raises( RuntimeError ):
+        monitor._check_type('5ms')
     

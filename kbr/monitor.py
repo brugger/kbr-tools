@@ -14,6 +14,7 @@ import re
 
 import kbr.db_utils as db_utils
 import kbr.misc as misc
+import kbr.time
 
 db = None
 
@@ -43,6 +44,40 @@ def disconnect():
     
 
     
+def _check_type( entry_type:str ) -> bool:
+    """ check if a type is in the allowed types of either: ['float', 'int', 'json', 'str']
+
+    the user can submit shorted ( first letter ) version of these types
+
+    Args:
+      entry_type, name to check
+    
+    Returns:
+      bool
+
+    Raises:
+      RuntimeError on illegal value
+    """
+    
+    allowed_types = ['float', 'int', 'json', 'str']
+
+    
+    if entry_type == 'f':
+        entry_type = 'float'
+    elif entry_type == 'i':
+        entry_type = 'int'
+    elif entry_type == 'j':
+        entry_type = 'json'
+    elif entry_type == 's':
+        entry_type = 'str'
+
+
+    if  entry_type in allowed_types:
+        return True
+        
+    raise RuntimeError("Illegal type '{}' submitted, allowed types are: {}".format( entry_type, allowed_types ))
+    
+
 def _get_or_add_id(table:str, key:str, value:str):
     """ adds a standard stat/event entry to a table function, that will be wrapped by simpler functions below
 
@@ -61,7 +96,7 @@ def _get_or_add_id(table:str, key:str, value:str):
     return db.add_unique(table, {key: value}, key )
 
     
-def _add_entry(table:str, origin:str, source:int, context:int, log:str):
+def _add_entry(table:str, origin:str, source:int, context:int, log:str, entry_type:str):
     """ adds a standard stat/event entry to a table function, that will be wrapped by simpler functions below
 
 
@@ -81,15 +116,18 @@ def _add_entry(table:str, origin:str, source:int, context:int, log:str):
     origin_id  = _get_or_add_id( "{}_origin".format(table), 'origin', origin);
     source_id  = _get_or_add_id( "{}_source".format(table), 'source', source);
     context_id = _get_or_add_id( "{}_context".format(table), 'context', context);
-
-    db.add(table, {'origin_id': origin_id, 'source_id': source_id, 'context_id': context_id, 'log': log})
-    
+    type_id    = _get_or_add_id( "types", 'type', entry_type)
 
     
+#    db.add(table, {'origin_id': origin_id, 'source_id': source_id, 'context_id': context_id, 'log': log})
+    db.add(table, {'origin_id': origin_id, 'source_id': source_id, 'context_id': context_id, 'log': log, 'type_id': type_id})
+    
+
+    
 
     
     
-def add_stat(origin:str, source:str, context:int, log:str):
+def add_stat(origin:str, source:str, context:int, value, entry_type:str='i'):
     """ adds a standard stat/event entry to a table function, that will be wrapped by simpler functions below
 
 
@@ -97,7 +135,8 @@ def add_stat(origin:str, source:str, context:int, log:str):
       origin: where the log originates from, eg hostname or IP
       source: the source of the log, eg program or user
       context: The keyword for the log, eg all_idle 
-      log: what happened, nr or something else
+      value: value to store, ideally an int or float
+      entry_type: the type of data, default i[integer]
 
     returns:
       None
@@ -106,10 +145,10 @@ def add_stat(origin:str, source:str, context:int, log:str):
       None
     """
 
-    _add_entry( 'stat', origin,  source, context, log )
+    _add_entry( 'stat', origin,  source, context, value, entry_type )
 
 
-def add_event(origin:str, source:str, context:int, log:str):
+def add_event(origin:str, source:str, context:int, log:str, entry_type:str='s'):
     """ adds a standard stat/event entry to a table function, that will be wrapped by simpler functions below
 
 
@@ -118,6 +157,7 @@ def add_event(origin:str, source:str, context:int, log:str):
       source: the source of the log, eg program or user
       context: The keyword for the log, eg all_idle 
       log: what happened, nr or something else
+      entry_type: the type of data, default s[tring]
 
     returns:
       None
@@ -126,7 +166,7 @@ def add_event(origin:str, source:str, context:int, log:str):
       None
     """
 
-    _add_entry( 'event', origin,  source, context, log )
+    _add_entry( 'event', origin,  source, context, log, entry_type )
 
     
 
@@ -149,6 +189,18 @@ def event_sources():
 def event_contexts():
     return db.get_all( "event_context")
 
+
+def values_only(entries):
+
+    res = []
+    
+    for entry in entries:
+        for key in entry:
+            if key != 'id':
+                res.append( entry[ key ])
+
+    return res
+                        
 
 def _get_entries(table, start=None, end=None, limit=None, offset=None, order='ts'):
     """ get data from the stats tables
@@ -189,13 +241,13 @@ def _get_entries(table, start=None, end=None, limit=None, offset=None, order='ts
 
     return db.get( q )
 
-def get_stats( start=None, end=None, limit=None, offset=None, order='ts'):
+def get_stats( start=None, end=None, limit=None, offset=None, order='ts DESC'):
     """ get data from the stats tables
 
     Args:
       limit: nr of items to return
       offset: offset into the list of items to return
-      order: default is timestamp
+      order: default is timestamp, newest first
 
     return
       list of dicts of entries
@@ -206,13 +258,13 @@ def get_stats( start=None, end=None, limit=None, offset=None, order='ts'):
     return _get_entries('stat', start, end, limit, offset, order)
 
 
-def get_events( start=None, end=None, limit=None, offset=None, order='ts'):
+def get_events( start=None, end=None, limit=None, offset=None, order='ts  DESC'):
     """ get data from the stats tables
 
     Args:
       limit: nr of items to return
       offset: offset into the list of items to return
-      order: default is timestamp
+      order: default is timestamp, newest first
 
     return
       list of dicts of entries
@@ -267,6 +319,7 @@ def _make_bins(start:int, end:int, size:int=60):
 
     """
 
+
     bins = []
     for i in range(start, end+size, size):
         i = int( i/size)*size
@@ -296,6 +349,9 @@ def aggregate( entries, size=60, method='mean',  start=None, end=None):
     """
 
 
+    entries = convert_ts_to_int( entries )
+
+    
     aggregate = {}
 
 #    print( start, end )
@@ -312,10 +368,9 @@ def aggregate( entries, size=60, method='mean',  start=None, end=None):
     for ts in bins:
         aggregate[ ts ] = {}
 
-    
+    # collect and sum the data
     keys = {}
     for entry in entries:
-#        ts   = entry[ 'ts' ].timestamp()
         ts   = entry[ 'ts' ]
         ts = int( ts/size)*size
 
@@ -328,25 +383,23 @@ def aggregate( entries, size=60, method='mean',  start=None, end=None):
         
 
         if not misc.isnumber( entry['log']):
-            raise RuntimeError( "Can only aggregate on numbers, {} is not a valid number".format( entry['log'] ))
+            raise RuntimeError( "Can only aggregate on numbers, '{}' (type: {}) is not a valid number".format( entry['log'] , type(entry['log'] )))
 
-        aggregate[ ts ][ key ].append( float(entry['log']))
+        aggregate[ ts ][ key ].append( float(entry['log']) )
         
 
     left_padding = True
 
-#    pp.pprint( aggregate[1546527840])
-    
-    
-#    for timestamp in data:
+    agg_list = []
+
+    # apply the wanted statistical method to the accumulated data.
     for ts in sorted( aggregate.keys() ):
 
         for key in keys:
 
             if left_padding and key not in aggregate[ ts ]:
-                aggregate[ ts][ key ] = 0
+                entry[ key ] = 0
             elif key in aggregate[ ts ]:
-#                left_padding = False
                  
                 if method == 'sum':
                     aggregate[ ts][ key ] = sum(aggregate[ ts ][ key ])
@@ -357,8 +410,16 @@ def aggregate( entries, size=60, method='mean',  start=None, end=None):
                     aggregate[ ts ][ key ] = aggregate[ ts ][ key ][ int(len ( aggregate[ ts ][ key ])/2)]
                 else:
                     raise RuntimeError("Illegal aggregate method '{}', use either mean, median or sum".format( method )) 
-                    
-    return aggregate
+
+
+            entry = {'ts' : ts,
+                     'method': method,
+                      key:  aggregate[ ts ][ key ] }
+
+            agg_list.append(entry)
+
+                
+    return agg_list
 
 
 def transform_timeserie_to_dict( timeserie:dict):
@@ -374,6 +435,28 @@ def transform_timeserie_to_dict( timeserie:dict):
             trans[ key ].append( timeserie[ timestamp ][key] )
 
     return trans
+
+
+def transform_aggregate_to_dict( aggregate:list):
+
+    trans = {'x': []}
+
+    for entry in aggregate:
+        for key in entry:
+            if ( key == 'ts'):
+                if entry['ts'] not in trans['x']:
+                    trans['x'].append( entry['ts'])
+                    
+            elif( key == 'method'):
+                pass
+            
+            else:
+                if key not in trans:
+                    trans[ key ] = []
+                trans[ key ].append( entry[key] )
+
+    return trans
+
 
 
 def timeserie_max_value( timeserie:dict ):
@@ -401,20 +484,54 @@ def time_range_from_now( window, offset=0  ):
 
     now = time.time() - offset
 
+    start = None
+    end   = None
+    
     if re.match( r'^(\d+)s$', window):
 
         match = re.match( r'^(\d+)s$', window)
-        return now - int(match.group( 1 )), now
+        start, end = now - int(match.group( 1 )), now
 
     elif re.match( r'^(\d+)m$', window):
 
         match = re.match( r'^(\d+)m$', window)
-        return now - 60*int(match.group( 1 )), now
+        start, end = now - 60*int(match.group( 1 )), now
 
     elif re.match( r'^(\d+)h$', window):
 
         match = re.match( r'^(\d+)h$', window)
-        return now - 3600*int(match.group( 1 )), now
+        start, end =  now - 3600*int(match.group( 1 )), now
 
     else:
         raise RuntimeError("Illegal timeformat {}, it has to be a integer followed by either s, m or h. Eg: 31m for 31 minuttes".format( window ))
+
+
+    return kbr.time.to_string(start), kbr.time.to_string( end )
+
+def convert_ts_to_int( entries ):
+    
+    for entry in entries:
+        if 'ts' in entry:
+            if isinstance(entry[ 'ts' ], int):
+                pass
+            elif isinstance(entry[ 'ts' ], datetime.datetime):
+                entry[ 'ts' ] =  int(entry[ 'ts' ].timestamp())
+            else:
+                entry[ 'ts' ] = int( entry[ 'ts' ] )
+
+    return entries
+
+
+def convert_ts_to_str( entries ):
+
+    for entry in entries:
+        if 'ts' in entry:
+            if isinstance(entry[ 'ts' ], str):
+                pass
+            elif isinstance(entry[ 'ts' ], int):
+                entry[ 'ts' ] =  str(datetime.datetime.fromtimestamp( entry[ 'ts' ]))
+                
+            elif isinstance(entry[ 'ts' ], datetime.datetime):
+                entry[ 'ts' ] =  str(entry[ 'ts' ])
+
+    return entries
