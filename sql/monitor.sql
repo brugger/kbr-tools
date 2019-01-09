@@ -38,7 +38,7 @@ CREATE TABLE stat (
   type_id    INT REFERENCES types(id),  
 
   log        VARCHAR(200),
-  ts         EXTRACT(EPOCH FROM now())*1000
+  ts         timestamp DEFAULT now()
 
 );
 
@@ -76,6 +76,6 @@ CREATE TABLE event (
   type_id    INT REFERENCES types(id),  
 
   log        VARCHAR(200),
-  ts         EXTRACT(EPOCH FROM now())*1000
+  ts         timestamp DEFAULT now()
 
 );
