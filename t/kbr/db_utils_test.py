@@ -35,7 +35,8 @@ def test_makedb():
 
     db = make_database()
     drop_database( db )
-    
+
+    db.close()
 
 def test_do():
 
@@ -54,7 +55,20 @@ def test_from_file():
 
     db = make_database()
     db.from_file( 't/data/test.sql')
-    
+
+def test_from_file_error():
+
+    db = make_database()
+    with pytest.raises( RuntimeError ):
+        db.from_file( 't/data/testss.sql')
+
+
+
+def test_table_names():
+    db = make_database()
+    assert db.table_names() == ['sqlite_sequence', 'test']
+
+        
 def test_get():
     db = make_database()
     db.do("insert into test (value) values ('a'), ('b'), ('c');")
@@ -140,6 +154,8 @@ def test_get_by_value():
     res = db.get_by_value( 'test', 'value', 'b')
     assert res == [{'id': 2, 'value': 'b'}]
 
+
+    
 def test_get_by_value_empty():
 
     db = make_database()
@@ -157,6 +173,26 @@ def test_get_by_value_order():
     assert res == [{'id': 4, 'value': 'c'},
                    {'id': 3, 'value': 'c'}]
 
+
+
+def test_get_by_values():
+
+    db = make_database()
+    db.do("insert into test (value) values ('a'), ('b'), ('c');")
+    
+    res = db.get_by_values( 'test', {'value': 'b'})
+    assert res == [{'id': 2, 'value': 'b'}]
+
+def test_get_by_values():
+
+    db = make_database()
+    db.do("insert into test (value) values ('a'), ('b'), ('c');")
+    
+    res = db.get_by_values( 'test', {'value': 'b', 'id':3 }, order=' id desc', logic='or')
+    assert res == [{'id': 3, 'value': 'c'},
+                   {'id': 2, 'value': 'b'}]
+
+    
     
 def test_get_by_id():
 

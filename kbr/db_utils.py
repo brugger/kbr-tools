@@ -157,6 +157,24 @@ class DB( object ):
 
         return self.get( q )
 
+
+    def get_by_values(self, table, values:{}, logic:str='AND', order:str=None ) -> {}:
+        q = "SELECT * from {table} WHERE".format( table = table )
+
+        filters = []
+        
+        for key in values:
+            filters.append( " {key} = '{value}'".format( key=key, value=values[ key ]))
+
+            
+        q += " {} ".format( logic ).join( filters )
+
+        if order is not None:
+            q += " order by {order}".format( order=order )
+
+        return self.get( q )
+
+
     
     def get_by_id(self, table, value ) -> {}:
         return self.get_by_value( table, 'id', value)
@@ -234,7 +252,7 @@ class DB( object ):
 
                             
                 
-    def update(self, table:str, entry:{}, conditions:[]):
+    def update(self, table:str, entry:{}, conditions:{}):
         
         if entry == {}:
             raise RuntimeError('No values provided')
