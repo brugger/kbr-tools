@@ -158,7 +158,7 @@ class DB( object ):
         return self.get( q )
 
 
-    def get_by_values(self, table, values:{}, logic:str='AND', order:str=None ) -> {}:
+    def get_by_values(self, table, logic:str='AND', order:str=None, **values ) -> {}:
         q = "SELECT * from {table} WHERE".format( table = table )
 
         filters = []
