@@ -32,15 +32,28 @@ class BaseHandler( RequestHandler ):
             for key, val_list in self.request.arguments.items()
         }
 
-    
+
+    def _arguments(self):
+
+        values = {}
+        for argument in self.request.arguments:
+            values[ argument ] = self.get_argument( argument )
+
+        return values
+        
+
+        
     def set_default_headers(self):
         """Set the default response header to be JSON."""
         self.set_header("Content-Type", 'application/json; charset="utf-8"')
 
     # Success
-    def send_response(self, data, status=200):
+    def send_response(self, data=None, status=200):
         """Construct and send a JSON response with appropriate status code."""
 
+        self.set_status(status)
+        return self.finish( )
+        
         # check if the data is already in valid json format, otherwise make it
         try:
             json_object = json.loads( data )
@@ -48,20 +61,19 @@ class BaseHandler( RequestHandler ):
             data = json.dumps(data)
 
 
-        self.set_status(status)
         return self.write( data )
 
     # Created
-    def send_response_201(self, data):
-        return self.send_response( data, status=201)
+    def send_response_201(self):
+        return self.send_response( data=None, status=201)
 
     # Accecpted
     def send_response_202(self, data):
         return self.send_response( data, status=202)
 
     # No content
-    def send_response_204(self, data):
-        return self.send_response( data, status=204)
+    def send_response_204(self):
+        return self.send_response( data=None, status=204)
 
     # bad request
     def send_response_400(self, data):
