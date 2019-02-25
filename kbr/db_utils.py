@@ -100,11 +100,9 @@ class DB( object ):
           None
         """
 
-#        print( sql )
-        
         return self._db.query( sql )
 
-    def get(self, sql:str) -> {}:
+    def get_as_dict(self, sql:str) -> {}:
         """ executes a query and returns the data as a dict
 
         Args:
@@ -136,19 +134,10 @@ class DB( object ):
         res = self.do( sql ).all()
         return len( res )
 
-        
-
-    def get_all( self, table:str, order:str=None):
-        q = "SELECT * FROM {table}".format( table=table )
-
-        if order is not None:
-            q += " order by {order}".format( order=order )
-
-        return self.get( q )
             
 
-    def get_by_value(self, table, logic:str='AND', order:str=None, **values ) -> {}:
-        q = "SELECT * from {table} WHERE".format( table = table )
+    def get(self, table, logic:str='AND', order:str=None, **values ) -> {}:
+        q = "SELECT * from {table} ".format( table = table )
 
         filters = []
 
@@ -156,21 +145,21 @@ class DB( object ):
             if ( values[ key ] is not None):
                 filters.append( " {key} = '{value}'".format( key=key, value=values[ key ]))
 
-            
-        q += " {} ".format( logic ).join( filters )
+        if ( filters != []):
+            q += " WHERE " + "  {} ".format( logic ).join( filters )
 
         if order is not None:
-            q += " order by {order}".format( order=order )
+            q += " ORDER BY {order}".format( order=order )
 
-        print( q )
-            
-        return self.get( q )
+        return self.get_as_dict( q )
 
 
+    def get_all( self, table:str, order:str=None):
+        return self.get(table=table, order=order)
 
     
     def get_by_id(self, table, value ) -> {}:
-        return self.get_by_value( table, id=value)
+        return self.get( table, id=value)
 
 
     def escape_string(self, string):
@@ -181,7 +170,7 @@ class DB( object ):
     def get_id(self, table, **values ) -> id:
         ids = []
 
-        for res in self.get_by_value(table, **values):
+        for res in self.get(table, **values):
             ids.append( res[ 'id' ])
 
         if len( ids ) == 0:

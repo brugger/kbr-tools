@@ -69,33 +69,33 @@ def test_table_names():
     assert db.table_names() == ['sqlite_sequence', 'test']
 
         
-def test_get():
+def test_get_as_dict():
     db = make_database()
     db.do("insert into test (value) values ('a'), ('b'), ('c');")
     
-    res = db.get( "select * From test")
+    res = db.get_as_dict( "select * From test")
 
     assert res == [{'id': 1, 'value': 'a'},
                    {'id': 2, 'value': 'b'},
                    {'id': 3, 'value': 'c'}]
 
 
-def test_get_empty():
+def test_get_as_dict_empty():
     db = make_database()
     db.do("insert into test (value) values ('a'), ('b'), ('c');")
     
-    res = db.get( "select * From test where id == 7")
+    res = db.get_as_dict( "select * From test where id == 7")
 
     assert res == []
     
 
-def test_get_error():
+def test_get_as_dict_error():
 
     db = make_database()
     db.do("insert into test (value) values ('a'), ('b'), ('c');")
     
     with pytest.raises( OperationalError ):
-        db.get( "select * From tests")
+        db.get_as_dict( "select * From tests")
 
 
 def test_count():
@@ -147,48 +147,48 @@ def test_get_all_empty():
 
 
     
-def test_get_by_value_empty():
+def test_get_empty():
 
     db = make_database()
     db.do("insert into test (value) values ('a'), ('b'), ('c');")
     
-    res = db.get_by_value( 'test', value='d')
+    res = db.get( 'test', value='d')
     assert res == []
     
-def test_get_by_value_order():
+def test_get_order():
 
     db = make_database()
     db.do("insert into test (value) values ('a'), ('b'), ('c'), ('c');")
     
-    res = db.get_by_value( 'test', order='id desc', value='c')
+    res = db.get( 'test', order='id desc', value='c')
     assert res == [{'id': 4, 'value': 'c'},
                    {'id': 3, 'value': 'c'}]
 
 
 
-def test_get_by_value_001():
+def test_get_001():
 
     db = make_database()
     db.do("insert into test (value) values ('a'), ('b'), ('c');")
     
-    res = db.get_by_value( 'test', value='b')
+    res = db.get( 'test', value='b')
     assert res == [{'id': 2, 'value': 'b'}]
 
-def test_get_by_value_002():
+def test_get_002():
 
     db = make_database()
     db.do("insert into test (value) values ('a'), ('b'), ('c');")
     
-    res = db.get_by_value( 'test', value='b', id=3, order=' id desc', logic='or', )
+    res = db.get( 'test', value='b', id=3, order=' id desc', logic='or', )
     assert res == [{'id': 3, 'value': 'c'},
                    {'id': 2, 'value': 'b'}]
 
-def test_get_by_value_003():
+def test_get_003():
 
     db = make_database()
     db.do("insert into test (value) values ('a'), ('b'), ('c');")
     
-    res = db.get_by_value( 'test', value='b', id=3, order=' id desc', logic='or', Hats=None)
+    res = db.get( 'test', value='b', id=3, order=' id desc', logic='or', Hats=None)
     assert res == [{'id': 3, 'value': 'c'},
                    {'id': 2, 'value': 'b'}]
 
