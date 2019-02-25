@@ -146,22 +146,13 @@ def test_get_all_empty():
     
 
 
-def test_get_by_value():
-
-    db = make_database()
-    db.do("insert into test (value) values ('a'), ('b'), ('c');")
-    
-    res = db.get_by_value( 'test', 'value','b')
-    assert res == [{'id': 2, 'value': 'b'}]
-
-
     
 def test_get_by_value_empty():
 
     db = make_database()
     db.do("insert into test (value) values ('a'), ('b'), ('c');")
     
-    res = db.get_by_value( 'test', 'value', 'd')
+    res = db.get_by_value( 'test', value='d')
     assert res == []
     
 def test_get_by_value_order():
@@ -169,35 +160,35 @@ def test_get_by_value_order():
     db = make_database()
     db.do("insert into test (value) values ('a'), ('b'), ('c'), ('c');")
     
-    res = db.get_by_value( 'test', 'value', 'c', 'id desc')
+    res = db.get_by_value( 'test', order='id desc', value='c')
     assert res == [{'id': 4, 'value': 'c'},
                    {'id': 3, 'value': 'c'}]
 
 
 
-def test_get_by_values_001():
+def test_get_by_value_001():
 
     db = make_database()
     db.do("insert into test (value) values ('a'), ('b'), ('c');")
     
-    res = db.get_by_values( 'test', value='b')
+    res = db.get_by_value( 'test', value='b')
     assert res == [{'id': 2, 'value': 'b'}]
 
-def test_get_by_values_002():
+def test_get_by_value_002():
 
     db = make_database()
     db.do("insert into test (value) values ('a'), ('b'), ('c');")
     
-    res = db.get_by_values( 'test', value='b', id=3, order=' id desc', logic='or', )
+    res = db.get_by_value( 'test', value='b', id=3, order=' id desc', logic='or', )
     assert res == [{'id': 3, 'value': 'c'},
                    {'id': 2, 'value': 'b'}]
 
-def test_get_by_values_003():
+def test_get_by_value_003():
 
     db = make_database()
     db.do("insert into test (value) values ('a'), ('b'), ('c');")
     
-    res = db.get_by_values( 'test', value='b', id=3, order=' id desc', logic='or', Hats=None)
+    res = db.get_by_value( 'test', value='b', id=3, order=' id desc', logic='or', Hats=None)
     assert res == [{'id': 3, 'value': 'c'},
                    {'id': 2, 'value': 'b'}]
 
@@ -225,18 +216,28 @@ def  test_get_id():
     db = make_database()
     db.do("insert into test (value) values ('a'), ('b'), ('c');")
     
-    res = db.get_id( 'test', 'value', 'b')
+    res = db.get_id( 'test', value='b')
     assert res == 2
     
 def test_get_id_empty():
     db = make_database()
     db.do("insert into test (value) values ('a'), ('b'), ('c');")
     
-    res = db.get_id( 'test', 'value', 'f')
+    res = db.get_id( 'test', value='f')
     assert res == None
 
 
+def test_get_ids():
+    db = make_database()
+    db.do("insert into test (value) values ('a'), ('b'), ('c');")
+    res = db.add( 'test', {'value': 'f'})
 
+    res = db.get_id('test', logic='OR', id=1, value='c')
+    assert res == [1,3]
+
+    
+
+    
 def test_add():
     db = make_database()
     db.do("insert into test (value) values ('a'), ('b'), ('c');")

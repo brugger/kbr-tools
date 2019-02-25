@@ -146,25 +146,12 @@ class DB( object ):
 
         return self.get( q )
             
-    def get_by_value(self, table, key:str, value:str, order:str=None ) -> {}:
-        """ This functions is deprecated, and should not be used """
 
- 
-        q = "SELECT * from {table} where {key} = '{value}'"
-        q = q.format( table=table, key=key, value=value )
-
-        if order is not None:
-            q += " order by {order}".format( order=order )
-
-        return self.get( q )
-
-
-
-    def get_by_values(self, table, logic:str='AND', order:str=None, **values ) -> {}:
+    def get_by_value(self, table, logic:str='AND', order:str=None, **values ) -> {}:
         q = "SELECT * from {table} WHERE".format( table = table )
 
         filters = []
-        
+
         for key in values:
             if ( values[ key ] is not None):
                 filters.append( " {key} = '{value}'".format( key=key, value=values[ key ]))
@@ -175,13 +162,15 @@ class DB( object ):
         if order is not None:
             q += " order by {order}".format( order=order )
 
+        print( q )
+            
         return self.get( q )
 
 
 
     
     def get_by_id(self, table, value ) -> {}:
-        return self.get_by_value( table, 'id', value)
+        return self.get_by_value( table, id=value)
 
 
     def escape_string(self, string):
@@ -189,14 +178,19 @@ class DB( object ):
         return "'{}'".format( string )
     
     
-    def get_id(self, table, key, value ) -> id:
-        q = "SELECT id from {table} where {key} = '{value}'"
-        q = q.format( table=table, key=key, value=value )
-        res = self.get( q )
-        if len(res):
-            return res[0][ 'id' ]
-        else:
+    def get_id(self, table, **values ) -> id:
+        ids = []
+
+        for res in self.get_by_value(table, **values):
+            ids.append( res[ 'id' ])
+
+        if len( ids ) == 0:
             return None
+        elif len( ids ) == 1:
+            return ids[ 0 ]
+        else:
+            return  ids
+
     
     def add( self, table:str, entry:{}):
 
@@ -217,18 +211,17 @@ class DB( object ):
         if entry == {}:
             raise RuntimeError('No values provided')
 
-        id =  self.get_id( table, key, entry[ key ])
+        ids =  self.get_id( table, **{key:entry[ key ]})
 
-        if id is not None:
-            return id
-        
+        if ids is not None:
+            return ids
         try:
             self.add( table, entry )
         except:
-            # Expect the value already to be present in the mean time...
+            # Expect the value already to have been added in the mean time...
             pass
 
-        return self.get_id( table, key, entry[ key ])
+        return self.get_id( table, **{key: entry[ key ]})
 
         
     def add_bulk( self, table:str, entries:[] ):
