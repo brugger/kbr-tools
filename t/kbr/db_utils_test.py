@@ -151,7 +151,7 @@ def test_get_by_value():
     db = make_database()
     db.do("insert into test (value) values ('a'), ('b'), ('c');")
     
-    res = db.get_by_value( 'test', 'value', 'b')
+    res = db.get_by_value( 'test', 'value','b')
     assert res == [{'id': 2, 'value': 'b'}]
 
 
@@ -175,7 +175,7 @@ def test_get_by_value_order():
 
 
 
-def test_get_by_values():
+def test_get_by_values_001():
 
     db = make_database()
     db.do("insert into test (value) values ('a'), ('b'), ('c');")
@@ -183,12 +183,21 @@ def test_get_by_values():
     res = db.get_by_values( 'test', value='b')
     assert res == [{'id': 2, 'value': 'b'}]
 
-def test_get_by_values():
+def test_get_by_values_002():
 
     db = make_database()
     db.do("insert into test (value) values ('a'), ('b'), ('c');")
     
     res = db.get_by_values( 'test', value='b', id=3, order=' id desc', logic='or', )
+    assert res == [{'id': 3, 'value': 'c'},
+                   {'id': 2, 'value': 'b'}]
+
+def test_get_by_values_003():
+
+    db = make_database()
+    db.do("insert into test (value) values ('a'), ('b'), ('c');")
+    
+    res = db.get_by_values( 'test', value='b', id=3, order=' id desc', logic='or', Hats=None)
     assert res == [{'id': 3, 'value': 'c'},
                    {'id': 2, 'value': 'b'}]
 

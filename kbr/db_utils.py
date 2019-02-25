@@ -146,9 +146,10 @@ class DB( object ):
 
         return self.get( q )
             
-
-
     def get_by_value(self, table, key:str, value:str, order:str=None ) -> {}:
+        """ This functions is deprecated, and should not be used """
+
+ 
         q = "SELECT * from {table} where {key} = '{value}'"
         q = q.format( table=table, key=key, value=value )
 
@@ -158,13 +159,15 @@ class DB( object ):
         return self.get( q )
 
 
+
     def get_by_values(self, table, logic:str='AND', order:str=None, **values ) -> {}:
         q = "SELECT * from {table} WHERE".format( table = table )
 
         filters = []
         
         for key in values:
-            filters.append( " {key} = '{value}'".format( key=key, value=values[ key ]))
+            if ( values[ key ] is not None):
+                filters.append( " {key} = '{value}'".format( key=key, value=values[ key ]))
 
             
         q += " {} ".format( logic ).join( filters )
@@ -173,6 +176,7 @@ class DB( object ):
             q += " order by {order}".format( order=order )
 
         return self.get( q )
+
 
 
     
@@ -279,7 +283,7 @@ class DB( object ):
 
         
         q = "UPDATE {table} set {updates} WHERE {conds}".format( table = table,
-                                                                 updates=" and ".join(updates),
+                                                                 updates=", ".join(updates),
                                                                  conds=" and ".join(conds))
         self.do( q )
 
