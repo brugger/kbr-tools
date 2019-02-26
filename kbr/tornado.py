@@ -51,9 +51,6 @@ class BaseHandler( RequestHandler ):
     def send_response(self, data=None, status=200):
         """Construct and send a JSON response with appropriate status code."""
 
-        self.set_status(status)
-        return self.finish( )
-        
         # check if the data is already in valid json format, otherwise make it
         try:
             json_object = json.loads( data )
@@ -63,17 +60,25 @@ class BaseHandler( RequestHandler ):
 
         return self.write( data )
 
+
+    def send_status_code(self, status=200):
+        """Construct and send an empty response with appropriate status code."""
+
+        self.set_status(status)
+        return self.finish( )
+
+    
     # Created
     def send_response_201(self):
         return self.send_response( data=None, status=201)
 
     # Accecpted
     def send_response_202(self, data):
-        return self.send_response( data, status=202)
+        return self.send_status_code( status=202)
 
     # No content
     def send_response_204(self):
-        return self.send_response( data=None, status=204)
+        return self.send_status_code( status=204)
 
     # bad request
     def send_response_400(self, data):
