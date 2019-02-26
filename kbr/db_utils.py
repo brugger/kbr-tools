@@ -136,7 +136,7 @@ class DB( object ):
 
             
 
-    def get(self, table, logic:str='AND', order:str=None, **values ) -> {}:
+    def get(self, table, logic:str='AND', order:str=None, limit:int=None, offset:int=None, **values ) -> {}:
         q = "SELECT * from {table} ".format( table = table )
 
         filters = []
@@ -147,10 +147,18 @@ class DB( object ):
 
         if ( filters != []):
             q += " WHERE " + "  {} ".format( logic ).join( filters )
-
+           
+            
         if order is not None:
             q += " ORDER BY {order}".format( order=order )
 
+        if limit is not None:
+            q += " limit {} ".format( limit )
+
+        if offset is not None:
+            q += " offset {} ".format( offset )
+
+            
         return self.get_as_dict( q )
 
 

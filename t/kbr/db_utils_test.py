@@ -192,6 +192,34 @@ def test_get_003():
     assert res == [{'id': 3, 'value': 'c'},
                    {'id': 2, 'value': 'b'}]
 
+
+def test_get_004():
+
+    db = make_database()
+    db.do("insert into test (value) values ('a'), ('b'), ('c');")
+    
+    res = db.get( 'test', limit=1)
+    assert res == [{'id': 1, 'value': 'a'}]
+
+
+def test_get_005():
+
+    db = make_database()
+    db.do("insert into test (value) values ('a'), ('b'), ('c');")
+    
+    res = db.get( 'test', offset=1)
+    assert res == [{'id': 2, 'value': 'b'}]
+
+
+
+def test_get_006():
+
+    db = make_database()
+    db.do("insert into test (value) values ('a'), ('b'), ('c');")
+    
+    res = db.get( 'test', order=' id desc', limit=1, offset=2)
+    assert res == [{'id': 1, 'value': 'a'}]
+    
     
     
 def test_get_by_id():
