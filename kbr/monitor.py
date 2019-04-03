@@ -219,9 +219,10 @@ def _get_entries(table, start=None, end=None, limit=None, offset=None, order='ts
       None
     """
 
-    q  = "SELECT t.id, t.ts, o.origin, s.source, c.context, t.log "
-    q += "FROM {table} t, {table}_origin o, {table}_source s, {table}_context c ".format( table=table)
-    q += "WHERE t.origin_id = o.id AND t.source_id = s.id AND t.context_id = c.id  "
+#    q  = "SELECT t.id, extract(epoch from t.ts) as ts, o.origin, s.source, c.context, t.log, ty.type "
+    q  = "SELECT t.id, t.ts, o.origin, s.source, c.context, t.log, ty.type "
+    q += "FROM {table} t, {table}_origin o, {table}_source s, {table}_context c, types ty ".format( table=table)
+    q += "WHERE t.origin_id = o.id AND t.source_id = s.id AND t.context_id = c.id AND t.type_id=ty.id "
 
     if start is not None:
         q += " AND ts >= '{}' ".format(start)
@@ -241,7 +242,7 @@ def _get_entries(table, start=None, end=None, limit=None, offset=None, order='ts
 
     return db.get( q )
 
-def get_stats( start=None, end=None, limit=None, offset=None, order='ts DESC'):
+def get_stats( start=None, end=None, limit=None, offset=None, order='ts'):
     """ get data from the stats tables
 
     Args:
@@ -258,7 +259,7 @@ def get_stats( start=None, end=None, limit=None, offset=None, order='ts DESC'):
     return _get_entries('stat', start, end, limit, offset, order)
 
 
-def get_events( start=None, end=None, limit=None, offset=None, order='ts  DESC'):
+def get_events( start=None, end=None, limit=None, offset=None, order='ts'):
     """ get data from the stats tables
 
     Args:
@@ -348,8 +349,13 @@ def aggregate( entries, size=60, method='mean',  start=None, end=None):
 
     """
 
+    if entries == [] or entries is None:
+        return entries
 
-    entries = convert_ts_to_int( entries )
+    print("=======================================")
+    print( start, end )
+    
+    entries = convert_ts_to_sec( entries )
 
     
     aggregate = {}
@@ -374,7 +380,22 @@ def aggregate( entries, size=60, method='mean',  start=None, end=None):
         ts   = entry[ 'ts' ]
         ts = int( ts/size)*size
 
-        key = "{}.{}.{}".format( entry['origin'], entry['source'], entry['context'])
+        key_fields = []
+        if 'origin' in entry:
+             key_fields.append( entry['origin'] )
+
+        if 'source' in entry:
+             key_fields.append( entry['source'] )
+
+        if 'context' in entry:
+             key_fields.append( entry['context'] )
+
+        key = ".".join( key_fields )
+             
+#        key = "{}.{}.{}".format( entry['origin'], entry['source'], entry['context'])
+
+        if (ts not in aggregate ):
+            aggregate[ ts ] = {}
         
         if key not in aggregate[ ts ]:
             aggregate[ ts ][ key ] = []
@@ -392,33 +413,37 @@ def aggregate( entries, size=60, method='mean',  start=None, end=None):
 
     agg_list = []
 
+#    pp.pprint( aggregate )
+    
     # apply the wanted statistical method to the accumulated data.
     for ts in sorted( aggregate.keys() ):
 
         for key in keys:
 
-            if left_padding and key not in aggregate[ ts ]:
-                entry[ key ] = 0
-            elif key in aggregate[ ts ]:
+            if key not in aggregate[ ts ]:
+                aggregate[ ts ][ key ] = [0]
+
+            
                  
-                if method == 'sum':
-                    aggregate[ ts][ key ] = sum(aggregate[ ts ][ key ])
-                elif method == 'mean':
-                    aggregate[ ts ][ key ] = sum(aggregate[ ts ][ key ])/len(aggregate[ ts ][ key ])
-                elif method == 'median':
-                    aggregate[ ts ][ key ] = sorted( aggregate[ ts ][ key ])
-                    aggregate[ ts ][ key ] = aggregate[ ts ][ key ][ int(len ( aggregate[ ts ][ key ])/2)]
-                else:
-                    raise RuntimeError("Illegal aggregate method '{}', use either mean, median or sum".format( method )) 
+            if method == 'sum':
+                aggregate[ ts][ key ] = sum(aggregate[ ts ][ key ])
+            elif method == 'mean':
+                aggregate[ ts ][ key ] = sum(aggregate[ ts ][ key ])/len(aggregate[ ts ][ key ])
+            elif method == 'median':
+                aggregate[ ts ][ key ] = sorted( aggregate[ ts ][ key ])
+                aggregate[ ts ][ key ] = aggregate[ ts ][ key ][ int(len ( aggregate[ ts ][ key ])/2)]
+            else:
+                raise RuntimeError("Illegal aggregate method '{}', use either mean, median or sum".format( method )) 
 
-
+                
             entry = {'ts' : ts,
                      'method': method,
                       key:  aggregate[ ts ][ key ] }
 
             agg_list.append(entry)
 
-                
+
+#    return aggregate
     return agg_list
 
 
@@ -444,11 +469,12 @@ def transform_aggregate_to_dict( aggregate:list):
     for entry in aggregate:
         for key in entry:
             if ( key == 'ts'):
+                entry['ts'] = kbr.time.to_string(entry['ts'])
                 if entry['ts'] not in trans['x']:
-                    trans['x'].append( entry['ts'])
+                    trans['x'].append(entry['ts'] )
                     
             elif( key == 'method'):
-                pass
+                trans['method'] = entry[ 'method' ]
             
             else:
                 if key not in trans:
@@ -474,8 +500,8 @@ def timeserie_max_value( timeserie:dict ):
 
 def purge_field( entries, field ):
     for entry in entries:
-        if 'origin' in entry:
-            del entry[ 'origin']
+        if field in entry:
+            del entry[ field ]
     
     return entries
 
@@ -483,6 +509,7 @@ def purge_field( entries, field ):
 def time_range_from_now( window, offset=0  ):
 
     now = time.time() - offset
+#    now = kbr.time.now() - offset
 
     start = None
     end   = None
@@ -506,9 +533,9 @@ def time_range_from_now( window, offset=0  ):
         raise RuntimeError("Illegal timeformat {}, it has to be a integer followed by either s, m or h. Eg: 31m for 31 minuttes".format( window ))
 
 
-    return kbr.time.to_string(start), kbr.time.to_string( end )
+    return start,  end
 
-def convert_ts_to_int( entries ):
+def convert_ts_to_sec( entries ):
     
     for entry in entries:
         if 'ts' in entry:

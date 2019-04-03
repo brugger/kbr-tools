@@ -72,17 +72,21 @@ def test_create_stat():
     stats = monitor.get_stats()
     
     stats = remove_ts( stats) 
+
+    pp.pprint( stats)
     
     assert stats == [{'context': 'nodes_all',
                        'id': 1,
                        'log': '10',
                        'origin': 'localhost',
                        'source': 'ehos',
+                       'type': 'i',
                        'ts': 'T'},
                       {'context': 'nodes_all',
                        'id': 2,
                        'log': '11',
                        'origin': 'localhost',
+                       'type': 'i',
                        'source': 'ehos',
                        'ts': 'T'}]
     
@@ -102,6 +106,7 @@ def test_create_event():
                        'id': 1,
                        'log': '{"node_id": "423423424"}',
                        'origin': 'localhost',
+                       'type': 's',
                        'source': 'ehos',
                        'ts': 'T'},
                       {'context': 'create_node',
@@ -109,6 +114,7 @@ def test_create_event():
                        'log': 'create_nodes 123423424',
                        'origin': 'localhost',
                        'source': 'ehos',
+                       'type': 's',
                        'ts': 'T'}]
     
 
@@ -119,29 +125,37 @@ def test_get_order():
     
     stats = monitor.get_stats(order ='ts desc')
     
+    pp.pprint( stats )
+
     stats = remove_ts( stats) 
 
+#    assert 1== 5
+    
     assert stats == [{'context': 'nodes_all7',
                       'id': 4,
                       'log': '13',
+                      'type': 'i',
                       'origin': 'localhost4',
                       'source': 'ehos3',
                       'ts': 'T'},
                      {'context': 'nodes_all6',
                       'id': 3,
                       'log': '12',
+                      'type': 'i',
                       'origin': 'localhost3',
                       'source': 'ehos5',
                       'ts': 'T'},
                      {'context': 'nodes_all5',
                       'id': 2,
                       'log': '11',
+                      'type': 'i',
                       'origin': 'localhost2',
                       'source': 'ehos4',
                       'ts': 'T'},
                      {'context': 'nodes_all4',
                       'id': 1,
                       'log': '10',
+                      'type': 'i',
                       'origin': 'localhost1',
                       'source': 'ehos3',
                       'ts': 'T'}]
@@ -163,16 +177,19 @@ def test_get_start():
                       'id': 2,
                       'log': '11',
                       'origin': 'localhost2',
+                      'type': 'i',
                       'source': 'ehos4',
                       'ts': 'T'},
                       {'context': 'nodes_all6',
                       'id': 3,
+                      'type': 'i',
                       'log': '12',
                       'origin': 'localhost3',
                       'source': 'ehos5',
                       'ts': 'T'},
                       {'context': 'nodes_all7',
                       'id': 4,
+                      'type': 'i',
                       'log': '13',
                       'origin': 'localhost4',
                       'source': 'ehos3',
@@ -197,11 +214,13 @@ def test_get_end():
     assert stats2 == [{'context': 'nodes_all4',
                       'id': 1,
                       'log': '10',
+                      'type': 'i',
                       'origin': 'localhost1',
                       'source': 'ehos3',
                       'ts': 'T'},
                      {'context': 'nodes_all5',
                       'id': 2,
+                      'type': 'i',
                       'log': '11',
                       'origin': 'localhost2',
                       'source': 'ehos4',
@@ -209,6 +228,7 @@ def test_get_end():
                      {'context': 'nodes_all6',
                       'id': 3,
                       'log': '12',
+                      'type': 'i',
                       'origin': 'localhost3',
                       'source': 'ehos5',
                       'ts': 'T'}]
@@ -228,12 +248,14 @@ def test_get_range():
     assert stats2 == [{'context': 'nodes_all5',
                       'id': 2,
                       'log': '11',
+                      'type': 'i',
                       'origin': 'localhost2',
                       'source': 'ehos4',
                       'ts': 'T'},
                      {'context': 'nodes_all6',
                       'id': 3,
                       'log': '12',
+                      'type': 'i',
                       'origin': 'localhost3',
                       'source': 'ehos5',
                       'ts': 'T'}]
@@ -253,12 +275,14 @@ def test_get_limit():
                       'id': 4,
                       'log': '13',
                       'origin': 'localhost4',
+                      'type': 'i',
                       'source': 'ehos3',
                       'ts': 'T'},
                      {'context': 'nodes_all6',
                       'id': 3,
                       'log': '12',
                       'origin': 'localhost3',
+                      'type': 'i',
                       'source': 'ehos5',
                       'ts': 'T'}]
     
@@ -274,11 +298,13 @@ def test_get_offset():
                       'id': 3,
                       'log': '12',
                       'origin': 'localhost3',
+                      'type': 'i',
                       'source': 'ehos5',
                       'ts': 'T'},
                      {'context': 'nodes_all5',
                       'id': 2,
                       'log': '11',
+                      'type': 'i',
                       'origin': 'localhost2',
                       'source': 'ehos4',
                       'ts': 'T'}]
@@ -438,6 +464,7 @@ def test_filters_contexts():
     assert remove_ts(monitor.filter( stats, contexts='nodes_all4')) == [{'context': 'nodes_all4',
                                                                     'id': 1,
                                                                     'log': '10',
+                                                                    'type': 'i',
                                                                     'origin': 'localhost1',
                                                                     'source': 'ehos3',
                                                                     'ts': 'T'}]
@@ -458,6 +485,7 @@ def test_filters_origins():
                                                             'id': 1,
                                                             'log': '10',
                                                             'origin': 'localhost1',
+                                                            'type': 'i',
                                                             'source': 'ehos3',
                                                             'ts': 'T'}]
 
@@ -475,11 +503,13 @@ def test_filters_sources():
                                                                    'id': 1,
                                                                    'log': '10',
                                                                    'origin': 'localhost1',
+                                                                   'type': 'i',
                                                                    'source': 'ehos3',
                                                                    'ts': 'T'},
                                                                   {'context': 'nodes_all7',
                                                                    'id': 4,
                                                                    'log': '13',
+                                                                   'type': 'i',
                                                                    'origin': 'localhost4',
                                                                    'source': 'ehos3',
                                                                    'ts': 'T'}]
@@ -496,6 +526,7 @@ def test_filters_and():
                                                                     'id': 1,
                                                                     'log': '10',
                                                                     'origin': 'localhost1',
+                                                                    'type': 'i',
                                                                     'source': 'ehos3',
                                                                     'ts': 'T'}]
 
@@ -514,6 +545,7 @@ def test_filters_or():
                                             logic='or')) == [    {'context': 'nodes_all4',
                                                                   'id': 1,
                                                                   'log': '10',
+                                                                  'type': 'i',
                                                                   'origin': 'localhost1',
                                                                   'source': 'ehos3',
                                                                   'ts': 'T'},
@@ -522,12 +554,14 @@ def test_filters_or():
                                                                   'id': 2,
                                                                   'log': '11',
                                                                   'origin': 'localhost2',
+                                                                  'type': 'i',
                                                                   'source': 'ehos4',
                                                                   'ts': 'T'},
                                                                  
                                                                  {'context': 'nodes_all6',
                                                                   'id': 3,
                                                                   'log': '12',
+                                                                  'type': 'i',
                                                                   'origin': 'localhost3',
                                                                   'source': 'ehos5',
                                                                   'ts': 'T'},
@@ -576,7 +610,7 @@ def test_aggregate_mean():
 
     md = monitor.aggregate( d, size=10 )
 
-#    pp.pprint( md )
+    pp.pprint( md )
     assert md[ 1546527910] == {'localhost1.ehos3.nodes_all4': 3.0,
                                'localhost1.ehos4.nodes_all4': 6.5,
                                'localhost2.ehos4.nodes_all4': 8.0}

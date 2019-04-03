@@ -43,14 +43,15 @@ class BaseHandler( RequestHandler ):
         
 
         
-    def set_default_headers(self):
-        """Set the default response header to be JSON."""
-        self.set_header("Content-Type", 'application/json; charset="utf-8"')
+     def set_json_header(self):
+         """Set the default response header to be JSON."""
+         self.set_header("Content-Type", 'application/json; charset="utf-8"')
 
     # Success
     def send_response(self, data=None, status=200):
         """Construct and send a JSON response with appropriate status code."""
 
+        self.set_status(status)
         # check if the data is already in valid json format, otherwise make it
         try:
             json_object = json.loads( data )
@@ -111,9 +112,9 @@ class BaseHandler( RequestHandler ):
 
         
 
-def run_app(urls, port=8888, debug=False):
+def run_app(urls, port=8888, **kwargs):
 
-    app = Application(urls, debug=debug) 
+    app = Application(urls, **kwargs)
     app.listen(port)
     IOLoop.current().start()
     
