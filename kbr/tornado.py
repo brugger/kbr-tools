@@ -42,8 +42,37 @@ class BaseHandler( RequestHandler ):
         return values
         
 
-        
-     def set_json_header(self):
+    def _check_arguments(self, values:dict, valid:list) -> bool:
+
+        for key in values.keys():
+            if key not in valid:
+                return False
+
+        return True
+
+    def json_decode(self, value):
+
+        return tornado.escape.json_decode( value )
+
+
+    def _valid_arguments(self, values:dict, valid:list) -> bool:
+
+        valid_values = {}
+
+        for key in values:
+            if key in valid:
+                valid_values[ key ] = values[ key ]
+
+        return valid_values
+
+    def set_ACAO_header(self, sites="*"):
+#        print( "setting headers!!!")
+        self.set_header("Access-Control-Allow-Origin", sites)
+        self.set_header("Access-Control-Allow-Headers", "x-requested-with")
+        self.set_header('Access-Control-Allow-Methods', 'POST, GET, OPTIONS')
+
+
+    def set_json_header(self):
          """Set the default response header to be JSON."""
          self.set_header("Content-Type", 'application/json; charset="utf-8"')
 

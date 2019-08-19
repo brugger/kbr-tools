@@ -137,7 +137,7 @@ class DB( object ):
             
 
     def get(self, table, logic:str='AND', order:str=None, limit:int=None, offset:int=None, **values ) -> {}:
-        q = "SELECT * from {table} ".format( table = table )
+        q = "SELECT * FROM {table} ".format( table = table )
 
         filters = []
 
