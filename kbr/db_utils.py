@@ -280,3 +280,14 @@ class DB( object ):
 
 
 
+
+    def delete(self, table:str, id:int):
+        
+        q = "DELETE FROM  {table} WHERE id = {id}".format( table = table,
+                                                         id=id)
+        self.do( q )
+
+
+
+
+        
