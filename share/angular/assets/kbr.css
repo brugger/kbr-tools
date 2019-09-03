@@ -1,0 +1,16 @@
+
+.snackbar-green {
+  background: #72c158;
+}
+.snackbar-orange {
+  background: #c17824;
+}
+
+.snackbar-red {
+  background: rgb(193, 40, 25);
+}
+.mat-simple-snackbar-action {
+  color: white;
+}
+
+

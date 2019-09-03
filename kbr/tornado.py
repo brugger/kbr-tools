@@ -1,6 +1,8 @@
 import os
 import json
 
+import tornado
+
 from tornado.httpserver import HTTPServer
 from tornado.ioloop import IOLoop
 from tornado.options import define, options
@@ -10,7 +12,7 @@ from tornado.web import RequestHandler
 import tornado.gen as gen
 
 import pprint as pp
-
+import requests
 
 
 
@@ -50,11 +52,6 @@ class BaseHandler( RequestHandler ):
 
         return True
 
-    def json_decode(self, value):
-
-        return tornado.escape.json_decode( value )
-
-
     def _valid_arguments(self, values:dict, valid:list) -> bool:
 
         valid_values = {}
@@ -65,6 +62,45 @@ class BaseHandler( RequestHandler ):
 
         return valid_values
 
+
+    def access_token(self):
+        token = None
+        auth_header = self.request.headers.get('Authorization', None)
+        print("Auth header: {}".format( auth_header ))
+        if auth_header:
+           token = auth_header[7:]
+
+        return token
+
+
+    def check_token(self, url:str) -> str:
+        print(' Prepare for handling request ')
+        access_token = self.access_token()
+        print( "Access token {}".format( access_token ))
+        if access_token is None:
+            print('no token')
+            self.send_response_401( data={'msg':'user not authorised'} )
+            return None
+
+        r = requests.get(url+access_token)
+        if r.status_code != requests.codes.ok:
+            self.send_response_401( data={'msg':"request returned a {} error".format( r.status_code )} )
+            return None
+
+            
+        print( "R {}".format( r ))
+        response = r.json() 
+       
+        if 'active' not in response or response['active'] != True:
+            print('invalid token')
+            self.send_response_401( data={'msg':'Invalid token'})
+            return None
+
+        print( 'everything looked fine')
+        print( access_token)
+        return response
+
+    
     def set_ACAO_header(self, sites="*"):
 #        print( "setting headers!!!")
         self.set_header("Access-Control-Allow-Origin", sites)
@@ -112,35 +148,45 @@ class BaseHandler( RequestHandler ):
 
     # bad request
     def send_response_400(self, data):
-        pp.pprint( data )
-        return self.send_response( data, 400)
+#        pp.pprint( data )
+        return self.send_response( data=data, status=400)
 
     # Unauthorized
     def send_response_401(self, data):
-        return self.send_response( data, status=401)
+        return self.send_response( data=data, status=401)
 
     # Forbidden
     def send_response_403(self, data):
-        return self.send_response( data, status=403)
+        return self.send_response( data=data, status=403)
 
     # Not fund
-    def send_response_404(self, data):
-        return self.send_response( data, status=404)
+    def send_response_404(self):
+        return self.send_response(status=404)
 
     # Internal Server Error
     def send_response_500(self, data):
-        return self.send_response( data, status=500)
+        return self.send_response( data=data, status=500)
 
     # Not Implemented
     def send_response_501(self, data):
-        return self.send_response( data, status=501)
+        return self.send_response( data=data, status=501)
 
     # Service Unavailable
     def send_response_503(self, data):
-        return self.send_response( data, status=503)
+        return self.send_response( data=data, status=503)
 
         
 
+def json_decode(value):
+
+    return tornado.escape.json_decode( value )
+
+def url_unescape(uri:str) -> str:
+    if uri is None:
+        return uri
+    
+    return tornado.escape.url_unescape( uri )
+    
 def run_app(urls, port=8888, **kwargs):
 
     app = Application(urls, **kwargs)

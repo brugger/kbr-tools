@@ -1,0 +1,44 @@
+<div *ngIf="this.domain; then domain_edit else domain_create" ></div>
+
+<ng-template #domain_edit>
+  <label>Update domain:</label><br>
+
+  <p>
+    <mat-form-field appearance="fill">
+      <mat-label>Name</mat-label>
+      <input matInput #domainName matInput [(ngModel)]="domain.name">
+    </mat-form-field>
+  </p>
+
+  <p>
+    <button mat-raised-button (click)="this.update(domain);">
+      <mat-icon>edit</mat-icon>
+      Update domain
+    </button>
+  </p>
+
+
+
+</ng-template>
+
+<ng-template #domain_create>
+
+
+  <label>Add domain:</label><br>
+
+  <p>
+    <mat-form-field appearance="fill">
+      <mat-label>Name</mat-label>
+      <input matInput #domainName matInput placeholder="example.com" >
+    </mat-form-field>
+  </p>
+
+  <p>
+    <button mat-raised-button (click)="this.add(domainName.value);">
+      <mat-icon>note_add</mat-icon>
+      Add domain
+    </button>
+  </p>
+<br>
+</ng-template>
+

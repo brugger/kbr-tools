@@ -1,0 +1,12 @@
+<h2 matDialogTitle color="warn">Confirmation</h2>
+
+<mat-dialog-content>{{this.message}}</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+<button mat-button (click)="this.accept();">
+  Accept
+</button>
+<button mat-button (click)="this.close();">
+  Cancel
+</button>
+</mat-dialog-actions>

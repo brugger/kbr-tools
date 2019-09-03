@@ -1,0 +1,59 @@
+<div *ngIf="this.domains">
+  <table mat-table [dataSource]="domains">
+
+    <ng-container matColumnDef="domain">
+      <th mat-header-cell *matHeaderCellDef> Domain</th>
+      <td mat-cell *matCellDef="let domain"> {{domain.name}} </td>
+    </ng-container>
+
+    <ng-container matColumnDef="action">
+
+      <th mat-header-cell *matHeaderCellDef> Actions</th>
+      <td mat-cell *matCellDef="let domain">
+        <mat-menu #appMenu="matMenu">
+          <button mat-menu-item color="primary" (click)="this.domainNavigator.detailedView( domain.id )">
+            <mat-icon>zoom_in</mat-icon>
+            View
+          </button>
+          <button mat-menu-item color="primary" (click)="this.editDialog( domain.id )">
+            <mat-icon>edit</mat-icon>
+            edit
+          </button>
+          <button mat-menu-item color="primary" (click)="this.deleteDomain( domain )">
+            <mat-icon>delete_forever</mat-icon>
+            Delete
+          </button>
+        </mat-menu>
+
+        <button mat-icon-button [matMenuTriggerFor]="appMenu">
+          <mat-icon>more_vert</mat-icon>
+        </button>
+      </td>
+    </ng-container>
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+  </table>
+
+</div>
+
+<button mat-icon-button (click)="this.editDialog(null)">
+  <mat-icon>control_point</mat-icon>
+</button>
+
+
+
+<button mat-menu-item color="primary" (click)="this.kbrNotification.error( 'error message' )">
+  Error
+</button>
+
+<button mat-menu-item color="primary" (click)="this.kbrNotification.errorAck( 'error message (ack)' )">
+  ErrorAck
+</button>
+
+<button mat-menu-item color="primary" (click)="this.kbrNotification.notification( 'please note that' )">
+  Note
+</button>
+
+<button mat-menu-item color="primary" (click)="this.kbrNotification.actionConfirm( 'confirm that ...' )">
+  Confirm
+</button>
