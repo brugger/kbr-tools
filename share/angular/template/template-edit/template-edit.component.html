@@ -1,19 +1,19 @@
-<div *ngIf="this.domain; then domain_edit else domain_create" ></div>
+<div *ngIf="this.{name}; then {name}_edit else {name}_create" ></div>
 
-<ng-template #domain_edit>
-  <label>Update domain:</label><br>
+<ng-template #{name}_edit>
+  <label>Update {name}:</label><br>
 
   <p>
     <mat-form-field appearance="fill">
       <mat-label>Name</mat-label>
-      <input matInput #domainName matInput [(ngModel)]="domain.name">
+      <input matInput #{name}Name matInput [(ngModel)]="{name}.name">
     </mat-form-field>
   </p>
 
   <p>
-    <button mat-raised-button (click)="this.update(domain);">
+    <button mat-raised-button (click)="this.update({name});">
       <mat-icon>edit</mat-icon>
-      Update domain
+      Update {name}
     </button>
   </p>
 
@@ -21,22 +21,22 @@
 
 </ng-template>
 
-<ng-template #domain_create>
+<ng-template #{name}_create>
 
 
-  <label>Add domain:</label><br>
+  <label>Add {name}:</label><br>
 
   <p>
     <mat-form-field appearance="fill">
       <mat-label>Name</mat-label>
-      <input matInput #domainName matInput placeholder="example.com" >
+      <input matInput #{name}Name matInput placeholder="example.com" >
     </mat-form-field>
   </p>
 
   <p>
-    <button mat-raised-button (click)="this.add(domainName.value);">
+    <button mat-raised-button (click)="this.add({name}Name.value);">
       <mat-icon>note_add</mat-icon>
-      Add domain
+      Add {name}
     </button>
   </p>
 <br>

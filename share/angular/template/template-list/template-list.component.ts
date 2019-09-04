@@ -30,7 +30,7 @@ export class {Name}ListComponent implements OnInit {{
     this.get{Name}s();
   }}
 
-  editDialog({name}Id:number): void {{
+  edit{Name}({name}Id:number): void {{
 
     let dialogConfig = new MatDialogConfig();
     dialogConfig.data = {name}Id;

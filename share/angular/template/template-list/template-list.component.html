@@ -1,25 +1,25 @@
-<div *ngIf="this.domains">
-  <table mat-table [dataSource]="domains">
+<div *ngIf="this.{name}s">
+  <table mat-table [dataSource]="{name}s">
 
-    <ng-container matColumnDef="domain">
-      <th mat-header-cell *matHeaderCellDef> Domain</th>
-      <td mat-cell *matCellDef="let domain"> {{domain.name}} </td>
+    <ng-container matColumnDef="{name}">
+      <th mat-header-cell *matHeaderCellDef> {Name}</th>
+      <td mat-cell *matCellDef="let {name}"> {{{{{name}.name}}}} </td>
     </ng-container>
 
     <ng-container matColumnDef="action">
 
       <th mat-header-cell *matHeaderCellDef> Actions</th>
-      <td mat-cell *matCellDef="let domain">
+      <td mat-cell *matCellDef="let {name}">
         <mat-menu #appMenu="matMenu">
-          <button mat-menu-item color="primary" (click)="this.domainNavigator.detailedView( domain.id )">
+          <button mat-menu-item color="primary" (click)="this.{name}Navigator.detailedView( {name}.id )">
             <mat-icon>zoom_in</mat-icon>
             View
           </button>
-          <button mat-menu-item color="primary" (click)="this.editDialog( domain.id )">
+          <button mat-menu-item color="primary" (click)="this.edit{Name}( {name}.id )">
             <mat-icon>edit</mat-icon>
             edit
           </button>
-          <button mat-menu-item color="primary" (click)="this.deleteDomain( domain )">
+          <button mat-menu-item color="primary" (click)="this.delete{Name}( {name} )">
             <mat-icon>delete_forever</mat-icon>
             Delete
           </button>

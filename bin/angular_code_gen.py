@@ -28,12 +28,15 @@ def make_directories( name:str) -> None:
     mkdir("src/assets/")
     mkdir("src/app/kbrNotification/")
 
-
 def write_file(filename:str, content:str) -> None:
     fh = open(filename, 'w')
     fh.write( content )
     fh.close()
 
+def write_template_to_file(infile:str, outfile:str, name:str) -> None:
+    content = read_file(infile)
+    content = content.format( Name=name.capitalize(), name=name)
+    write_file(outfile.format(name=name), content)
 
 def find_file( filename:str) -> str:
     script_dir = os.path.dirname(os.path.abspath( __file__ ))
@@ -77,30 +80,6 @@ def read_file(filename:str) -> str:
     return content
 
 
-
-
-def make_model( name:str) -> None:
-    print( 'model...')
-    content = read_file("angular/template/template.model.ts")
-    content = content.format(Name=name.capitalize())
-    write_file("src/app/{name}s/{name}.model.ts".format(name=name), content)
-
-    
-def make_navigator( name:str ):
-    print( 'navigator...')
-    content = read_file("angular/template/template-navigator.ts")
-    content = content.format( Name=name.capitalize(), name=name)
-
-    write_file("src/app/{name}s/{name}-navigator.ts".format(name=name), content)
-
-
-
-def make_service( name:str) -> None:
-    print( 'service...')
-    content = read_file("angular/template/template.service.ts")
-    content = content.format( Name=name.capitalize(), name=name)
-    write_file("src/app/{name}s/{name}.service.ts".format(name=name), content)
-
 def launch_cmd(cmd: str, cwd: str = "") -> None:
     effective_command = cmd
     p = subprocess.Popen(effective_command, stdout=subprocess.PIPE, shell=True, stderr=subprocess.PIPE,
@@ -112,35 +91,68 @@ def launch_cmd(cmd: str, cwd: str = "") -> None:
     return (p_status, stdout, stderr)
 
 
+
+def make_model( name:str) -> None:
+    print( 'model...')
+    write_template_to_file("angular/template/template.model.ts",
+                           "src/app/{name}s/{name}.model.ts",
+                           name)
+    return
+
+    
+def make_navigator( name:str ):
+    print( 'navigator...')
+    write_template_to_file("angular/template/template-navigator.ts",
+                           "src/app/{name}s/{name}-navigator.ts",
+                           name)
+
+
+
+def make_service( name:str) -> None:
+    print( 'service...')
+    write_template_to_file("angular/template/template.service.ts",
+                           "src/app/{name}s/{name}.service.ts",
+                           name)
+
+
+
     
 def make_list(name:str) -> None:
 
     print( 'list component...')
     launch_cmd("ng g c {name}s/{name}-list".format(name=name))
 
-    content = read_file("angular/template/template-list/template-list.component.ts")
-    content = content.format( Name=name.capitalize(), name=name)
-    write_file("src/app/{name}s/{name}-list/{name}-list.component.ts".format( Name=name.capitalize(), name=name), content)
+    write_template_to_file("angular/template/template-list/template-list.component.ts",
+                           "src/app/{name}s/{name}-list/{name}-list.component.ts",
+                           name)
+    write_template_to_file("angular/template/template-list/template-list.component.html",
+                           "src/app/{name}s/{name}-list/{name}-list.component.html",
+                           name)
 
 
 def make_view(name:str) -> None:
 
     print( 'view component...')
+
     launch_cmd("ng g c {name}s/{name}-view".format(name=name))
-    content = read_file("angular/template/template-view/template-view.component.ts")
-    content = content.format( Name=name.capitalize(), name=name)
-
-    write_file("src/app/{name}s/{name}-view/{name}-view.component.ts".format( Name=name.capitalize(), name=name), content)
-
+    write_template_to_file("angular/template/template-view/template-view.component.ts",
+                           "src/app/{name}s/{name}-view/{name}-view.component.ts",
+                           name)
+    write_template_to_file("angular/template/template-view/template-view.component.html",
+                           "src/app/{name}s/{name}-view/{name}-view.component.html",
+                           name)
 
 
 def make_edit(name:str) -> None:
 
     print( 'edit component...')
     launch_cmd("ng g c {name}s/{name}-edit".format(name=name))
-    content = read_file("angular/template/template-edit/template-edit.component.ts")
-    content = content.format( Name=name.capitalize(), name=name)
-    write_file("src/app/{name}s/{name}-edit/{name}-edit.component.ts".format( Name=name.capitalize(), name=name), content)
+    write_template_to_file("angular/template/template-edit/template-edit.component.ts",
+                           "src/app/{name}s/{name}-edit/{name}-edit.component.ts",
+                           name)
+    write_template_to_file("angular/template/template-edit/template-edit.component.html",
+                           "src/app/{name}s/{name}-edit/{name}-edit.component.html",
+                           name)
 
 
 def make_kbrNotification() -> None:
