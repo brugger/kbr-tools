@@ -24,9 +24,6 @@ def make_directories( name:str) -> None:
     mkdir("src/app/{name}s/{name}-view".format(name=name))
     mkdir("src/app/{name}s/{name}-list".format(name=name))
     mkdir("src/app/{name}s/{name}-edit".format(name=name))
-    mkdir("src/app/kbr/")
-    mkdir("src/assets/")
-    mkdir("src/app/kbrNotification/")
 
 def write_file(filename:str, content:str) -> None:
     fh = open(filename, 'w')
@@ -165,6 +162,10 @@ def make_kbrNotification() -> None:
 
 def copy_kbr_library() -> None:
     print( 'kbr library...')
+    mkdir("src/app/kbr/")
+    mkdir("src/assets/")
+    mkdir("src/app/kbrNotification/")
+
     src = 'angular/kbr/'
     src = find_dir( src )
     dst = 'src/app/kbr/'
@@ -188,6 +189,8 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='angular module creator (CRUD + Navigator + service)')
 
     parser.add_argument("-b", "--base", default=False, action='store_true', help="install core library and components.")
+    parser.add_argument("-f", "--force", default=False, action='store_true', help="will overwrite existing files")
+
     parser.add_argument("-m", "--module",  help="name of module to create CRUD for")
 
 

@@ -3,8 +3,8 @@ import {Injectable} from '@angular/core';
 import {Observable} from 'rxjs';
 import {finalize, tap} from 'rxjs/operators';
 
-import {KbrAuthentication} from './kbr/authentication';
-import {KbrNavigator} from './kbr/navigator';
+import {KbrAuthentication} from './authentication';
+import {KbrNavigator} from './navigator';
 
 @Injectable({
   providedIn: 'root',
