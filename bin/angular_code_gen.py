@@ -183,6 +183,16 @@ def copy_kbr_library() -> None:
     shutil.copy( find_file( 'angular/routing.module.ts'),'src/app/')
 
 
+def make_auth() -> None:
+
+    print( 'Auth components...')
+    launch_cmd("ng g c auth/login --module app")
+    launch_cmd("ng g c auth/logout --module app")
+
+
+    shutil.copy( find_file( 'angular/auth/login/login.component.ts'),'src/app/auth/login/')
+    shutil.copy( find_file( 'angular/auth/logout/logout.component.ts'),'src/app/auth/logout/')
+
 
 if __name__ == '__main__':
     
@@ -201,6 +211,7 @@ if __name__ == '__main__':
         print('installing base system')
         copy_kbr_library()
         make_kbrNotification()
+        make_auth( )
 
     if (args.module):
         name = args.module[ 0 ].lower()
