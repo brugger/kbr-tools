@@ -47,4 +47,27 @@ export class {Name}Navigator {{
     return true;
   }}
 
+  editView(domainId:number): MatDialogRef<{Name}EditComponent> {
+    let dialogConfig = new MatDialogConfig();
+    dialogConfig.data = domainId;
+    const dialogRef = this.dialog.open({Name}EditComponent,
+                                       dialogConfig);
+    return dialogRef;
+   }
+
+  deleteView( domain: Domain ):MatDialogRef<ConfirmationComponent> {
+    // delete at backend
+
+    let dialogConfig = new MatDialogConfig();
+    dialogConfig.data = "Delete {name} " + domain.name;
+    dialogConfig.role = 'alertdialog';
+
+    let dialogRef = this.dialog.open(ConfirmationComponent,
+                                     dialogConfig);
+    return dialogRef;
+}
+
+}
+
+
 }}

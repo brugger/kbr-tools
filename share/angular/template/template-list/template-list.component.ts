@@ -32,15 +32,12 @@ export class {Name}ListComponent implements OnInit {{
 
   edit{Name}({name}Id:number): void {{
 
-    let dialogConfig = new MatDialogConfig();
-    dialogConfig.data = {name}Id;
-    const dialogRef = this.dialog.open({Name}EditComponent,
-      dialogConfig);
+    let dialogRef = this.{name}Navigator.editView( {name}Id );
 
     dialogRef.afterClosed().subscribe(
-      message => this.kbrNotification.notification( message ),
-      error => {{this.kbrNotification.error(error)}},
-      () => this.get{Name}s(),
+           message => this.kbrNotification.notification( message ),
+            error => {this.kbrNotification.error(error)},
+            () => this.get{Name}(),
     );
   }}
 
@@ -52,24 +49,21 @@ export class {Name}ListComponent implements OnInit {{
   delete{Name}( {name}: {Name} ):void {{
     // delete at backend
 
-     let dialogConfig = new MatDialogConfig();
-     dialogConfig.data = "Delete {name} " + {name}.name;
-     dialogConfig.role = 'alertdialog';
 
-     let dialogRef = this.dialog.open(ConfirmationComponent,
-        dialogConfig);
+        let dialogRef = this.{name}Navigator.deleteView( {name} );
 
-     dialogRef.afterClosed().subscribe(
-        accecpted => {{
-           console.log( "confirm" + accecpted );
-           if (accecpted) {{
-             this.{name}Service.delete{Name}({name}.id).subscribe();
-             //delete in stored array (should be reloading of page/view instead?)
-             this.{name}s = this.{name}s.filter(d => d !== {name});
-             this.kbrNotification.notification('{Name} deleted');
-          }}
-        }},
-     );
+        dialogRef.afterClosed().subscribe(
+            accecpted => {
+                if (accecpted) {
+                    this.{name}Service.delete{Name}({name}.id).subscribe();
+                    //delete in stored array (should be reloading of page/view instead?)
+                    this.{name}s = this.{name}s.filter(d => d !== {name});
+                    this.kbrNotification.notification('{Name} deleted');
+                }
+            },
+        );
+
   }}
 
 }}
+
