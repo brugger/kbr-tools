@@ -36,7 +36,7 @@ export class {Name}ListComponent implements OnInit {{
 
     dialogRef.afterClosed().subscribe(
            message => this.kbrNotification.notification( message ),
-            error => {this.kbrNotification.error(error)},
+            error => {{this.kbrNotification.error(error)}},
             () => this.get{Name}(),
     );
   }}
@@ -53,14 +53,14 @@ export class {Name}ListComponent implements OnInit {{
         let dialogRef = this.{name}Navigator.deleteView( {name} );
 
         dialogRef.afterClosed().subscribe(
-            accecpted => {
-                if (accecpted) {
+            accecpted => {{
+                if (accecpted) {{
                     this.{name}Service.delete{Name}({name}.id).subscribe();
                     //delete in stored array (should be reloading of page/view instead?)
                     this.{name}s = this.{name}s.filter(d => d !== {name});
                     this.kbrNotification.notification('{Name} deleted');
-                }
-            },
+                }}
+            }},
         );
 
   }}
