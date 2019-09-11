@@ -37,7 +37,7 @@ export class {Name}ListComponent implements OnInit {{
     dialogRef.afterClosed().subscribe(
            message => this.kbrNotification.notification( message ),
             error => {{this.kbrNotification.error(error)}},
-            () => this.get{Name}(),
+            () => this.get{Name}s(),
     );
   }}
 

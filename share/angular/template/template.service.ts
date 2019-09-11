@@ -11,7 +11,7 @@ export class {Name}Service {{
 
   constructor( private http: HttpClient, ) {{}};
 
-  private {name}Url = 'http://localhost/api/{name}';
+  private {name}Url = 'api/{name}';
 
   get{Name}s(): Observable<{Name}[]> {{
     console.log('getting {name}s')

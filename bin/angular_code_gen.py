@@ -85,6 +85,8 @@ def launch_cmd(cmd: str, cwd: str = "") -> None:
                                                                        cwd=cwd)
     stdout, stderr = p.communicate()
     p_status = p.wait()
+    if stderr:
+        print( stderr )
     return (p_status, stdout, stderr)
 
 
@@ -117,7 +119,7 @@ def make_service( name:str) -> None:
 def make_list(name:str) -> None:
 
     print( 'list component...')
-    launch_cmd("ng g c {name}s/{name}-list".format(name=name))
+    launch_cmd("ng g c {name}s/{name}-list --module app".format(name=name))
 
     write_template_to_file("angular/template/template-list/template-list.component.ts",
                            "src/app/{name}s/{name}-list/{name}-list.component.ts",
@@ -131,7 +133,7 @@ def make_view(name:str) -> None:
 
     print( 'view component...')
 
-    launch_cmd("ng g c {name}s/{name}-view".format(name=name))
+    launch_cmd("ng g c {name}s/{name}-view --module app".format(name=name))
     write_template_to_file("angular/template/template-view/template-view.component.ts",
                            "src/app/{name}s/{name}-view/{name}-view.component.ts",
                            name)
@@ -143,7 +145,7 @@ def make_view(name:str) -> None:
 def make_edit(name:str) -> None:
 
     print( 'edit component...')
-    launch_cmd("ng g c {name}s/{name}-edit".format(name=name))
+    launch_cmd("ng g c {name}s/{name}-edit --module app".format(name=name))
     write_template_to_file("angular/template/template-edit/template-edit.component.ts",
                            "src/app/{name}s/{name}-edit/{name}-edit.component.ts",
                            name)
@@ -214,7 +216,7 @@ if __name__ == '__main__':
         make_auth( )
 
     if (args.module):
-        name = args.module[ 0 ].lower()
+        name = args.module.lower()
         print( "Creating skeleton files for module: {name}".format( name=name ) )
         make_directories( name )
         make_navigator( name )
@@ -223,3 +225,7 @@ if __name__ == '__main__':
         make_view(name )
         make_list(name )
         make_edit(name )
+
+        print( "Add the following routes to routing.ts")
+        print("  {{ path: '{name}s/:id',           component: {Name}ListComponent}},".format(Name=name.capitalize(), name=name))
+        print("  {{ path: '{name}s',           component: {Name}ListComponent}},".format(Name=name.capitalize(), name=name))

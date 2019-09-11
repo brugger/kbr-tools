@@ -27,6 +27,8 @@ setup(name='kbr',
       install_requires=[
           'records',
           'tornado',
+          'requests',
+          'psycopg2-binary',
       ],
       classifiers=[
         'Development Status :: 0.0.1',

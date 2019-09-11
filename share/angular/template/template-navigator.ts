@@ -1,5 +1,8 @@
 import {{Injectable}} from '@angular/core';
 import {{Router}} from '@angular/router';
+import {{MatDialog, MatDialogConfig, MatDialogRef}} from '@angular/material';
+import {{{Name}EditComponent}} from './{name}-edit/{name}-edit.component';
+import {{ConfirmationComponent}} from '../kbrNotification/confirmation/confirmation.component';
 
 @Injectable({{
   providedIn: 'root'
@@ -7,6 +10,7 @@ import {{Router}} from '@angular/router';
 export class {Name}Navigator {{
 
   constructor( private router:Router,
+               private dialog: MatDialog,
                )
   {{ }};
 
@@ -42,10 +46,6 @@ export class {Name}Navigator {{
     return `/{name}s/${{id}}/edit`;
   }}
 
-  editView(id:number): boolean {{
-    this.router.navigateByUrl(this.editUrl(id));
-    return true;
-  }}
 
   editView({name}Id:number): MatDialogRef<{Name}EditComponent> {{
     let dialogConfig = new MatDialogConfig();

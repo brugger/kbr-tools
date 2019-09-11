@@ -141,7 +141,7 @@ class DB( object ):
 
         filters = []
 
-        for key in values:
+        for key in values.keys():
             if ( values[ key ] is not None):
                 filters.append( " {key} = '{value}'".format( key=key, value=values[ key ]))
 
