@@ -28,6 +28,7 @@ setup(name='kbr',
           'records',
           'tornado',
           'requests',
+          'munch',
           'psycopg2-binary',
       ],
       classifiers=[
