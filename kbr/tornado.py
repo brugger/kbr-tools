@@ -9,7 +9,6 @@ from tornado.options import define, options
 from tornado.web import Application
 
 from tornado.web import RequestHandler
-import tornado.gen as gen
 
 import pprint as pp
 import requests
@@ -63,6 +62,7 @@ class BaseHandler( RequestHandler ):
         return valid_values
 
 
+    
     def access_token(self):
         token = None
         auth_header = self.request.headers.get('Authorization', None)
@@ -71,34 +71,6 @@ class BaseHandler( RequestHandler ):
            token = auth_header[7:]
 
         return token
-
-
-    def check_token(self, url:str) -> str:
-        print(' Prepare for handling request ')
-        access_token = self.access_token()
-        print( "Access token {}".format( access_token ))
-        if access_token is None:
-            print('no token')
-            self.send_response_401( data={'msg':'user not authorised'} )
-            return None
-
-        r = requests.get(url+access_token)
-        if r.status_code != requests.codes.ok:
-            self.send_response_401( data={'msg':"request returned a {} error".format( r.status_code )} )
-            return None
-
-            
-        print( "R {}".format( r ))
-        response = r.json() 
-       
-        if 'active' not in response or response['active'] != True:
-            print('invalid token')
-            self.send_response_401( data={'msg':'Invalid token'})
-            return None
-
-        print( 'everything looked fine')
-        print( access_token)
-        return response
 
     
     def set_ACAO_header(self, sites="*"):
@@ -123,16 +95,14 @@ class BaseHandler( RequestHandler ):
         except:
             data = json.dumps(data)
 
+        self.finish( data  )
 
-        return self.write( data )
 
-
-    def send_status_code(self, status=200):
+    def send_status_code(self, status:int):
         """Construct and send an empty response with appropriate status code."""
 
         self.set_status(status)
         return self.finish( )
-
     
     # Created
     def send_response_201(self):
