@@ -8,7 +8,8 @@ from tornado.ioloop import IOLoop
 from tornado.options import define, options
 from tornado.web import Application
 
-from tornado.web import RequestHandler
+from tornado.web import RequestHandler, HTTPError
+
 
 import pprint as pp
 import requests
@@ -116,34 +117,47 @@ class BaseHandler( RequestHandler ):
     def send_response_204(self):
         return self.send_status_code( status=204)
 
+
+    def raise_error(self, status:int, reason:any=None):
+        if reason is not None:
+            reason = json.dumps(reason)
+            raise HTTPError( status, reason=reason)
+        else:
+            raise HTTPError( status )
+
     # bad request
-    def send_response_400(self, data):
+    def send_response_400(self, data:any=None):
 #        pp.pprint( data )
-        return self.send_response( data=data, status=400)
+        self.raise_error(status=400, reason=data)
 
     # Unauthorized
-    def send_response_401(self, data):
-        return self.send_response( data=data, status=401)
+    def send_response_401(self, data:any=None):
+        self.raise_error(status=401, reason=data)
 
     # Forbidden
-    def send_response_403(self, data):
-        return self.send_response( data=data, status=403)
+    def send_response_403(self, data:any=None):
+        self.raise_error(status=403, reason=data)
+#        return self.send_response( data=data, status=403)
 
     # Not fund
     def send_response_404(self):
-        return self.send_response(status=404)
+        self.raise_error(status=404)
+#        return self.send_response(status=404)
 
     # Internal Server Error
-    def send_response_500(self, data):
-        return self.send_response( data=data, status=500)
+    def send_response_500(self, data:any=None):
+        self.raise_error(status=500, reason=data)
+#        return self.send_response( data=data, status=500)
 
     # Not Implemented
-    def send_response_501(self, data):
-        return self.send_response( data=data, status=501)
+    def send_response_501(self, data:any=None):
+        self.raise_error(status=501, reason=data)
+#        return self.send_response( data=data, status=501)
 
     # Service Unavailable
-    def send_response_503(self, data):
-        return self.send_response( data=data, status=503)
+    def send_response_503(self, data:any=None):
+        self.raise_error(status=503, reason=data)
+#        return self.send_response( data=data, status=503)
 
         
 
