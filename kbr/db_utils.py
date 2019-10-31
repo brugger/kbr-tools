@@ -162,6 +162,22 @@ class DB( object ):
         return self.get_as_dict( q )
 
 
+    def get_single(self, table, **values ) -> {}:
+
+        values = self.get(table, **values)
+        if len( values ) > 1:
+            raise RuntimeError('get_single returned multiple values')
+
+        elif len( values ) == 1:
+            return values[ 0 ]
+        else:
+            return None
+
+
+
+
+
+
     def get_all( self, table:str, order:str=None):
         return self.get(table=table, order=order)
 

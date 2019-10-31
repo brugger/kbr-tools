@@ -25,6 +25,18 @@ class BaseHandler( RequestHandler ):
         return remote_ip
 
 
+    def acl_check(self, acls:[], url:str, access:str):
+
+        pp.pprint( acls )
+
+        for acl in acls:
+            if acl['endpoint'] == url:
+                if access in acl and acl[ access ]:
+                    return True
+
+        self.send_response_401( data="user not authorised to {} resource '{}'".format( access, url ) )
+
+
     
     def prepare(self):
         ''' change the strings from bytestring to utf8 '''
@@ -70,6 +82,9 @@ class BaseHandler( RequestHandler ):
         print("Auth header: {}".format( auth_header ))
         if auth_header:
            token = auth_header[7:]
+
+        if token is None:
+            self.send_response_401( )
 
         return token
 

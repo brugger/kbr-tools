@@ -1,4 +1,5 @@
 import hashlib
+import uuid
 
 def hash_password(password):
     # uuid is used to generate a random number
