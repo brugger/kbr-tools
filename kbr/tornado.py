@@ -10,9 +10,25 @@ from tornado.web import Application
 
 from tornado.web import RequestHandler, HTTPError
 
+from uuid import UUID
+import datetime
+
+
 
 import pprint as pp
 import requests
+
+
+# bespoke decoder to handle UUID and timestamps
+class UUIDEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, UUID):
+            # if the obj is uuid, we simply return the value of uuid
+            return obj.hex
+        if isinstance(obj, (datetime.date, datetime.datetime)):
+            return obj.isoformat()
+
+        return json.JSONEncoder.default(self, obj)
 
 
 
@@ -108,8 +124,8 @@ class BaseHandler( RequestHandler ):
         # check if the data is already in valid json format, otherwise make it
         try:
             json_object = json.loads( data )
-        except:
-            data = json.dumps(data)
+        except TypeError:
+            data = json.dumps(data, cls=UUIDEncoder)
 
         self.finish( data  )
 

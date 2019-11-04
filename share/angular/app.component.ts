@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 
-import { KbrAuthentication} from './kbr/authentication';
-import {DomainNavigatorService} from './domains/domain-navigator.service';
+import { environment } from '../environments/environment';
+
 
 @Component({
   selector: 'app-root',
@@ -9,10 +9,12 @@ import {DomainNavigatorService} from './domains/domain-navigator.service';
   styleUrls: ['./app.component.css']
 })
 export class AppComponent {
-  title = 'vmail-frontend';
+  title = 'APP-TITLE';
 
-  constructor( private kbrAuthentication: KbrAuthentication,
-               // used in the html code
-               public domainNavigatorService: DomainNavigatorService,
+  private loginUrl    = `${environment.login_url}`;
+
+
+  constructor( public kbrAuthentication: KbrAuthentication,
+
   ) { kbrAuthentication.prelogin()}
 }

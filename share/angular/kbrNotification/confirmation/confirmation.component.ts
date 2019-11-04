@@ -9,7 +9,7 @@ import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material';
 export class ConfirmationComponent implements OnInit {
 
   constructor( private dialogRef: MatDialogRef<ConfirmationComponent>,
-               @Inject(MAT_DIALOG_DATA) private message:string ) {
+               @Inject(MAT_DIALOG_DATA) public message:string ) {
   }
 
   ngOnInit() {
