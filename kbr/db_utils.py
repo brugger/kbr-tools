@@ -86,6 +86,11 @@ class DB( object ):
 
         return self._db.get_table_names()
 
+    def drop_tables(self) -> None:
+        """ Delete all tables in a database, useful if resetting it during devlopment """
+        for table in self.table_names():
+            db.do("DROP table IF EXISTS {} CASCADE".format( table ))
+
             
     def do(self, sql:str) -> None:
         """ execute a query 
@@ -280,8 +285,8 @@ class DB( object ):
 
         conds = []
         for key in conditions:
-            if ( key not in entry ):
-                raise RuntimeError('condition key not in the entry dict')
+            #if ( key not in entry ):
+            #    raise RuntimeError('condition key not in the entry dict')
 
             conds.append( "{key} = '{value}'".format( key=key, value=entry[ key ]))
 
