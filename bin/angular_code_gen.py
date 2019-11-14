@@ -154,13 +154,32 @@ def make_edit(name:str) -> None:
                            name)
 
 
+def copy_dir( src:str, dst:str) -> None:
+
+    if not os.path.isdir( dst ):
+        os.makedirs( dst )
+    
+    src = find_dir( src )
+    src_files = os.listdir( src )
+    for file_name in src_files:
+        full_file_name = os.path.join(src, file_name)
+        if os.path.isfile( dst+file_name):
+            os.remove( dst+file_name) 
+
+        if os.path.isfile(full_file_name):
+            shutil.copy(full_file_name, dst)
+
+    
+    
+
+    
 def make_kbrNotification() -> None:
 
     print( 'kbrNotification component...')
     launch_cmd("ng g c kbrNotification/confirmation --module app")
     launch_cmd("ng g c kbrNotification/single-input --module app")
 
-    src = 'angular/kbrNotification/'
+    src = 'angular/app/kbrNotification/'
     src = find_dir( src )
     dst = 'src/app/kbrNotification/'
     src_files = os.listdir( src )
@@ -184,7 +203,7 @@ def copy_kbr_library() -> None:
     mkdir("src/assets/")
     mkdir("src/app/kbrNotification/")
 
-    src = 'angular/kbr/'
+    src = 'angular/app/kbr/'
     src = find_dir( src )
     dst = 'src/app/kbr/'
     src_files = os.listdir( src )
@@ -198,7 +217,7 @@ def copy_kbr_library() -> None:
     shutil.copy( find_file( 'angular/assets/kbr.css'),'src/assets/')
     launch_cmd("ng g m routing --flat --module=app")
 
-    shutil.copy( find_file( 'angular/routing.module.ts'),'src/app/')
+    shutil.copy( find_file( 'angular/app/routing.module.ts'),'src/app/')
 
 
 def make_auth() -> None:
@@ -207,10 +226,22 @@ def make_auth() -> None:
     launch_cmd("ng g c auth/login --module app")
     launch_cmd("ng g c auth/logout --module app")
 
-    shutil.copy( find_file( 'angular/auth/login/login.component.ts'),'src/app/auth/login/')
-    shutil.copy( find_file( 'angular/auth/logout/logout.component.ts'),'src/app/auth/logout/')
+    shutil.copy( find_file( 'angular/app/auth/login/login.component.ts'),'src/app/auth/login/')
+    shutil.copy( find_file( 'angular/app/auth/logout/logout.component.ts'),'src/app/auth/logout/')
 
 
+def make_basic() -> None:
+
+    print( 'Basic components...')
+    launch_cmd("ng g c welcome --module app")
+    launch_cmd("ng g c about --module app")
+
+    copy_dir( 'angular/app/welcome/', 'src/app/welcome/')
+    copy_dir( 'angular/app/about/'  , 'src/app/about/')
+    copy_dir( 'angular/environments/'  , 'src/environments/')
+
+
+    
 if __name__ == '__main__':
     
     parser = argparse.ArgumentParser(description='angular module creator (CRUD + Navigator + service)')
@@ -229,7 +260,9 @@ if __name__ == '__main__':
         copy_kbr_library()
         make_kbrNotification()
         make_auth( )
+        make_basic( )
 
+        
     if (args.module):
         name = args.module.lower()
         print( "Creating skeleton files for module: {name}".format( name=name ) )
