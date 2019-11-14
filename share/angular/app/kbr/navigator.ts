@@ -51,6 +51,25 @@ export class KbrNavigator {
     return true;
   }
 
+  homeUrl(): string {
+    return '';
+  }
+
+  homeView(): boolean {
+    this.router.navigateByUrl(this.homeUrl());
+    return true;
+  }
+
+  aboutUrl(): string {
+    return '/about';
+  }
+
+  aboutView(): boolean {
+    this.router.navigateByUrl(this.aboutUrl());
+    return true;
+  }
+
+
 
   accessDeniedUrl():string{
     return '/access-denied';

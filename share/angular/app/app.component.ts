@@ -1,6 +1,9 @@
 import { Component } from '@angular/core';
 
 import { environment } from '../environments/environment';
+import { KbrAuthentication } from './kbr/authentication';
+import { KbrNavigator} from './kbr/navigator';
+
 
 
 @Component({
@@ -15,6 +18,7 @@ export class AppComponent {
 
 
   constructor( public kbrAuthentication: KbrAuthentication,
+               public kbrNavigator: KbrNavigator,
 
   ) { kbrAuthentication.prelogin()}
 }

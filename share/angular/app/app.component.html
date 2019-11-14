@@ -2,6 +2,10 @@
 
 <mat-toolbar color="accent">My App
 
+    <button mat-button routerLink="{{kbrNavigator.homeUrl()}}"> Home </button> <br>
+    <button mat-button routerLink="{{kbrNavigator.aboutUrl()}}"> About</button> <br>
+
+  
     <div *ngIf="kbrAuthentication.isLoggedIn; then logout_template else login_template" ></div>
     <ng-template #login_template>
         <a mat-button href="http://localhost:8080/authorize?response_type=token&client_id=abc&redirect_uri=http%3A%2F%2Flocalhost%2Fvmail-frontend%2F%23login%0A&scope=scope_write">Login</a>
@@ -11,11 +15,9 @@
     <ng-template #logout_template>
         <button mat-button routerLink="/logout">Logout</button>
         <!--    <a routerLink="/logout"> Logout </a> <br> -->
-        <button mat-button routerLink="{{domainNavigatorService.listUrl()}}"> domains</button> <br>
-        <button mat-button routerLink="{{domainNavigatorService.createUrl()}}"> add domain</button> <br>
     </ng-template>
 
-
+    
 </mat-toolbar>
 
 <div style="text-align:center">

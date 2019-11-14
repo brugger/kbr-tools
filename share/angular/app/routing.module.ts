@@ -4,9 +4,11 @@ import { RouterModule, Routes } from '@angular/router';
 import {LoginComponent} from './auth/login/login.component';
 import {LogoutComponent} from './auth/logout/logout.component';
 import {WelcomeComponent} from './welcome/welcome.component';
+import {AboutComponent} from './about/about.component';
 
 const routes: Routes = [
-  { path: '',             component: WelcomeComponent},
+  { path: '',                component: WelcomeComponent},
+  { path: 'about',           component: AboutComponent},
   { path: 'login',           component: LoginComponent},
   { path: 'logout',          component: LogoutComponent},
 ];

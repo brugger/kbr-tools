@@ -215,6 +215,7 @@ def copy_kbr_library() -> None:
             shutil.copy(full_file_name, dst)
 
     shutil.copy( find_file( 'angular/assets/kbr.css'),'src/assets/')
+    shutil.copy( find_file( 'angular/styles.css'),'src/')
     launch_cmd("ng g m routing --flat --module=app")
 
     shutil.copy( find_file( 'angular/app/routing.module.ts'),'src/app/')
@@ -230,23 +231,33 @@ def make_auth() -> None:
     shutil.copy( find_file( 'angular/app/auth/logout/logout.component.ts'),'src/app/auth/logout/')
 
 
-def make_basic() -> None:
+def bootstrap() -> None:
 
     print( 'Basic components...')
+    launch_cmd("npm install --save @angular/material @angular/cdk @angular/animations")
+    launch_cmd("ng update @angular/core @angular/cli @angular/core @angular/flex-layout")
     launch_cmd("ng g c welcome --module app")
     launch_cmd("ng g c about --module app")
+    launch_cmd("ng g m routing --flat --module=app")
 
     copy_dir( 'angular/app/welcome/', 'src/app/welcome/')
     copy_dir( 'angular/app/about/'  , 'src/app/about/')
     copy_dir( 'angular/environments/'  , 'src/environments/')
 
+    shutil.copy( find_file( 'angular/app/app.component.html'),'src/app/')
+    shutil.copy( find_file( 'angular/app/app.component.ts'),'src/app/')
+    shutil.copy( find_file( 'angular/app/routing.module.ts'),'src/app/')
+    shutil.copy( find_file( 'angular/app/app.module.ts'),'src/app/')
 
+
+    
     
 if __name__ == '__main__':
     
     parser = argparse.ArgumentParser(description='angular module creator (CRUD + Navigator + service)')
 
-    parser.add_argument("-b", "--base", default=False, action='store_true', help="install core library and components.")
+    parser.add_argument("-b", "--bootstrap", default=False, action='store_true', help="bootstrap a new project")
+    parser.add_argument("-c", "--components", default=False, action='store_true', help="install core library and components.")
     parser.add_argument("-f", "--force", default=False, action='store_true', help="will overwrite existing files")
 
     parser.add_argument("-m", "--module",  help="name of module to create CRUD for")
@@ -255,12 +266,19 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
  
-    if ( args.base):
-        print('installing base system')
+    if ( args.bootstrap):
+        print('bootstrapping app')
+        bootstrap()
         copy_kbr_library()
         make_kbrNotification()
         make_auth( )
-        make_basic( )
+
+
+    if ( args.components):
+        print('installing components')
+        copy_kbr_library()
+        make_kbrNotification()
+        make_auth( )
 
         
     if (args.module):
