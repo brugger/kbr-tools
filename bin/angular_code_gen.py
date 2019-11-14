@@ -158,9 +158,25 @@ def make_kbrNotification() -> None:
 
     print( 'kbrNotification component...')
     launch_cmd("ng g c kbrNotification/confirmation --module app")
-    shutil.copy( find_file( 'angular/kbrNotification/confirmation/confirmation.component.ts'),'src/app/kbrNotification/confirmation/')
-    shutil.copy( find_file( 'angular/kbrNotification/confirmation/confirmation.component.html'),'src/app/kbrNotification/confirmation/')
-    shutil.copy( find_file( 'angular/kbrNotification/kbrNotification.ts'),'src/app/kbrNotification/')
+    launch_cmd("ng g c kbrNotification/single-input --module app")
+
+    src = 'angular/kbrNotification/'
+    src = find_dir( src )
+    dst = 'src/app/kbrNotification/'
+    src_files = os.listdir( src )
+    for file_name in src_files:
+        full_file_name = os.path.join(src, file_name)
+        if os.path.isfile( dst+file_name):
+            os.remove( dst+file_name) 
+
+        if os.path.isfile(full_file_name):
+            shutil.copy(full_file_name, dst)
+
+
+
+#    shutil.copy( find_file( 'angular/kbrNotification/confirmation/confirmation.component.ts'),'src/app/kbrNotification/confirmation/')
+#    shutil.copy( find_file( 'angular/kbrNotification/confirmation/confirmation.component.html'),'src/app/kbrNotification/confirmation/')
+#    shutil.copy( find_file( 'angular/kbrNotification/kbrNotification.ts'),'src/app/kbrNotification/')
 
 def copy_kbr_library() -> None:
     print( 'kbr library...')
@@ -190,7 +206,6 @@ def make_auth() -> None:
     print( 'Auth components...')
     launch_cmd("ng g c auth/login --module app")
     launch_cmd("ng g c auth/logout --module app")
-
 
     shutil.copy( find_file( 'angular/auth/login/login.component.ts'),'src/app/auth/login/')
     shutil.copy( find_file( 'angular/auth/logout/logout.component.ts'),'src/app/auth/logout/')
