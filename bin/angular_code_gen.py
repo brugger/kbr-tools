@@ -52,6 +52,10 @@ def find_file( filename:str) -> str:
 
 
 def find_dir( filename:str) -> str:
+
+    if filename.startswith('/'):
+        return filename
+    
     script_dir = os.path.dirname(os.path.abspath( __file__ ))
 
     default_dirs = ['/usr/local/share/kbr-tools',
@@ -162,12 +166,22 @@ def copy_dir( src:str, dst:str) -> None:
     src = find_dir( src )
     src_files = os.listdir( src )
     for file_name in src_files:
-        full_file_name = os.path.join(src, file_name)
-        if os.path.isfile( dst+file_name):
-            os.remove( dst+file_name) 
+#        print( "FN", src + "/"+file_name)
+#        print( os.path.isdir( src + "/"+file_name))
+ 
+        if os.path.isdir( src + "/"+file_name):
+#            print("Recursive!")
+            copy_dir(src + "/"+ file_name, dst +"/"+ file_name )
 
-        if os.path.isfile(full_file_name):
-            shutil.copy(full_file_name, dst)
+        else :
+            
+            full_file_name = os.path.join(src, file_name)
+            if os.path.isfile( dst+file_name):
+                os.remove( dst+file_name) 
+
+            if os.path.isfile(full_file_name):
+#                print(full_file_name, "==>", dst)
+                shutil.copy(full_file_name, dst)
 
     
     
@@ -176,26 +190,14 @@ def copy_dir( src:str, dst:str) -> None:
 def make_kbrNotification() -> None:
 
     print( 'kbrNotification component...')
-    launch_cmd("ng g c kbrNotification/confirmation --module app")
-    launch_cmd("ng g c kbrNotification/single-input --module app")
+    if not os.path.isdir("src/app/kbrNotification/confirmation"):
+        launch_cmd("ng g c kbrNotification/confirmation --module app")
 
-    src = 'angular/app/kbrNotification/'
-    src = find_dir( src )
-    dst = 'src/app/kbrNotification/'
-    src_files = os.listdir( src )
-    for file_name in src_files:
-        full_file_name = os.path.join(src, file_name)
-        if os.path.isfile( dst+file_name):
-            os.remove( dst+file_name) 
+    if not os.path.isdir("src/app/kbrNotification/single-input"):
+        launch_cmd("ng g c kbrNotification/single-input --module app")
 
-        if os.path.isfile(full_file_name):
-            shutil.copy(full_file_name, dst)
-
-
-
-#    shutil.copy( find_file( 'angular/kbrNotification/confirmation/confirmation.component.ts'),'src/app/kbrNotification/confirmation/')
-#    shutil.copy( find_file( 'angular/kbrNotification/confirmation/confirmation.component.html'),'src/app/kbrNotification/confirmation/')
-#    shutil.copy( find_file( 'angular/kbrNotification/kbrNotification.ts'),'src/app/kbrNotification/')
+    copy_dir('angular/app/kbrNotification/', 'src/app/kbrNotification/')
+    
 
 def copy_kbr_library() -> None:
     print( 'kbr library...')
@@ -216,16 +218,14 @@ def copy_kbr_library() -> None:
 
     shutil.copy( find_file( 'angular/assets/kbr.css'),'src/assets/')
     shutil.copy( find_file( 'angular/styles.css'),'src/')
-    launch_cmd("ng g m routing --flat --module=app")
-
-    shutil.copy( find_file( 'angular/app/routing.module.ts'),'src/app/')
-
 
 def make_auth() -> None:
 
     print( 'Auth components...')
-    launch_cmd("ng g c auth/login --module app")
-    launch_cmd("ng g c auth/logout --module app")
+    if not os.path.isdir("src/app/auth/login"):
+        launch_cmd("ng g c auth/login --module app")
+    if not os.path.isdir("src/app/auth/logout"):
+        launch_cmd("ng g c auth/logout --module app")
 
     shutil.copy( find_file( 'angular/app/auth/login/login.component.ts'),'src/app/auth/login/')
     shutil.copy( find_file( 'angular/app/auth/logout/logout.component.ts'),'src/app/auth/logout/')
@@ -240,6 +240,11 @@ def bootstrap() -> None:
     launch_cmd("ng g c about --module app")
     launch_cmd("ng g m routing --flat --module=app")
 
+    launch_cmd("ng g m routing --flat --module=app")
+    shutil.copy( find_file( 'angular/app/routing.module.ts'),'src/app/')
+
+
+    
     copy_dir( 'angular/app/welcome/', 'src/app/welcome/')
     copy_dir( 'angular/app/about/'  , 'src/app/about/')
     copy_dir( 'angular/environments/'  , 'src/environments/')
@@ -293,7 +298,7 @@ if __name__ == '__main__':
         make_edit(name )
 
         print( "Add the following routes to routing.ts")
-        print("  {{ path: '{name}s/:id',           component: {Name}ListComponent}},".format(Name=name.capitalize(), name=name))
+        print("  {{ path: '{name}s/:id',           component: {Name}ViewComponent}},".format(Name=name.capitalize(), name=name))
         print("  {{ path: '{name}s',           component: {Name}ListComponent}},".format(Name=name.capitalize(), name=name))
 
 
