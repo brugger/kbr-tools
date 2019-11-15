@@ -2,13 +2,13 @@
 // `ng build --prod` replaces `environment.ts` with `environment.prod.ts`.
 // The list of file replacements can be found in `angular.json`.
 
-const project:string = 'CHANGE-ME';
+import { setup } from  './setup'
 
 export const environment = {
   production: false,
-  api_base: `http://localhost/${project}/api`,
-  url_base: `http://localhost/${project}-web`,
-  login_url: `http://localhost/${project}/api/authorize?response_type=token&client_id=abc&scope=scope_write&redirect_uri=` + encodeURIComponent(`http://localhost/${project}-web/#/login`)};
+  api_base: `http://localhost/${setup.name}/api`,
+  url_base: `http://localhost/${setup.name}-web`,
+  login_url: `http://localhost/${setup.name}/api/authorize?response_type=token&client_id=abc&scope=scope_write&redirect_uri=` + encodeURIComponent(`http://localhost/${setup.name}-web/#/login`)};
 
 /*
  * For easier debugging in development mode, you can import the following file
