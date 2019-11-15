@@ -295,3 +295,7 @@ if __name__ == '__main__':
         print( "Add the following routes to routing.ts")
         print("  {{ path: '{name}s/:id',           component: {Name}ListComponent}},".format(Name=name.capitalize(), name=name))
         print("  {{ path: '{name}s',           component: {Name}ListComponent}},".format(Name=name.capitalize(), name=name))
+
+
+        print("Update entryComponents in app.module.ts")
+        print("                    {Name}EditComponent".format(Name=name.capitalize()))
