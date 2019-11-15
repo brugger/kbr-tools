@@ -13,7 +13,7 @@ import {
   MatIconModule, MatInputModule,
   MatMenuModule, MatOptionModule, MatProgressSpinnerModule, MatRadioModule, MatRippleModule, MatSelectModule, MatSidenavModule,
   MatSnackBarModule,
-  MatTableModule,
+  MatTableModule, MatTabsModule,
   MatToolbarModule
 } from '@angular/material';
 import { ConfirmationComponent } from './kbrNotification/confirmation/confirmation.component';
@@ -55,6 +55,7 @@ import { SingleInputComponent } from './kbrNotification/single-input/single-inpu
     MatMenuModule,
     MatRadioModule,
     MatToolbarModule,
+    MatTabsModule,
     MatIconModule,
     MatTableModule,
     MatFormFieldModule,
