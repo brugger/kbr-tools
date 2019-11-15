@@ -1,6 +1,7 @@
 import {{ Injectable }} from '@angular/core';
 import {{ HttpClient}} from '@angular/common/http';
 import {{ Observable }} from 'rxjs';
+import { environment } from '../../environments/environment';
 
 import {{{Name}}} from './{name}.model';
 
@@ -11,7 +12,7 @@ export class {Name}Service {{
 
   constructor( private http: HttpClient, ) {{}};
 
-  private {name}Url = 'api/{name}';
+  private {name}Url    = `${environment.api_base}/{name}`;
 
   get{Name}s(): Observable<{Name}[]> {{
     console.log('getting {name}s')
