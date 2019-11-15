@@ -4,6 +4,9 @@ import {{MatDialog, MatDialogConfig, MatDialogRef}} from '@angular/material';
 import {{{Name}EditComponent}} from './{name}-edit/{name}-edit.component';
 import {{ConfirmationComponent}} from '../kbrNotification/confirmation/confirmation.component';
 
+import {Name} from './{name}.model';
+
+
 @Injectable({{
   providedIn: 'root'
 }})
