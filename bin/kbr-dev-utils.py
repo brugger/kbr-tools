@@ -16,7 +16,7 @@ import kbr.version_utils as version_utils
 
 def version_command(args) -> None:
 
-    commands = ['bump', 'info', 'help']
+    commands = ['bump', 'info', 'set', 'help']
     if len( args.command) == 0:
         args.command.append( 'help')
 
@@ -31,6 +31,7 @@ def version_command(args) -> None:
     elif command == 'info':
         version_utils.info()
     elif command == 'set':
+        args_utils.count(1, len(args.command), msg="version set requires a version string (major.minor.patch)")
         version = args.command.pop( 0 )
         version_utils.set( version )
     else:

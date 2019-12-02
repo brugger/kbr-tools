@@ -112,5 +112,25 @@ def info(mesg:str="Version: ") -> None:
 
 
 def set(version:str) -> None:
+    major, minor, patch = map( int, version.split('.'))
 
-    return None
+    info(mesg="Version before bump ")
+    version_file = file_utils.find_first( 'version.json')
+    if version_file is not None:
+        version = json_utils.read( version_file )
+        version[ 'major' ] = major
+        version[ 'minor' ] = minor
+        version[ 'patch' ] = patch
+        json_utils.write( version_file, version )
+        info(mesg="Version after bump ")
+        return
+
+    version_file = file_utils.find_first( 'setup.ts')
+    if version_file is not None:
+        set_ts_version(version_file, major, minor, patch)
+        info(mesg="Version after bump ")
+        return
+
+
+    raise RuntimeError('Could not find version file')
+
