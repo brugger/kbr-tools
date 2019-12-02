@@ -96,10 +96,22 @@ def info(mesg:str="Version: ") -> None:
 
     version_file = file_utils.find_first( 'setup.ts')
     if version_file is not None:
-        version = get_ts_version(version_file)
         major, minor, patch = get_ts_version( version_file )
         _pretty_print( major, minor, patch, mesg=mesg)
         return
+
+
+
+def as_string():
+    version_file = file_utils.find_first( 'version.json')
+    if version_file is not None:
+        info = json_utils.read( version_file )
+        return  "Version: {}.{}.{}".format( info['major'], info['minor'], info['patch'])
+
+    version_file = file_utils.find_first( 'setup.ts')
+    if version_file is not None:
+        major, minor, patch = get_ts_version( version_file )
+        return  "Version: {}.{}.{}".format(major, minor, patch)
 
 
 def set(version:str) -> None:
