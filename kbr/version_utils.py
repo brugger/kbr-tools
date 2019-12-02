@@ -1,3 +1,5 @@
+import re
+
 import kbr.file_utils as file_utils
 import kbr.json_utils as json_utils
 
@@ -51,14 +53,43 @@ def bump_version(bump:str) -> None:
 
     version_file = file_utils.find_first( 'setup.ts')
     if version_file is not None:
-        version = json_version( version_file )
-        major, miror, patch = bumping( bump, version['major'], version['minor'], version['patch'] )
-        version[ 'major' ] = major
-        version[ 'minor' ] = minor
-        version[ 'patch' ] = patch
+        major, minor, patch  = get_ts_version(version_file)
+        major, minor, patch = bumping( bump, major, minor, patch )
+        set_ts_version(version_file, major, minor, patch)
+        info(mesg="Version after bump ")
         return
 
+
     raise RuntimeError('Could not find version file')
+
+
+def get_ts_version(filename:str) -> []:
+    data = file_utils.readin_file( filename )
+    match = re.search(r"version: '(\d+)\.(\d+).(\d+)'", data, re.MULTILINE)
+    if match:
+        return int(match.group(1)), int(match.group(2)), int(match.group(3))
+
+    raise RuntimeError( "Could not find version string in {}".format(filename))
+
+
+
+def set_ts_version(filename:str, major:int, minor:int, patch:int) -> []:
+    data = file_utils.readin_file( filename )
+    version = "version: '{}.{}.{}'".format( major, minor, patch)
+    data = re.sub(r"version: '(.*)'", version, data, re.MULTILINE)
+    file_utils.write( filename, data)
+
+
+    return
+
+    match = re.search(r"version: '(\d+)\.(\d+).(\d+)'", data, re.MULTILINE)
+    if match:
+        major, minor, patch = match.group(1), match.group(2), match.group(3)
+        return major, minor, patch
+
+    raise RuntimeError( "Could not find version string in {}".format(filename))
+
+
 
 
 def _pretty_print( major:int, minor:int, patch:int, mesg:str="Version: " ) -> None:
@@ -72,6 +103,14 @@ def info(mesg:str="Version: ") -> None:
         _pretty_print( info['major'], info['minor'], info['patch'], mesg=mesg)
         return
 
+    version_file = file_utils.find_first( 'setup.ts')
+    if version_file is not None:
+        version = get_ts_version(version_file)
+        major, minor, patch = get_ts_version( version_file )
+        _pretty_print( major, minor, patch, mesg=mesg)
+        return
+
 
 def set(version:str) -> None:
+
     return None

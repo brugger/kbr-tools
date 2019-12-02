@@ -25,3 +25,11 @@ def find_first(name:str, path:str=".") -> str:
             return os.path.join(root, name)
 
     return None
+
+
+def write(filename:str, data:str) -> None:
+    with open(filename, 'w') as outfile:
+        outfile.write(data)
+        outfile.close()
+
+    return None
