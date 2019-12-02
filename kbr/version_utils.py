@@ -80,15 +80,6 @@ def set_ts_version(filename:str, major:int, minor:int, patch:int) -> []:
     file_utils.write( filename, data)
 
 
-    return
-
-    match = re.search(r"version: '(\d+)\.(\d+).(\d+)'", data, re.MULTILINE)
-    if match:
-        major, minor, patch = match.group(1), match.group(2), match.group(3)
-        return major, minor, patch
-
-    raise RuntimeError( "Could not find version string in {}".format(filename))
-
 
 
 
@@ -130,7 +121,6 @@ def set(version:str) -> None:
         set_ts_version(version_file, major, minor, patch)
         info(mesg="Version after bump ")
         return
-
 
     raise RuntimeError('Could not find version file')
 
