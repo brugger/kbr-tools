@@ -9,6 +9,7 @@
 import sys
 import pprint
 pp = pprint.PrettyPrinter(indent=4)
+import json
 
 import typing
 
@@ -56,3 +57,15 @@ def validate_json(json_body, template:dict) -> bool:
         return _dict_validation( json_body, template)
     else:
         raise TypeError
+
+
+
+def read(filename:str) -> {}:
+    with open(filename) as json_file:
+        data = json.load(json_file)
+        return data
+
+
+def write (filename:str, data:dict) -> None:
+    with open(filename, 'w') as outfile:
+        json.dump(data, outfile)
