@@ -72,16 +72,11 @@ def get_ts_version(filename:str) -> []:
     raise RuntimeError( "Could not find version string in {}".format(filename))
 
 
-
 def set_ts_version(filename:str, major:int, minor:int, patch:int) -> []:
     data = file_utils.readin_file( filename )
     version = "version: '{}.{}.{}'".format( major, minor, patch)
     data = re.sub(r"version: '(.*)'", version, data, re.MULTILINE)
     file_utils.write( filename, data)
-
-
-
-
 
 def _pretty_print( major:int, minor:int, patch:int, mesg:str="Version: " ) -> None:
     print( "{}{}.{}.{}".format( mesg, major, minor, patch))
@@ -136,3 +131,7 @@ def set(version:str) -> None:
 
     raise RuntimeError('Could not find version file')
 
+
+def module_version( module_name) -> str:
+    import pkg_resources
+    return pkg_resources.get_distribution( module_name ).version
