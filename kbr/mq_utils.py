@@ -21,8 +21,6 @@ class Mq(object):
         self.channels   = []
 
     def connect(self,  uri:str, exchange:str='', exchange_type:str='direct'):
-
-    
         self.connection = pika.BlockingConnection( pika.connection.URLParameters(uri) )
         self.channel    = self.connection.channel()
         self.exchange   = exchange
@@ -47,12 +45,8 @@ class Mq(object):
             
     def publish(self, body:str, route:str='default'):
 
-
         self._check_channel( route)
         self.channel.basic_publish( exchange=self.exchange, routing_key=route, body=body, properties=pika.BasicProperties( delivery_mode=2))
-
-
-
         
     def consume(self, route:str, callback):
         try:

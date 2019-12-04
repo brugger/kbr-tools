@@ -2,7 +2,7 @@
 import os
 
 
-def readin_file( filename:str) -> str:
+def read(filename:str) -> str:
     
     file_handle = open(filename, 'r')
     content = file_handle.read()

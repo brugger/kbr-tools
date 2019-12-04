@@ -65,7 +65,7 @@ def bump_version(bump:str) -> None:
 
 
 def get_ts_version(filename:str) -> []:
-    data = file_utils.readin_file( filename )
+    data = file_utils.read(filename)
     match = re.search(r"version: '(\d+)\.(\d+).(\d+)'", data, re.MULTILINE)
     if match:
         return int(match.group(1)), int(match.group(2)), int(match.group(3))
@@ -74,7 +74,7 @@ def get_ts_version(filename:str) -> []:
 
 
 def set_ts_version(filename:str, major:int, minor:int, patch:int) -> []:
-    data = file_utils.readin_file( filename )
+    data = file_utils.read(filename)
     version = "version: '{}.{}.{}'".format( major, minor, patch)
     data = re.sub(r"version: '(.*)'", version, data, re.MULTILINE)
     file_utils.write( filename, data)
