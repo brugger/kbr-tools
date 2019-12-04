@@ -40,11 +40,14 @@ export class KbrNotification {
  */
 
   notification(message:string): void {
+    if (message == undefined || message == '') { return }
+
     let snackBarRef = this.matSnackBar.open(message, '', {duration: 3000, panelClass:['snackbar-green']});
     //this.showDialog( ErrorDialogComponent, {'msg': 'This is an error ...'});
   }
 
   actionConfirm(message:string): void {
+    if (message == undefined ||message == '') { return }
     let snackBarRef = this.matSnackBar.open(message, 'Ok', {duration: 300000, panelClass:['snackbar-green']});
     if (!snackBarRef.onAction().subscribe(() => {
       console.log('The snack-bar action was triggered!');
@@ -56,11 +59,13 @@ export class KbrNotification {
   }
 
   error(message:string): void {
+    if (message == undefined ||message == '') { return }
     let snackBarRef = this.matSnackBar.open(message, '', {duration: 3000, panelClass:['snackbar-red']});
     //this.showDialog( ErrorDialogComponent, {'msg': 'This is an error ...'});
   }
 
   errorAck(message:string): void {
+    if (message == undefined ||message == '') { return }
     let snackBarRef = this.matSnackBar.open(message, 'Ok', {duration: -1, panelClass:['snackbar-red']});
     //this.showDialog( ErrorDialogComponent, {'msg': 'This is an error ...'});
   }

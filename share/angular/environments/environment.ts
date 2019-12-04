@@ -8,7 +8,7 @@ export const environment = {
   production: false,
   api_base: `http://localhost/${setup.name}/api`,
   url_base: `http://localhost/${setup.name}-web`,
-  login_url: `http://localhost/${setup.name}/api/authorize?response_type=token&client_id=abc&scope=scope_write&redirect_uri=` + encodeURIComponent(`http://localhost/${setup.name}-web/#/login`)};
+  login_url: `http://localhost/${setup.name}/api/authorize?response_type=token&client_id=${setup.clientId}&scope=scope_write&redirect_uri=` + encodeURIComponent(`http://localhost/${setup.name}-web/#/login`)};
 
 /*
  * For easier debugging in development mode, you can import the following file

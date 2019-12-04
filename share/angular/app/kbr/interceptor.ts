@@ -5,6 +5,7 @@ import {finalize, tap} from 'rxjs/operators';
 
 import {KbrAuthentication} from './authentication';
 import {KbrNavigator} from './navigator';
+import {KbrNotification} from '../kbrNotification/kbrNotification';
 
 @Injectable({
   providedIn: 'root',
@@ -12,12 +13,12 @@ import {KbrNavigator} from './navigator';
 
 export class KbrHttpInterceptor implements HttpInterceptor {
   constructor( private kbrAuthentication: KbrAuthentication,
-               private kbrNavigator: KbrNavigator,) {
+               private kbrNavigator: KbrNavigator,
+               private kbrNotification: KbrNotification,) {
 
   }
 
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-    let ok: string;
     let status: number;
     let description: string;
     let msgs: string[];
@@ -37,11 +38,12 @@ export class KbrHttpInterceptor implements HttpInterceptor {
           },
           // Operation failed; error is an HttpErrorResponse
           error => {
-            console.log( error );
+            //console.log( error );
                         status = error.status;
 
                         if (status == 400) {
-                          msgs = error.error.msgs;
+                          msgs = [error.error.msg];
+                          console.log( msgs )
                         } else {
                           description = error.description;
                         }
@@ -50,28 +52,44 @@ export class KbrHttpInterceptor implements HttpInterceptor {
 
         // Log when response observable either completes or errors
         finalize(() => {
-          console.log( 'status' + status);
+          //console.log( 'status ' + status);
+          //console.log( 'description ' + description);
+          //console.log( 'msgs ' + msgs);
           switch (status) {
             case 400:
-              //this.kbrNotification.validationErrors(msgs);
+              if (!msgs || msgs === []) {
+                msgs = ['Bad request'];
+              }
+              this.kbrNotification.error(msgs.join("\n"));
               break;
             case 401:
+              if (!msgs || msgs === []) {
+                msgs = ['User not authorized'];
+              }
                this.kbrNavigator.logout();
               break;
             case 403:
-//              this.kbrNavigator.accessDenied();
+              if (!msgs || msgs === []) {
+                msgs = ['Forbidden'];
+              }
+              this.kbrNotification.error(msgs.join("\n"));
+              //              this.kbrNavigator.accessDenied();
               break;
             case 404:
+              if (!msgs || msgs === []) {
+                msgs = ['Resource(s) not found'];
+              }
+              this.kbrNotification.error(msgs.join("\n"));
 //              this.kbrNavigator.notFound();
               break;
             case 503:
-              //this.tcNotification.error("Unable to contact remote server. Make sure your connection is working and try again");
+              this.kbrNotification.errorAck("Unable to contact remote server. Make sure your connection is working and try again");
               break;
             default:
               //handle remaining 4xx or 5xx responses
- //             if (status / 100 > 3) {
-                //this.tcNotification.error(description);
-//              }
+             if (status / 100 > 3) {
+                this.kbrNotification.errorAck(description);
+              }
               break;
           }
         })
