@@ -1,6 +1,7 @@
 import os
 from setuptools import setup
 import json
+import glob
 
 def readme():
     with open('README.rst') as f:
@@ -21,6 +22,9 @@ def get_version():
         data = json.load(json_file)
 
     return "{}.{}.{}".format( data['major'], data['minor'], data['patch'])
+
+def scripts(directory='bin/*py') -> []:
+    return glob.glob( directory )
 
 
 setup(name='kbr',
@@ -43,10 +47,7 @@ setup(name='kbr',
         'License :: MIT License',
         'Programming Language :: Python :: 3'
         ],      
-      scripts=['bin/angular_code_gen.py',
-               'bin/daemon_check.py',
-               'bin/kbr-dev-utils.py'
-                ],
+      scripts=scripts(),
       data_files=[('share/kbr-tools/', package_files('share/'))],
       include_package_data=True,
       zip_safe=False)
