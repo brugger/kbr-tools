@@ -2,6 +2,7 @@ import re
 
 import kbr.file_utils as file_utils
 import kbr.json_utils as json_utils
+import kbr.run_utils  as run_utils
 
 def _bump_major( major:int, minor:int, patch:int ) -> []:
 
@@ -101,12 +102,12 @@ def as_string():
     version_file = file_utils.find_first( 'version.json')
     if version_file is not None:
         info = json_utils.read( version_file )
-        return  "Version: {}.{}.{}".format( info['major'], info['minor'], info['patch'])
+        return  "{}.{}.{}".format( info['major'], info['minor'], info['patch'])
 
     version_file = file_utils.find_first( 'setup.ts')
     if version_file is not None:
         major, minor, patch = get_ts_version( version_file )
-        return  "Version: {}.{}.{}".format(major, minor, patch)
+        return  "{}.{}.{}".format(major, minor, patch)
 
 
 def set(version:str) -> None:
@@ -130,6 +131,16 @@ def set(version:str) -> None:
         return
 
     raise RuntimeError('Could not find version file')
+
+
+def tag( ):
+    cmd = "git tag {} master".format( as_string() )
+    print( cmd )
+    run_utils.launch_cmd( cmd )
+    cmd = "git push --tags"
+    print( cmd )
+    run_utils.launch_cmd( cmd )
+
 
 
 def module_version( module_name) -> str:
