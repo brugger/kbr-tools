@@ -6,12 +6,16 @@
 # Kim Brugger (03 Apr 2019), contact: kim@brugger.dk
 
 import sys
+import os
 import pprint
 pp = pprint.PrettyPrinter(indent=4)
 import json
 import argparse
+
 import kbr.args_utils as args_utils
 import kbr.version_utils as version_utils
+import kbr.string_utils as string_utils
+import kbr.json_utils as json_utils
 
 
 def version_command(args) -> None:
@@ -63,12 +67,18 @@ def release_command(args) -> None:
         sys.exit()
 
 
+def init_python():
+    if not os.path.isfile( "version.json"):
+        json_utils.write( "version.json", {'major':0, 'minor': 0, 'patch':0} )
+    version_utils.write_release_file()
+
+
 
 def main():
 
 
     parser = argparse.ArgumentParser(description='Dev utils')
-    commands = ["version", "release"]
+    commands = ["version", "release", "init"]
     parser.add_argument('command', nargs='+', help="{}".format(",".join(commands)))
 
     args = parser.parse_args()
@@ -82,6 +92,8 @@ def main():
         version_command(args)
     elif command == 'release':
         release_command(args)
+    elif command == 'init':
+        init_python()
     else:
         print("Unknown command: {} are allowed.".format(string_utils.comma_sep( commands )))
         sys.exit( 1 )

@@ -1,8 +1,10 @@
 import re
+import os
 
 import kbr.file_utils as file_utils
 import kbr.json_utils as json_utils
 import kbr.run_utils  as run_utils
+import kbr.file_utils as file_utils
 
 def _bump_major( major:int, minor:int, patch:int ) -> []:
 
@@ -146,3 +148,21 @@ def tag( ):
 def module_version( module_name) -> str:
     import pkg_resources
     return pkg_resources.get_distribution( module_name ).version
+
+
+def write_release_file():
+    if os.path.isfile( "release.md"):
+        raise RuntimeError('release.md already exists')
+
+    content = '''Major Changes
+###
+
+Minor Changes
+###
+
+Patches
+###
+'''
+    file_utils.write( 'release.md', content )
+
+#def release_prep():
