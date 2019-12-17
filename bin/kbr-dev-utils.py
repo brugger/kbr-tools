@@ -40,6 +40,27 @@ def version_command(args) -> None:
         print("version sub-commands: {}".format(", ".join(commands)))
         sys.exit()
 
+def release_command(args) -> None:
+
+    commands = ['info', 'prep', 'push', 'help']
+    if len( args.command) == 0:
+        args.command.append( 'help')
+
+    command = args.command.pop( 0 )
+    args_utils.valid_command(command, commands)
+
+    if command == 'info':
+        version = None
+        if len( args.command ) == 1:
+            version = args.command.pop( 0 )
+        version_utils.release_info( version )
+    elif command == 'prep':
+        version_utils.release_prep()
+    elif command == 'push':
+        version_utils.release_push( version )
+    else:
+        print("version sub-commands: {}".format(", ".join(commands)))
+        sys.exit()
 
 
 
@@ -47,7 +68,7 @@ def main():
 
 
     parser = argparse.ArgumentParser(description='Dev utils')
-    commands = ["version"]
+    commands = ["version", "release"]
     parser.add_argument('command', nargs='+', help="{}".format(",".join(commands)))
 
     args = parser.parse_args()
@@ -59,6 +80,8 @@ def main():
 
     if command == 'version':
         version_command(args)
+    elif command == 'release':
+        release_command(args)
     else:
         print("Unknown command: {} are allowed.".format(string_utils.comma_sep( commands )))
         sys.exit( 1 )
