@@ -68,6 +68,8 @@ def release_command(args) -> None:
 
 
 def init_python():
+    if not os.path.isdir( 'docs/'):
+        os.mkdir('docs/')
     if not os.path.isfile( "version.json"):
         json_utils.write( "version.json", {'major':0, 'minor': 0, 'patch':0} )
     version_utils.write_release_file()

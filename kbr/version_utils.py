@@ -1,5 +1,6 @@
 import re
 import os
+import shutil
 
 import kbr.file_utils as file_utils
 import kbr.json_utils as json_utils
@@ -151,8 +152,8 @@ def module_version( module_name) -> str:
 
 
 def write_release_file():
-    if os.path.isfile( "release.md"):
-        raise RuntimeError('release.md already exists')
+    if os.path.isfile( "updates.md"):
+        raise RuntimeError('updates.md already exists')
 
     content = '''Major Changes
 ###
@@ -163,6 +164,9 @@ Minor Changes
 Patches
 ###
 '''
-    file_utils.write( 'release.md', content )
+    file_utils.write( 'updates.md', content )
 
-#def release_prep():
+def release_prep():
+
+    shutil.move('updates.md', "docs/release-{}.md".format( as_string() ))
+    write_release_file()
