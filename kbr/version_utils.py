@@ -1,5 +1,6 @@
 import re
 import os
+import sys
 import shutil
 
 import kbr.json_utils as json_utils
@@ -142,8 +143,12 @@ def set(version:str) -> None:
     raise RuntimeError('Could not find version file')
 
 
-def tag( ):
-    cmd = "git tag {} master".format( as_string() )
+def tag( release_file:str=None):
+    cmd = "git tag "
+    if release_file is not None:
+        cmd += " -F {}".format( release_file)
+    cmd += " {} master".format( as_string() )
+
     print( cmd )
     run_utils.launch_cmd( cmd )
     cmd = "git push --tags"
@@ -174,12 +179,22 @@ Patches
 
 def release_prep():
 
-    shutil.move(UPDATES_FILE, RELEASE_FILE.format( as_string() ))
+    release_filename = RELEASE_FILE.format( as_string() )
+
+    if os.path.isfile( release_filename):
+        print( "Release file ({}) already exists!".format( release_filename))
+        sys.exit( -1 )
+
+
+    shutil.move(UPDATES_FILE, release_filename )
     write_update_file()
 
 def init_python_env():
-    if not os.path.isdir( 'docs/'):
-        os.mkdir('docs/')
+
+    dirs = ['bin', 'docs', 't']
+    for dir in dirs:
+        if not os.path.isdir( dir ):
+            os.mkdir(dir)
 
     if not os.path.isfile( VERSION_FILE ):
         json_utils.write( VERSION_FILE, {'major':0, 'minor': 0, 'patch':0} )
@@ -196,7 +211,7 @@ def _git_tags() -> []:
 
 def release_info(version:str=None):
     if version is None:
-        tags = _git_tags().split("\n")
+        tags = _git_tags().split("\n")[::-1]
         print( "\n".join( tags)  , end="")
 
         version = tags[ -2 ]
@@ -213,3 +228,8 @@ def release_info(version:str=None):
 
 def release_push():
     return None
+
+
+def release_push():
+    release_file = RELEASE_FILE.format( as_string())
+    tag( release_file )
