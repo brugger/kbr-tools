@@ -61,18 +61,10 @@ def release_command(args) -> None:
     elif command == 'prep':
         version_utils.release_prep()
     elif command == 'push':
-        version_utils.release_push( version )
+        version_utils.release_push( )
     else:
         print("version sub-commands: {}".format(", ".join(commands)))
         sys.exit()
-
-
-def init_python():
-    if not os.path.isdir( 'docs/'):
-        os.mkdir('docs/')
-    if not os.path.isfile( "version.json"):
-        json_utils.write( "version.json", {'major':0, 'minor': 0, 'patch':0} )
-    version_utils.write_release_file()
 
 
 
@@ -95,7 +87,7 @@ def main():
     elif command == 'release':
         release_command(args)
     elif command == 'init':
-        init_python()
+        version_utils.init_python_env()
     else:
         print("Unknown command: {} are allowed.".format(string_utils.comma_sep( commands )))
         sys.exit( 1 )

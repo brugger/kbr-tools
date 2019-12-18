@@ -2,10 +2,16 @@ import re
 import os
 import shutil
 
-import kbr.file_utils as file_utils
 import kbr.json_utils as json_utils
 import kbr.run_utils  as run_utils
 import kbr.file_utils as file_utils
+
+VERSION_FILE = "version.json"
+ANGULAR_SETUP = "setup.ts"
+UPDATES_FILE = "updates.md"
+RELEASE_FILE = "docs/release-{}.md"
+
+
 
 def _bump_major( major:int, minor:int, patch:int ) -> []:
 
@@ -44,7 +50,7 @@ def bumping( bump:str, major:int, minor:int, patch:int ) -> []:
 def bump_version(bump:str) -> None:
 
     info(mesg="Version before bump ")
-    version_file = file_utils.find_first( 'version.json')
+    version_file = file_utils.find_first( VERSION_FILE )
     if version_file is not None:
         version = json_utils.read( version_file )
         major, minor, patch = bumping( bump, version['major'], version['minor'], version['patch'] )
@@ -55,7 +61,7 @@ def bump_version(bump:str) -> None:
         info(mesg="Version after bump ")
         return
 
-    version_file = file_utils.find_first( 'setup.ts')
+    version_file = file_utils.find_first( ANGULAR_SETUP )
     if version_file is not None:
         major, minor, patch  = get_ts_version(version_file)
         major, minor, patch = bumping( bump, major, minor, patch )
@@ -87,13 +93,13 @@ def _pretty_print( major:int, minor:int, patch:int, mesg:str="Version: " ) -> No
 
 
 def info(mesg:str="Version: ") -> None:
-    version_file = file_utils.find_first( 'version.json')
+    version_file = file_utils.find_first( VERSION_FILE )
     if version_file is not None:
         info = json_utils.read( version_file )
         _pretty_print( info['major'], info['minor'], info['patch'], mesg=mesg)
         return
 
-    version_file = file_utils.find_first( 'setup.ts')
+    version_file = file_utils.find_first( ANGULAR_SETUP )
     if version_file is not None:
         major, minor, patch = get_ts_version( version_file )
         _pretty_print( major, minor, patch, mesg=mesg)
@@ -102,12 +108,12 @@ def info(mesg:str="Version: ") -> None:
 
 
 def as_string():
-    version_file = file_utils.find_first( 'version.json')
+    version_file = file_utils.find_first( VERSION_FILE )
     if version_file is not None:
         info = json_utils.read( version_file )
         return  "{}.{}.{}".format( info['major'], info['minor'], info['patch'])
 
-    version_file = file_utils.find_first( 'setup.ts')
+    version_file = file_utils.find_first( ANGULAR_SETUP )
     if version_file is not None:
         major, minor, patch = get_ts_version( version_file )
         return  "{}.{}.{}".format(major, minor, patch)
@@ -117,7 +123,7 @@ def set(version:str) -> None:
     major, minor, patch = map( int, version.split('.'))
 
     info(mesg="Version before bump ")
-    version_file = file_utils.find_first( 'version.json')
+    version_file = file_utils.find_first( VERSION_FILE )
     if version_file is not None:
         version = json_utils.read( version_file )
         version[ 'major' ] = major
@@ -127,7 +133,7 @@ def set(version:str) -> None:
         info(mesg="Version after bump ")
         return
 
-    version_file = file_utils.find_first( 'setup.ts')
+    version_file = file_utils.find_first( ANGULAR_SETUP )
     if version_file is not None:
         set_ts_version(version_file, major, minor, patch)
         info(mesg="Version after bump ")
@@ -151,9 +157,9 @@ def module_version( module_name) -> str:
     return pkg_resources.get_distribution( module_name ).version
 
 
-def write_release_file():
-    if os.path.isfile( "updates.md"):
-        raise RuntimeError('updates.md already exists')
+def write_update_file():
+    if os.path.isfile( UPDATES_FILE ):
+        raise RuntimeError("{} already exists".format( UPDATES_FILE ))
 
     content = '''Major Changes
 ###
@@ -164,9 +170,46 @@ Minor Changes
 Patches
 ###
 '''
-    file_utils.write( 'updates.md', content )
+    file_utils.write( UPDATES_FILE, content )
 
 def release_prep():
 
-    shutil.move('updates.md', "docs/release-{}.md".format( as_string() ))
-    write_release_file()
+    shutil.move(UPDATES_FILE, RELEASE_FILE.format( as_string() ))
+    write_update_file()
+
+def init_python_env():
+    if not os.path.isdir( 'docs/'):
+        os.mkdir('docs/')
+
+    if not os.path.isfile( VERSION_FILE ):
+        json_utils.write( VERSION_FILE, {'major':0, 'minor': 0, 'patch':0} )
+
+    if not os.path.isfile( UPDATES_FILE ):
+        write_update_file()
+
+
+def _git_tags() -> []:
+    info = run_utils.launch_cmd("git tags -l")
+    tags = info.stdout.decode('utf-8')
+    return tags
+
+
+def release_info(version:str=None):
+    if version is None:
+        tags = _git_tags().split("\n")
+        print( "\n".join( tags)  , end="")
+
+        version = tags[ -2 ]
+
+    release_file = RELEASE_FILE.format( version )
+
+    if os.path.isfile( release_file ):
+        print( "\nRelease notes for {}\n=============\n".format( version ))
+        data = file_utils.read( release_file )
+        print( data )
+    else:
+        print("No release file found for version {}".format( version ))
+
+
+def release_push():
+    return None
