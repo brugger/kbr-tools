@@ -149,10 +149,10 @@ def tag( release_file:str=None):
         cmd += " -F {}".format( release_file)
     cmd += " {} master".format( as_string() )
 
-    print( cmd )
+    #print( cmd )
     run_utils.launch_cmd( cmd )
     cmd = "git push --tags"
-    print( cmd )
+    #print( cmd )
     run_utils.launch_cmd( cmd )
 
 
