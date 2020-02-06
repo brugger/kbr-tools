@@ -53,3 +53,9 @@ def valid_command(command:int, commands:int, msg:str=None):
     if command not in commands:
         print("Invalid command name: '{}', allowed commands are {}".format( command, ", ".join(commands)))
         sys.exit()
+
+def get_or_default(args:list, default:any):
+    if len( args):
+        return args[0]
+    return default
+
