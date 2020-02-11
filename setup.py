@@ -37,7 +37,6 @@ setup(name='kbr',
       packages=['kbr'],
       install_requires=[
           'records',
-          'tornado',
           'requests',
           'tabulate', 
           'munch',

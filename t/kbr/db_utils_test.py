@@ -2,7 +2,6 @@ import sys
 import os
 import pytest
 
-import pprint as pp
 
 from sqlalchemy.exc import * 
 
