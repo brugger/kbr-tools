@@ -106,6 +106,8 @@ def info(mesg:str="Version: ") -> None:
         _pretty_print( major, minor, patch, mesg=mesg)
         return
 
+    raise FileNotFoundError("version file '{}' or '{}' not found".format( VERSION_FILE, ANGULAR_SETUP))
+
 
 
 def as_string():
@@ -118,6 +120,8 @@ def as_string():
     if version_file is not None:
         major, minor, patch = get_ts_version( version_file )
         return  "{}.{}.{}".format(major, minor, patch)
+
+    raise FileNotFoundError("version file '{}' or '{}' not found".format( VERSION_FILE, ANGULAR_SETUP))
 
 
 def set(version:str) -> None:
