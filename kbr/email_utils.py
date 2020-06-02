@@ -67,7 +67,9 @@ def send_email( sender:str, recipients:list, subject:str, body:str, is_html:bool
     text = msg.as_string()
 
     server = smtplib.SMTP(SMTP_SERVER,SMTP_PORT)
-    server.starttls()
+
+    if SMTP_TTL:
+        server.starttls()
 
     if SMTP_USERNAME is not None:
         server = login( server )
