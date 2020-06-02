@@ -7,10 +7,22 @@ import os
 import kbr.file_utils as file_utils
 
 
+def readin_if_file(name:str) -> str:
+
+
+    if os.path.isfile( name):
+        name = file_utils.read( name )
+        name = ",".join( name )
+
+
+
+    return name
+
+
 def main():
     parser = argparse.ArgumentParser(description='emailer tool')
     parser.add_argument('-t', '--to',      required=True, help="who to send to, comma separated ")
-    parser.add_argument('-f', '--from',    required=True, help="From address")
+    parser.add_argument('-f', '--sender',    required=True, help="From address")
     parser.add_argument('-s', '--subject', required=True, help="subject")
     parser.add_argument('-b', '--body',    required=True, help="queue to pull from")
     parser.add_argument('--cc',            default='',    help="list of adresses to cc (comma separated)")
@@ -30,10 +42,12 @@ def main():
     email_utils.SMTP_USERNAME = args.smtp_user
     email_utils.SMTP_PASSWORD = args.smtp_password
 
-    if os.path.isfile( args.body):
-        args.body = file_utils.read( args.body )
+    args.body = readin_if_file( args.body )
+    args.to = readin_if_file( args.to )
+    args.cc = readin_if_file( args.cc )
+    args.bcc = readin_if_file( args.bcc )
 
-    email_utils.send(from=args.from, recipients=args.to.split(','), subject=args.subject, body=args.body, cc=args.cc, bcc=args.bcc)
+    email_utils.send_email(sender=args.sender, recipients=args.to.split(','), subject=args.subject, body=args.body, cc=args.cc.split(','), bcc=args.bcc.split(','))
 
 
 
