@@ -12,11 +12,9 @@ def readin_if_file(name:str) -> str:
 
     if os.path.isfile( name):
         name = file_utils.read( name )
-        name = ",".join( name )
-
-
-
     return name
+
+
 
 
 def main():
@@ -46,6 +44,10 @@ def main():
     args.to = readin_if_file( args.to )
     args.cc = readin_if_file( args.cc )
     args.bcc = readin_if_file( args.bcc )
+
+    args.to = re.sub("\n", ",", args.to)
+    args.cc = re.sub("\n", ",", args.cc)
+    args.bcc = re.sub("\n", ",", args.bcc)
 
     email_utils.send_email(sender=args.sender, recipients=args.to.split(','), subject=args.subject, body=args.body, cc=args.cc.split(','), bcc=args.bcc.split(','))
 
