@@ -1,3 +1,5 @@
+import re
+
 import smtplib
 
 # Helper email modules
@@ -10,20 +12,7 @@ SMTP_SERVER   = 'smtp.uib.no'
 SMTP_PORT     = 25
 SMTP_USERNAME = None
 SMTP_PASSWORD = None
-
-def set_smtp_server( server:str, port:int=None):
-    SMTP_SERVER = server
-
-    if port is not None:
-        SMTP_PORT = port
-
-
-def set_username_password(username:str, password:str=None) -> None:
-    SMTP_USERNAME = username
-
-    if password is not None:
-        SMTP_PASSWORD = password
-
+SMTP_TTL      = False
 
 def login(server):
     if SMTP_PASSWORD is not None:
@@ -33,37 +22,56 @@ def login(server):
 
     return server
 
+def is_valid_email(email: str):
+    return re.match("^.+\\@(\\[?)[a-zA-Z0-9\\-\\.]+\\.([a-zA-Z]{2,3}|[0-9]{1,3})(\\]?)$", email) != None
 
 
-def send( sender:str, recipients:list, subject:str, body:str, bcc:bool=False ) -> None:
+class EmailAttachment:
+    def __init__(self, name: str, path: str):
+        self.name = name
+        self.path = path
 
-    # sender email password for login purposes
-    email_password = None
 
-    # list of users to whom email is to be sent
-    if isinstance( recipients, str ):
-        recipients = [ recipients ]
+
+
+def send_email( sender:str, recipients:list, subject:str, body:str, is_html:bool = False, attachments: List[EmailAttachment] = [], cc: list=[], bcc: list=[] ) -> None:
 
     msg = MIMEMultipart()
+    msg.set_charset('UTF-8')
     msg['From'] = sender
-    # converting list of recipients into comma separated string
     msg['To'] = ", ".join(recipients)
-
-    if bcc:
-        msg['Bcc'] = ", ".join(recipients)
-        msg['To'] = sender
-
+    msg['Cc'] = ", ".join( cc )
     msg['Subject'] = subject
     body = body
-    msg.attach(MIMEText(body,'plain'))
+
+    for att in attachments:
+        part = MIMEBase('application', 'octet-stream')
+        part.set_payload(open(att.path, 'rb').read())
+        encoders.encode_base64(part)
+        part.add_header('Content-Disposition', 'attachment; filename="%s"' % att.name)
+        msg.attach(part)
+
+
+    if is_html:
+        msg.attach(MIMEText(body,'html'))
+    else:
+        msg.attach(MIMEText(body,'plain'))
+
+    addresses = recipients
+    for x in cc:
+        addresses.append(x)
+    for x in bcc:
+        addresses.append(x)
+
     text = msg.as_string()
+
     server = smtplib.SMTP(SMTP_SERVER,SMTP_PORT)
     server.starttls()
 
-    if SMTP_USERNAME is not None
+    if SMTP_USERNAME is not None:
         server = login( server )
 
-    server.sendmail(sender, recipients, text)
+    server.sendmail(sender, addresses, text)
     server.quit()
 
     return
