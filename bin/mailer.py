@@ -25,6 +25,7 @@ def main():
     parser.add_argument('-b', '--body',    required=True, help="queue to pull from")
     parser.add_argument('--cc',            default='',    help="list of adresses to cc (comma separated)")
     parser.add_argument('--bcc',           default='',    help="list of adresses to bcc (comma separated)")
+    parser.add_argument('-H','--html',     default=False, action='store_true',   help="email body is it html format")
 
     parser.add_argument('--max-recipients', default=None, help='Max number of recipients')
 
@@ -51,7 +52,7 @@ def main():
     args.bcc = readin_if_file( args.bcc )
     args.bcc = re.sub("\n", ",", args.bcc)
 
-    email_utils.send_email(sender=args.sender, recipients=args.to.split(','), subject=args.subject, body=args.body, cc=args.cc.split(','), bcc=args.bcc.split(','))
+    email_utils.send_email(sender=args.sender, recipients=args.to.split(','), subject=args.subject, body=args.body, cc=args.cc.split(','), bcc=args.bcc.split(','), is_html=args.html)
 
 
 
