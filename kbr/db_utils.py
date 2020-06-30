@@ -86,6 +86,14 @@ class DB( object ):
 
         return self._db.get_table_names()
 
+    def table_exist(self, name:str) -> bool:
+        q = f"SELECT to_regclass('{name}')"
+        table = self._db.get_as_dict( q )
+        if table[0]['to_regclass'] is None:
+            return False
+
+        return True
+
     def drop_tables(self) -> None:
         """ Delete all tables in a database, useful if resetting it during devlopment """
         for table in self.table_names():

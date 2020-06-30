@@ -14,6 +14,7 @@ def decrypt_value(value:str) -> str:
     return decrypted_value
 
 def encrypt_value(value:str) -> str:
+    value = str( value )
     value = value.encode('utf-8')
     s = (b"!" * (8 - len(value) % 8)) + value
     # Encrypt
