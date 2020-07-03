@@ -296,7 +296,7 @@ class DB( object ):
             #if ( key not in entry ):
             #    raise RuntimeError('condition key not in the entry dict')
 
-            conds.append( "{key} = '{value}'".format( key=key, value=entry[ key ]))
+            conds.append( "{key} = '{value}'".format( key=key, value=conditions[ key ]))
 
 
 
