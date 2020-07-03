@@ -4,3 +4,4 @@ records
 pika
 SQLAlchemy
 munch
+requests
