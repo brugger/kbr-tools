@@ -20,7 +20,7 @@ class Mq(object):
         self.exchange   = None
         self.channels   = []
 
-    def connect(self,  uri:str, exchange:str='', exchange_type:str='direct'):
+    def connect(self,  uri:str, exchange:str='default', exchange_type:str='direct'):
         self.connection = pika.BlockingConnection( pika.connection.URLParameters(uri) )
         self.channel    = self.connection.channel()
         self.exchange   = exchange
