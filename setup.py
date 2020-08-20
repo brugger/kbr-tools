@@ -23,7 +23,7 @@ def get_version():
 
     return "{}.{}.{}".format( data['major'], data['minor'], data['patch'])
 
-def scripts(directory='bin/*py') -> []:
+def scripts(directory='bin/*') -> []:
     return glob.glob( directory )
 
 
