@@ -16,6 +16,7 @@ import kbr.args_utils as args_utils
 import kbr.version_utils as version_utils
 import kbr.string_utils as string_utils
 import kbr.json_utils as json_utils
+import kbr.crypt_utils as crypt_utils
 
 
 def version_command(args) -> None:
@@ -67,12 +68,32 @@ def release_command(args) -> None:
         sys.exit()
 
 
+def utils_cmds(args) -> None:
 
+    commands = ['uuid', 'uuids', 'help']
+    if len( args.command) == 0:
+        args.command.append( 'help')
+
+    command = args.command.pop( 0 )
+    args_utils.valid_command(command, commands)
+
+    if command == 'uuid':
+        print( crypt_utils.create_uuid() )
+    elif command == 'uuids':
+        for _ in range(0,5):
+            print( crypt_utils.create_uuid())
+    else:
+        print("utils sub-commands: {}".format(", ".join(commands)))
+        sys.exit()
+
+        
+
+        
 def main():
 
 
     parser = argparse.ArgumentParser(description='Dev utils')
-    commands = ["version", "release", "init"]
+    commands = ["version", "release", "init", "utils"]
     parser.add_argument('command', nargs='+', help="{}".format(",".join(commands)))
 
     args = parser.parse_args()
@@ -88,6 +109,8 @@ def main():
         release_command(args)
     elif command == 'init':
         version_utils.init_python_env()
+    elif command == 'utils':
+        utils_cmds(args)        
     else:
         print("Unknown command: {} are allowed.".format(string_utils.comma_sep( commands )))
         sys.exit( 1 )

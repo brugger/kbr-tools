@@ -41,6 +41,7 @@ setup(name='kbr',
           'tabulate', 
           'munch',
           'psycopg2-binary',
+          'pycryptodome',
       ],
       classifiers=[
         "Development Status :: 0.0.1".format( get_version()),

@@ -1,4 +1,5 @@
 from Crypto.Cipher import Blowfish
+from Crypto.Random import get_random_bytes
 import codecs
 
 id_cipher = None
@@ -20,3 +21,10 @@ def encrypt_value(value:str) -> str:
     # Encrypt
     return codecs.encode(id_cipher.encrypt(s), 'hex').decode("utf-8")
 
+
+def create_uuid():
+    # Generate a unique, high entropy 128 bit random number
+    return codecs.encode(get_random_bytes(16), 'hex').decode("utf-8")
+
+def create_guid():
+    return create_uuid()
