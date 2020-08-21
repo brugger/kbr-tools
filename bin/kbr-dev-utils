@@ -79,10 +79,16 @@ def utils_cmds(args) -> None:
     args_utils.valid_command(command, commands)
 
     if command == 'uuid':
-        print( crypt_utils.create_uuid() )
+        length=16
+        if len( args.command ):
+            length = int(args.command.pop( 0 ))
+        print( crypt_utils.create_uuid( length ) )
     elif command == 'uuids':
+        length=16
+        if len( args.command ):
+            length = int(args.command.pop( 0 ))
         for _ in range(0,5):
-            print( crypt_utils.create_uuid())
+            print( crypt_utils.create_uuid( length ))
     elif command == 'passwd':
         length=12
         if len( args.command ):
