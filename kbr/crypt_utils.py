@@ -1,3 +1,6 @@
+import secrets
+import string
+
 from Crypto.Cipher import Blowfish
 from Crypto.Random import get_random_bytes
 import codecs
@@ -22,9 +25,26 @@ def encrypt_value(value:str) -> str:
     return codecs.encode(id_cipher.encrypt(s), 'hex').decode("utf-8")
 
 
-def create_uuid():
-    # Generate a unique, high entropy 128 bit random number
-    return codecs.encode(get_random_bytes(16), 'hex').decode("utf-8")
+def create_uuid(length=16):
+    # Generate a unique, high entropy random number.
+    # Length 16 --> 128 bit 
+    return codecs.encode(get_random_bytes(length), 'hex').decode("utf-8")
 
 def create_guid():
     return create_uuid()
+
+
+def create_password(length=12) -> str:
+    if length<=8:
+        raise RuntimeError("password length is to short. 8 chars is the minumum")
+    special_chars = "@#$%^&*-_"
+    alphabet = string.ascii_letters + string.digits + special_chars
+    while True:
+        password = ''.join(secrets.choice(alphabet) for i in range(length))
+        if (any(c.islower() for c in password)
+           and any(c.isupper() for c in password)
+           and any(c in special_chars for c in password)
+           and sum(c.isdigit() for c in password) >= 3):
+            break
+
+    return password

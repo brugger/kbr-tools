@@ -18,6 +18,7 @@ import kbr.string_utils as string_utils
 import kbr.json_utils as json_utils
 import kbr.crypt_utils as crypt_utils
 
+sys.path.append(".")
 
 def version_command(args) -> None:
 
@@ -70,7 +71,7 @@ def release_command(args) -> None:
 
 def utils_cmds(args) -> None:
 
-    commands = ['uuid', 'uuids', 'help']
+    commands = ['uuid', 'uuids', 'passwd', 'passwds', 'help']
     if len( args.command) == 0:
         args.command.append( 'help')
 
@@ -82,6 +83,21 @@ def utils_cmds(args) -> None:
     elif command == 'uuids':
         for _ in range(0,5):
             print( crypt_utils.create_uuid())
+    elif command == 'passwd':
+        length=12
+        if len( args.command ):
+            length = int(args.command.pop( 0 ))
+        print( crypt_utils.create_password(length) )
+    elif command == 'passwds':
+        number=5
+        length=12
+        if len( args.command ):
+            number = int(args.command.pop( 0 ))
+        if len( args.command ):
+            length = int(args.command.pop( 0 ))
+
+        for _ in range(0,number):
+            print( crypt_utils.create_password(length))
     else:
         print("utils sub-commands: {}".format(", ".join(commands)))
         sys.exit()
