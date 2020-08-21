@@ -120,7 +120,7 @@ def main():
         version = version_utils.as_string()
 
     
-    parser = argparse.ArgumentParser(description="kbr dev utils version: {version}".format(version = version ))
+    parser = argparse.ArgumentParser(description="kbr dev utils (version: {version})".format(version = version ))
     commands = ["version", "release", "init", "utils"]
     parser.add_argument('command', nargs='+', help="{}".format(",".join(commands)))
 
