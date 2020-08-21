@@ -113,8 +113,14 @@ def utils_cmds(args) -> None:
         
 def main():
 
+    version = "NA"
+    try:
+        version = version_utils.module_version( 'kbr' )
+    except:
+        version = version_utils.as_string()
 
-    parser = argparse.ArgumentParser(description='Dev utils')
+    
+    parser = argparse.ArgumentParser(description="kbr dev utils version: {version}".format(version = version ))
     commands = ["version", "release", "init", "utils"]
     parser.add_argument('command', nargs='+', help="{}".format(",".join(commands)))
 
