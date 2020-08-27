@@ -34,17 +34,23 @@ def create_guid():
     return create_uuid()
 
 
-def create_password(length=12) -> str:
+def create_password(length=12, special_chars:bool=False) -> str:
     if length<=8:
         raise RuntimeError("password length is to short. 8 chars is the minumum")
-    special_chars = "@#$%^&*-_"
-    alphabet = string.ascii_letters + string.digits + special_chars
+
+    _special_chars = ""
+    if special_chars:
+        _special_chars = "@#$%^&*-_"
+
+    alphabet = string.ascii_letters + string.digits + _special_chars
     while True:
         password = ''.join(secrets.choice(alphabet) for i in range(length))
         if (any(c.islower() for c in password)
            and any(c.isupper() for c in password)
-           and any(c in special_chars for c in password)
            and sum(c.isdigit() for c in password) >= 3):
-            break
+            if special_chars and any(c in _special_chars for c in password):
+                break
+            else:
+                break
 
     return password
