@@ -9,6 +9,7 @@ import pprint
 pp = pprint.PrettyPrinter(indent=4)
 
 import pika
+import kbr.log_utils as logger
 
 
 class Mq(object):
@@ -19,11 +20,13 @@ class Mq(object):
         self.channel    = None
         self.exchange   = None
         self.channels   = []
+        self.uri        = None
 
     def connect(self,  uri:str, exchange:str='default', exchange_type:str='direct'):
         self.connection = pika.BlockingConnection( pika.connection.URLParameters(uri) )
         self.channel    = self.connection.channel()
         self.exchange   = exchange
+        self.uri        = uri
     
         self.channel.exchange_declare(exchange=self.exchange, exchange_type=exchange_type, durable=True)
 
@@ -45,9 +48,17 @@ class Mq(object):
             
     def publish(self, body:str, route:str='default'):
 
-        self._check_channel( route)
-        self.channel.basic_publish( exchange=self.exchange, routing_key=route, body=body, properties=pika.BasicProperties( delivery_mode=2))
-        
+        try:
+            self._check_channel( route)
+            self.channel.basic_publish( exchange=self.exchange, routing_key=route, body=body, properties=pika.BasicProperties( delivery_mode=2))
+        except:
+            logger.info( '==========================')
+            logger.info( 'Reconnecting to RMQ ......')
+            logger.info( '==========================')
+            self.connect(self.uri, self.exchange)
+            self._check_channel( route)
+            self.channel.basic_publish( exchange=self.exchange, routing_key=route, body=body, properties=pika.BasicProperties( delivery_mode=2))
+
     def consume(self, route:str, callback):
         try:
             self._check_channel( route)
