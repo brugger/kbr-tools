@@ -40,9 +40,6 @@ def generic_request(url:str, as_json:bool=True, call='GET', data:{}=None):
     r = s.send(prepped)
     r.raise_for_status()
 
-    token = None
-    if 'Authorization' in r.headers:
-        token = r.headers['Authorization'][7:]
 
     if as_json and r.text:
         return json.loads( r.text ), token
