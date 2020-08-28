@@ -22,10 +22,11 @@ def exit_ok(msg: str = "") -> None:
 
 def launch_cmd(cmd: str, cwd: str = "") -> ExecutionInfo:
     effective_command = cmd
-    p = subprocess.Popen(effective_command, stdout=subprocess.PIPE, shell=True, stderr=subprocess.PIPE,
-                         bufsize=1) if cwd == '' else subprocess.Popen(effective_command, stdout=subprocess.PIPE,
-                                                                       shell=True, stderr=subprocess.PIPE, bufsize=1,
-                                                                       cwd=cwd)
+    if cwd == '':
+        p = subprocess.Popen(effective_command, stdout=subprocess.PIPE, shell=True, stderr=subprocess.PIPE)
+    else:
+        subprocess.Popen(effective_command, stdout=subprocess.PIPE, shell=True, stderr=subprocess.PIPE, cwd=cwd)
+
     stdout, stderr = p.communicate()
     p_status = p.wait()
     return ExecutionInfo(p_status, stdout, stderr)
