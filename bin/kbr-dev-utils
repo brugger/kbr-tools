@@ -49,8 +49,7 @@ def version_command(args) -> None:
          print( "Commits since last bump" )
          print( "=======================" )
          for l in stdout.split("\n"):
-             print( l )
-             if 'bump' in stdout:
+             if "version bump" in l:
                  break
              print( l )
     else:
