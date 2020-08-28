@@ -34,6 +34,9 @@ class DB( object ):
         """
     
         self._db = records.Database( url )
+        self._fetchall = False
+        if url.startswith('sqlite'):
+            self._fetchall = True
         
 
     def close(self):
@@ -113,7 +116,7 @@ class DB( object ):
           None
         """
 
-        return self._db.query( sql )
+        return self._db.query( sql, fetchall=self._fetchall )
 
     def get_as_dict(self, sql:str) -> {}:
         """ executes a query and returns the data as a dict
