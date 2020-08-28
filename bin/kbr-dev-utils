@@ -138,7 +138,7 @@ def main():
 
     
     parser = argparse.ArgumentParser(description="kbr dev utils (version: {version})".format(version = version ))
-    commands = ["version", "release", "init", "utils"]
+    commands = ["version",  "init", "utils"] #"release",
     parser.add_argument('command', nargs='+', help="{}".format(",".join(commands)))
 
     args = parser.parse_args()
@@ -150,8 +150,8 @@ def main():
 
     if command == 'version':
         version_command(args)
-    elif command == 'release':
-        release_command(args)
+#    elif command == 'release':
+#        release_command(args)
     elif command == 'init':
         version_utils.init_python_env()
     elif command == 'utils':

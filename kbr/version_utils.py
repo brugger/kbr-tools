@@ -151,6 +151,9 @@ def tag( release_file:str=None):
     cmd = "git tag "
     if release_file is not None:
         cmd += " -F {}".format( release_file)
+    else:
+        cmd += " -m 'tagged version {}'".format( as_string())
+
     cmd += " {} master".format( as_string() )
 
     #print( cmd )
@@ -189,7 +192,6 @@ def release_prep():
         print( "Release file ({}) already exists!".format( release_filename))
         sys.exit( -1 )
 
-
     shutil.move(UPDATES_FILE, release_filename )
     write_update_file()
 
@@ -203,8 +205,8 @@ def init_python_env():
     if not os.path.isfile( VERSION_FILE ):
         json_utils.write( VERSION_FILE, {'major':0, 'minor': 0, 'patch':0} )
 
-    if not os.path.isfile( UPDATES_FILE ):
-        write_update_file()
+#    if not os.path.isfile( UPDATES_FILE ):
+#        write_update_file()
 
 
 def _git_tags() -> []:
@@ -230,8 +232,6 @@ def release_info(version:str=None):
         print("No release file found for version {}".format( version ))
 
 
-def release_push():
-    return None
 
 
 def release_push():
