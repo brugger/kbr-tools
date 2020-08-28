@@ -17,12 +17,13 @@ import kbr.version_utils as version_utils
 import kbr.string_utils as string_utils
 import kbr.json_utils as json_utils
 import kbr.crypt_utils as crypt_utils
+import kbr.run_utils   as run_utils
 
 sys.path.append(".")
 
 def version_command(args) -> None:
 
-    commands = ['bump', 'info', 'set', 'tag', 'help']
+    commands = ['bump', 'info', 'set', 'tag', 'unbumped', 'help']
     if len( args.command) == 0:
         args.command.append( 'help')
 
@@ -42,6 +43,16 @@ def version_command(args) -> None:
         version_utils.set( version )
     elif command == 'tag':
         version_utils.tag()
+    elif command == 'unbumped':
+         res = run_utils.launch_cmd(cmd='git log --pretty=format:"%ar, %s"')
+         stdout = res.stdout.decode("utf-8")
+         print( "Commits since last bump" )
+         print( "=======================" )
+         for l in stdout.split("\n"):
+             print( l )
+             if 'bump' in stdout:
+                 break
+             print( l )
     else:
         print("version sub-commands: {}".format(", ".join(commands)))
         sys.exit()
