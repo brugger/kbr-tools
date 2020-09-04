@@ -22,17 +22,19 @@ class Mq(object):
         self.channels   = []
         self.uri        = None
 
-    def connect(self,  uri:str, exchange:str='default', exchange_type:str='direct'):
+    def connect(self,  uri:str, exchange:str='default', exchange_type:str='direct', prefetch_count=0):
         self.connection = pika.BlockingConnection( pika.connection.URLParameters(uri) )
         self.channel    = self.connection.channel()
         self.exchange   = exchange
         self.uri        = uri
     
         self.channel.exchange_declare(exchange=self.exchange, exchange_type=exchange_type, durable=True)
+        self.channel.basic_qos(prefetch_count=prefetch_count)
+
 
 
     def disconnect(self):
-        self.close()
+        self.channel.close()
 
 
     def _check_channel(self, name:str):
