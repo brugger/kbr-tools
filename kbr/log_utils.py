@@ -57,6 +57,9 @@ def init(name:str, log_file:str=None, rotate_logs:bool=False) -> None:
 
     return logger
 
+def flush():
+    logger.flush()
+
 
 def no_logger( fun):
     def wrapper( msg ):
