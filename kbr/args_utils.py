@@ -56,6 +56,6 @@ def valid_command(command:int, commands:int, msg:str=None):
 
 def get_or_default(args:list, default:any):
     if len( args):
-        return args[0]
+        return args.pop(0)
     return default
 
