@@ -59,3 +59,9 @@ def get_or_default(args:list, default:any):
         return args.pop(0)
     return default
 
+def get_or_fail(args:list, msg:str):
+    if len( args):
+        return args.pop(0)
+    print(msg)
+    sys.exit()
+
