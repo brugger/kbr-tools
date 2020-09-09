@@ -100,7 +100,9 @@ def main():
             running = len( ls )
             if ( running < number ):
                 for _ in range(0, number - running ):
-                    subprocess.Popen(shlex.split( command ), shell=True)
+#                    command = shlex.split( command )
+                    print(command)
+                    subprocess.Popen(command, shell=True)
         if sleep == 0:
             break
 
