@@ -1,4 +1,5 @@
 import argparse
+import os
 import sys
 
 def basic_parser():
@@ -64,4 +65,8 @@ def get_or_fail(args:list, msg:str):
         return args.pop(0)
     print(msg)
     sys.exit()
+
+def get_env_var(name:str, default:str=None) -> str:
+    return os.getenv(name, default)
+
 
