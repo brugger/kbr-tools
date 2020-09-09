@@ -2,6 +2,7 @@ psycopg2-binary
 PyYAML
 records
 pika
+psutil
 SQLAlchemy
 munch
 requests
