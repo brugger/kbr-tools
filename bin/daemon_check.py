@@ -41,18 +41,21 @@ def main():
       None
     """
 
-    parser = argparse.ArgumentParser(description='Daemon cheker, if not running re-start it ')
+    parser = argparse.ArgumentParser(description='Daemon checker, if not running re-start it ')
 
     parser.add_argument('-n', '--name',     required=True, help="Name to check for")
     parser.add_argument('-c', '--command',  required=True,help="command to run if name is not found")
+    parser.add_argument('-N', '--number',  required=False, default=1,help="number of processes to be running")
 
 
     args = parser.parse_args()
-
+    args.number = int( args.number )
 
     ls = find_procs_by_name( args.name )
-    if ( len( ls ) == 0):
-        subprocess.Popen(shlex.split( args.command ), shell=True)
+    running = len( ls )
+    if ( running < args.number ):
+        for _ in range(0, args.number - running ):
+            subprocess.Popen(shlex.split( args.command ), shell=True)
     
 
 
