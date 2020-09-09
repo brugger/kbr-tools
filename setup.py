@@ -23,6 +23,17 @@ def get_version():
 
     return "{}.{}.{}".format( data['major'], data['minor'], data['patch'])
 
+def get_requirements():
+
+    file_handle = open('requirements.txt', 'r')
+    data = file_handle.read()
+    file_handle.close()
+
+
+    print( data )
+    return data.split("\n")
+#    return "{}.{}.{}".format( data['major'], data['minor'], data['patch'])
+
 def scripts(directory='bin/*') -> []:
     return glob.glob( directory )
 
@@ -35,7 +46,8 @@ setup(name='kbr',
       author_email='kbr@brugger.dk',
       license='MIT',
       packages=['kbr'],
-      install_requires=[
+      install_requires=get_requirements(),
+      old_req=[
           'records',
           'requests',
           'tabulate', 
