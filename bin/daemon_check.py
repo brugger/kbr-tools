@@ -31,9 +31,15 @@ sys.path.append("/usr/local/lib64/python{}.{}/site-packages/".format( sys.versio
 def find_procs_by_name(name):
     "Return a list of processes matching 'name'."
     ls = []
-    for p in psutil.process_iter(attrs=['name']):
+    for p in psutil.process_iter(attrs=['name', 'cmdline']):
+#        print( p.info['cmdline'] )
         if p.info['name'] == name:
             ls.append(p)
+        for arg in p.info['cmdline']:
+            if name in arg:
+                ls.append(p)
+                break
+
     return ls
 
 
@@ -71,6 +77,8 @@ def main():
     parser.add_argument('-C', '--config',  help="json file for multiple processes")
     parser.add_argument('-X', '--example-config', action="store_true", default=False,   help="creates an example config file")
     parser.add_argument('-s', '--sleep', type=int, default=0, help="to have it run continually set sleep")
+    parser.add_argument('-d', '--dry-run', action="store_true", default=False,   help="print changes")
+    parser.add_argument('-v', '--verbose', action="store_true", default=False,   help="verbose logging")
 
 
     args = parser.parse_args()
@@ -98,11 +106,15 @@ def main():
             number = int( number )
             ls = find_procs_by_name( name )
             running = len( ls )
+            if args.verbose:
+                print(f"{running} processes match {name}")
             if ( running < number ):
                 for _ in range(0, number - running ):
 #                    command = shlex.split( command )
-                    print(command)
-                    subprocess.Popen(command, shell=True)
+                    if args.dry_run:
+                        print(command)
+                    else:
+                        subprocess.Popen(command, shell=True)
         if sleep == 0:
             break
 
