@@ -1,6 +1,8 @@
 
 import os
 
+import kbr.string_utils as string_utils
+
 
 def read(filename:str) -> str:
     
@@ -33,3 +35,8 @@ def write(filename:str, data:str) -> None:
         outfile.close()
 
     return None
+
+def size(filename:str, readable:bool=True) -> str:
+    st = os.stat(filename)
+
+    return string_utils.readable_bytes( st.st_size )
