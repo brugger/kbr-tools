@@ -110,7 +110,15 @@ def info(mesg:str="Version: ") -> None:
 
 
 
-def as_string():
+def as_string(module_name:str=None):
+
+    if module_name is not None:
+        try:
+            return version_utils.module_version(module_name)
+        except:
+            pass
+
+
     version_file = file_utils.find_first( VERSION_FILE )
     if version_file is not None:
         info = json_utils.read( version_file )
