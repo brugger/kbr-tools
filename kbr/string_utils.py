@@ -16,3 +16,24 @@ def to_str(value:any) -> str:
         return value.decode("utf-8")
 
     return str( value )
+
+def readable_bytes(value:float) -> str:
+
+    value = float( value)
+    KB = 1024
+    MB = pow(1024, 2)
+    GB = pow(1024, 3)
+    TB = pow(1024, 4)
+
+
+    if value > TB:
+        return f"{value/TB:.2f} TB"
+    elif value > GB:
+        return f"{value/GB:.2f} GB"
+    elif value > MB:
+        return f"{value/MB:.2f} MB"
+    elif value > KB:
+        return f"{value/KB:.2f} KB"
+    else:
+        return f"{value}B"
+
