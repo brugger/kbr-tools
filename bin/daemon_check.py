@@ -121,7 +121,7 @@ def main():
             ls = find_procs_by_name( name )
             running = len( ls )
 
-            logger.info(f"{running} processes match {name}")
+            logger.debug(f"{running} processes match {name}")
             if ( running < number ):
                 for _ in range(0, number - running ):
                     if args.dry_run:
