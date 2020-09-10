@@ -6,139 +6,128 @@
 # Kim Brugger (03 Apr 2019), contact: kim@brugger.dk
 
 import sys
-import os
 import pprint
+
 pp = pprint.PrettyPrinter(indent=4)
-import json
 import argparse
+
+sys.path.append(".")
 
 import kbr.args_utils as args_utils
 import kbr.version_utils as version_utils
 import kbr.string_utils as string_utils
-import kbr.json_utils as json_utils
 import kbr.crypt_utils as crypt_utils
 import kbr.run_utils   as run_utils
 
-sys.path.append(".")
+version = version_utils.as_string('kbr')
+
 
 def version_command(args) -> None:
-
     commands = ['bump', 'info', 'set', 'tag', 'unbumped', 'help']
-    if len( args.command) == 0:
-        args.command.append( 'help')
+    if len(args.command) == 0:
+        args.command.append('help')
 
-    command = args.command.pop( 0 )
+    command = args.command.pop(0)
     args_utils.valid_command(command, commands)
 
     if command == 'bump':
         args_utils.count(1, len(args.command), msg="version bump requires; major/minor/patch")
-        bump = args.command.pop( 0 )
-        args_utils.valid_command(bump, ['major', 'minor','patch'])
-        version_utils.bump_version( bump )
+        bump = args.command.pop(0)
+        args_utils.valid_command(bump, ['major', 'minor', 'patch'])
+        version_utils.bump_version(bump)
     elif command == 'info':
         version_utils.info()
     elif command == 'set':
         args_utils.count(1, len(args.command), msg="version set requires a version string (major.minor.patch)")
-        version = args.command.pop( 0 )
-        version_utils.set( version )
+        version = args.command.pop(0)
+        version_utils.set(version)
     elif command == 'tag':
         version_utils.tag()
     elif command == 'unbumped':
-         res = run_utils.launch_cmd(cmd='git log --pretty=format:"%ar, %s"')
-         stdout = res.stdout.decode("utf-8")
-         print( "Commits since last bump" )
-         print( "=======================" )
-         for l in stdout.split("\n"):
-             if "version bump" in l:
-                 break
-             print( l )
+        res = run_utils.launch_cmd(cmd='git log --pretty=format:"%ar, %s"')
+        stdout = res.stdout.decode("utf-8")
+        print("Commits since last bump")
+        print("=======================")
+        for l in stdout.split("\n"):
+            if "version bump" in l:
+                break
+            print(l)
     else:
         print("version sub-commands: {}".format(", ".join(commands)))
         sys.exit()
 
+
 def release_command(args) -> None:
-
     commands = ['info', 'prep', 'push', 'help']
-    if len( args.command) == 0:
-        args.command.append( 'help')
+    if len(args.command) == 0:
+        args.command.append('help')
 
-    command = args.command.pop( 0 )
+    command = args.command.pop(0)
     args_utils.valid_command(command, commands)
 
     if command == 'info':
         version = None
-        if len( args.command ) == 1:
-            version = args.command.pop( 0 )
-        version_utils.release_info( version )
+        if len(args.command) == 1:
+            version = args.command.pop(0)
+        version_utils.release_info(version)
     elif command == 'prep':
         version_utils.release_prep()
     elif command == 'push':
-        version_utils.release_push( )
+        version_utils.release_push()
     else:
         print("version sub-commands: {}".format(", ".join(commands)))
         sys.exit()
 
 
 def utils_cmds(args) -> None:
-
     commands = ['uuid', 'uuids', 'passwd', 'passwds', 'help']
-    if len( args.command) == 0:
-        args.command.append( 'help')
+    if len(args.command) == 0:
+        args.command.append('help')
 
-    command = args.command.pop( 0 )
+    command = args.command.pop(0)
     args_utils.valid_command(command, commands)
 
     if command == 'uuid':
-        length=16
-        if len( args.command ):
-            length = int(args.command.pop( 0 ))
-        print( crypt_utils.create_uuid( length ) )
+        length = 16
+        if len(args.command):
+            length = int(args.command.pop(0))
+        print(crypt_utils.create_uuid(length))
     elif command == 'uuids':
-        length=16
-        if len( args.command ):
-            length = int(args.command.pop( 0 ))
-        for _ in range(0,5):
-            print( crypt_utils.create_uuid( length ))
+        length = 16
+        if len(args.command):
+            length = int(args.command.pop(0))
+        for _ in range(0, 5):
+            print(crypt_utils.create_uuid(length))
     elif command == 'passwd':
-        length=12
+        length = 12
         use_special_chars = False
-        if len( args.command ):
-            length = int(args.command.pop( 0 ))
-        if len( args.command ):
+        if len(args.command):
+            length = int(args.command.pop(0))
+        if len(args.command):
             use_special_chars = True
-        print( crypt_utils.create_password(length, use_special_chars) )
+        print(crypt_utils.create_password(length, use_special_chars))
 
     elif command == 'passwds':
-        number=5
-        length=12
+        number = 5
+        length = 12
         use_special_chars = False
-        if len( args.command ):
-            number = int(args.command.pop( 0 ))
-        if len( args.command ):
-            length = int(args.command.pop( 0 ))
-        if len( args.command ):
+        if len(args.command):
+            number = int(args.command.pop(0))
+        if len(args.command):
+            length = int(args.command.pop(0))
+        if len(args.command):
             use_special_chars = True
 
-        for _ in range(0,number):
-            print( crypt_utils.create_password(length, use_special_chars))
+        for _ in range(0, number):
+            print(crypt_utils.create_password(length, use_special_chars))
     else:
         print("utils sub-commands: {}".format(", ".join(commands)))
         sys.exit()
 
-        
 
-        
 def main():
-
-    version = "NA"
-    try:
-        version = version_utils.module_version( 'kbr' )
-    except:
-        version = version_utils.as_string()
-
-    
-    parser = argparse.ArgumentParser(description="kbr dev utils (version: {version})".format(version = version ))
-    commands = ["init", "version", "utils"] #"release",
+    parser = argparse.ArgumentParser(description="kbr dev utils (version: {version})".format(version=version))
+    commands = ["init", "version", "utils"]  # "release",
     parser.add_argument('command', nargs='+', help="{}".format(",".join(commands)))
 
     args = parser.parse_args()
@@ -152,13 +141,14 @@ def main():
         version_utils.init_python_env()
     elif command == 'version':
         version_command(args)
-#    elif command == 'release':
-#        release_command(args)
+    #    elif command == 'release':
+    #        release_command(args)
     elif command == 'utils':
-        utils_cmds(args)        
+        utils_cmds(args)
     else:
-        print("Unknown command: {} are allowed.".format(string_utils.comma_sep( commands )))
-        sys.exit( 1 )
+        print("Unknown command: {} are allowed.".format(string_utils.comma_sep(commands)))
+        sys.exit(1)
+
 
 if __name__ == "__main__":
     main()
