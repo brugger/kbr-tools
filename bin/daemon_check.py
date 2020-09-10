@@ -127,6 +127,7 @@ def main():
                     if args.dry_run:
                         print(command)
                     else:
+                        logger.info("restarting {name}")
                         subprocess.Popen(command, shell=True)
         if sleep == 0:
             break
