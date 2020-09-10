@@ -27,7 +27,7 @@ import kbr.version_utils as version_utils
 sys.path.append("/usr/local/lib/python{}.{}/site-packages/".format( sys.version_info.major, sys.version_info.minor))
 sys.path.append("/usr/local/lib64/python{}.{}/site-packages/".format( sys.version_info.major, sys.version_info.minor))
 
-version = version_utils.as_string()
+version = version_utils.as_string('kbr')
 
 
 def find_procs_by_name(name):

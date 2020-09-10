@@ -114,7 +114,7 @@ def as_string(module_name:str=None):
 
     if module_name is not None:
         try:
-            return version_utils.module_version(module_name)
+            return module_version(module_name)
         except:
             pass
 
