@@ -19,20 +19,22 @@ import psutil
 
 sys.path.append(".")
 
-import kbr.config_utils as config_utils
+import kbr.log_utils as logger
 import kbr.json_utils as json_utils
+import kbr.version_utils as version_utils
 
 # python3+ is broken on centos 7, so add the /usr/local/paths by hand
 sys.path.append("/usr/local/lib/python{}.{}/site-packages/".format( sys.version_info.major, sys.version_info.minor))
 sys.path.append("/usr/local/lib64/python{}.{}/site-packages/".format( sys.version_info.major, sys.version_info.minor))
 
+version = version_utils.as_string()
 
 
 def find_procs_by_name(name):
     "Return a list of processes matching 'name'."
     ls = []
     for p in psutil.process_iter(attrs=['name', 'cmdline']):
-#        print( p.info['cmdline'] )
+        logger.debug( p.info['cmdline'] )
         if p.info['name'] == name:
             ls.append(p)
         for arg in p.info['cmdline']:
@@ -48,6 +50,7 @@ def write_example_config():
     filename = "daemon_check.json"
     json_utils.write( filename, data )
     print( f"Example config file written to {filename}")
+    sys.exit()
 
 
 
@@ -78,11 +81,20 @@ def main():
     parser.add_argument('-X', '--example-config', action="store_true", default=False,   help="creates an example config file")
     parser.add_argument('-s', '--sleep', type=int, default=0, help="to have it run continually set sleep")
     parser.add_argument('-d', '--dry-run', action="store_true", default=False,   help="print changes")
-    parser.add_argument('-v', '--verbose', action="store_true", default=False,   help="verbose logging")
+    parser.add_argument('-l', '--logfile', default=None, help="Logfile to write to, default is stdout")
+    parser.add_argument('-v', '--verbose', default=4, action="count", help="Increase the verbosity of logging output")
 
 
     args = parser.parse_args()
     sleep = args.sleep
+
+    if args.logfile:
+        logger.init(name='daemon_check', log_file=args.logfile)
+    else:
+        logger.init(name='daemon_check')
+    logger.set_log_level(args.verbose)
+
+    logger.info(f"start up {version}")
 
     if args.example_config:
         write_example_config()
@@ -91,7 +103,7 @@ def main():
         checks = readin_config( args.config )
     elif args.command is not None or args.name is not None:
         if args.command is None or args.name is None:
-            print("Error: argument missing -c<ommand> -n<ame> -N[number of proceses]")
+            logger.error("Error: argument missing -c<ommand> -n<ame> -N[number of proceses]")
             sys.exit( -1 )
 
         checks.append( [args.name, args.command, args.number])
@@ -101,16 +113,17 @@ def main():
 
 
     while True:
+        if args.config is not None:
+            checks = readin_config( args.config )
         for check in checks:
             name, command, number = check
             number = int( number )
             ls = find_procs_by_name( name )
             running = len( ls )
-            if args.verbose:
-                print(f"{running} processes match {name}")
+
+            logger.info(f"{running} processes match {name}")
             if ( running < number ):
                 for _ in range(0, number - running ):
-#                    command = shlex.split( command )
                     if args.dry_run:
                         print(command)
                     else:
