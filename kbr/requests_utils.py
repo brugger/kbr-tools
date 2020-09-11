@@ -3,10 +3,16 @@ from requests import Request, Session
 import json
 
 token = None
+verify = True
 
 def set_token(new_token:str):
     global token
     token = new_token
+
+def set_verify(new_verify:any):
+    global verify
+    verify = new_verify
+
 
 def get(url:str, as_json:bool=True):
     return generic_request(url, as_json, call='GET')
@@ -25,6 +31,8 @@ def delete(url:str, data:{}):
 def generic_request(url:str, as_json:bool=True, call='GET', data:{}=None):
 
     s = Session()
+    s.verify = verify
+
     if as_json and data is not None:
         req = Request(call,  url, json=data)
     else:
@@ -32,7 +40,7 @@ def generic_request(url:str, as_json:bool=True, call='GET', data:{}=None):
 
     prepped = s.prepare_request(req)
 
-    global token
+    global token, verify
 
     if token is not None:
         prepped.headers['Authorization'] = f"bearer {token}"

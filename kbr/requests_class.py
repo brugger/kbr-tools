@@ -1,15 +1,15 @@
 from requests import Request, Session
 
-
-
 class KBRRequests( object ):
-    def __init__(self, base_url:str, token:str=None):
+    def __init__(self, base_url:str, token:str=None, verify:any=True):
         self._token = token
         self._base_url = base_url
+        self._verify = verify
 
     def _generic_request(self, url:str, as_json:bool=True, call='GET', data:{}=None, send_as_json:bool=True):
 
         s = Session()
+        s.verify = self._verify
         if send_as_json:
             req = Request(call,  url, json=data)
         else:
@@ -47,6 +47,6 @@ class KBRRequests( object ):
 
 
     def get_example_function(self) -> {}:
-        return self._request_get(f"{self._base_url}/info/")
+        return self._get(f"{self._base_url}/info/")
 
 
