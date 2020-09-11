@@ -132,6 +132,19 @@ def as_string(module_name:str=None):
     raise FileNotFoundError("version file '{}' or '{}' not found".format( VERSION_FILE, ANGULAR_SETUP))
 
 
+def changed():
+    version_file = file_utils.find_first( VERSION_FILE )
+    if version_file is not None:
+        return file_utils.changed( version_file)
+
+    version_file = file_utils.find_first( ANGULAR_SETUP )
+    if version_file is not None:
+        return file_utils.changed( version_file)
+
+    raise FileNotFoundError("version file '{}' or '{}' not found".format( VERSION_FILE, ANGULAR_SETUP))
+
+
+
 def set(version:str) -> None:
     major, minor, patch = map( int, version.split('.'))
 
@@ -238,8 +251,6 @@ def release_info(version:str=None):
         print( data )
     else:
         print("No release file found for version {}".format( version ))
-
-
 
 
 def release_push():

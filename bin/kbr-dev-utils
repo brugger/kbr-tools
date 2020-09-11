@@ -8,6 +8,7 @@
 import sys
 import pprint
 
+
 pp = pprint.PrettyPrinter(indent=4)
 import argparse
 
@@ -18,12 +19,13 @@ import kbr.version_utils as version_utils
 import kbr.string_utils as string_utils
 import kbr.crypt_utils as crypt_utils
 import kbr.run_utils   as run_utils
+import kbr.timedate_utils   as timedate_utils
 
 version = version_utils.as_string('kbr')
 
 
 def version_command(args) -> None:
-    commands = ['bump', 'info', 'set', 'tag', 'unbumped', 'help']
+    commands = ['bump', 'info', 'set', 'tag', 'unbumped', 'changed', 'help']
     if len(args.command) == 0:
         args.command.append('help')
 
@@ -52,6 +54,11 @@ def version_command(args) -> None:
             if "version bump" in l:
                 break
             print(l)
+    elif command == 'changed':
+        ts = version_utils.changed()
+        ts = timedate_utils.to_string(ts)
+        ts.replace(r'\.\d+', '')
+        print(f"Version was last updated at {ts}")
     else:
         print("version sub-commands: {}".format(", ".join(commands)))
         sys.exit()

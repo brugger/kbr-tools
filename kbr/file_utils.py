@@ -39,4 +39,12 @@ def write(filename:str, data:str) -> None:
 def size(filename:str, readable:bool=True) -> str:
     st = os.stat(filename)
 
-    return string_utils.readable_bytes( st.st_size )
+    if readable:
+        return string_utils.readable_bytes( st.st_size )
+    else:
+        return st.st_size
+
+
+def changed(filename:str):
+    st = os.stat(filename)
+    return st.st_mtime
