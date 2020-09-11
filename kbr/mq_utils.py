@@ -73,4 +73,7 @@ class Mq(object):
     def queue_length(self, queue:str=None):
         result = self.channel.queue_declare(queue=queue, durable=True, passive=True)
         return result.method.message_count
-    
+
+    def flush(self, queue:str='default'):
+        self.channel.queue_purge(queue)
+
