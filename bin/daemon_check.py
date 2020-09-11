@@ -5,7 +5,7 @@
  
  Kim Brugger (23 Jan 2019), contact: kim@brugger.dk
 """
-
+import os
 import sys
 import pprint
 pp = pprint.PrettyPrinter(indent=4)
@@ -34,13 +34,15 @@ def find_procs_by_name(name):
     "Return a list of processes matching 'name'."
     ls = []
     for p in psutil.process_iter(attrs=['name', 'cmdline']):
-        logger.debug( p.info['cmdline'] )
+#        logger.debug( p.info['cmdline'] )
         if p.info['name'] == name:
             ls.append(p)
-        for arg in p.info['cmdline']:
-            if name in arg:
-                ls.append(p)
-                break
+        else:
+#            print("--", p.info['cmdline'][:2])
+            for arg in p.info['cmdline'][:2]:
+                if name in arg:
+                    ls.append(p)
+                    break
 
     return ls
 
@@ -56,6 +58,14 @@ def write_example_config():
 
 def readin_config(config):
     return json_utils.read(config)
+
+
+def kill_program(name):
+    ls = find_procs_by_name( name )
+    logger.info( f"Found {len(ls)} processes matching '{name}'" )
+    for p in ls:
+        os.kill(p.pid, 9)
+
 
 def main():
     """ main loop
@@ -82,11 +92,15 @@ def main():
     parser.add_argument('-s', '--sleep', type=int, default=0, help="to have it run continually set sleep")
     parser.add_argument('-d', '--dry-run', action="store_true", default=False,   help="print changes")
     parser.add_argument('-l', '--logfile', default=None, help="Logfile to write to, default is stdout")
-    parser.add_argument('-v', '--verbose', default=4, action="count", help="Increase the verbosity of logging output")
+    parser.add_argument('-v', '--verbose', default=3, action="count", help="Increase the verbosity of logging output")
+    parser.add_argument('-k', '--kill',   type=str,  help="programs to kill")
+    parser.add_argument('-k', '--kill-all',   type=str,  help="kill all programs in the config file")
 
 
     args = parser.parse_args()
     sleep = args.sleep
+
+
 
     if args.logfile:
         logger.init(name='daemon_check', log_file=args.logfile)
@@ -95,6 +109,11 @@ def main():
     logger.set_log_level(args.verbose)
 
     logger.info(f"start up {version}")
+
+    if args.kill:
+        kill_program( args.kill)
+        sys.exit()
+
 
     if args.example_config:
         write_example_config()
@@ -111,29 +130,41 @@ def main():
         parser.print_usage()
         sys.exit( 1 )
 
-
-    while True:
-        if args.config is not None:
-            checks = readin_config( args.config )
+    if args.kill_all is not None:
+        if checks == []:
+            print("-Kill command require a config file")
+            sys.exit( 1 )
         for check in checks:
-            name, command, number = check
-            number = int( number )
-            ls = find_procs_by_name( name )
-            running = len( ls )
+            kill_program([check[0]])
+        sys.exit()
 
-            logger.debug(f"{running} processes match {name}")
-            if ( running < number ):
-                for _ in range(0, number - running ):
-                    if args.dry_run:
-                        print(command)
-                    else:
-                        logger.info("restarting {name}")
-                        subprocess.Popen(command, shell=True)
-        if sleep == 0:
-            break
 
-        time.sleep( sleep )
+    try:
 
+        while True:
+            if args.config is not None:
+                checks = readin_config( args.config )
+            for check in checks:
+                name, command, number = check
+                number = int( number )
+                ls = find_procs_by_name( name )
+                running = len( ls )
+
+                logger.debug(f"{running} processes match {name}")
+                if ( running < number ):
+                    for _ in range(0, number - running ):
+                        if args.dry_run:
+                            print(command)
+                        else:
+                            logger.info(f"restarting {name}")
+                            subprocess.Popen(command, shell=True)
+            if sleep == 0:
+                break
+
+            time.sleep( sleep )
+
+    except KeyboardInterrupt:
+        logger.info("killed by the keyboard")
 
 
 if __name__ == '__main__':
