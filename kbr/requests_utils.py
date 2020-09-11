@@ -30,6 +30,8 @@ def delete(url:str, data:{}):
 
 def generic_request(url:str, as_json:bool=True, call='GET', data:{}=None):
 
+    global token, verify
+
     s = Session()
     s.verify = verify
 
@@ -40,7 +42,6 @@ def generic_request(url:str, as_json:bool=True, call='GET', data:{}=None):
 
     prepped = s.prepare_request(req)
 
-    global token, verify
 
     if token is not None:
         prepped.headers['Authorization'] = f"bearer {token}"
