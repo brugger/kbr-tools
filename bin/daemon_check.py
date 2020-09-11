@@ -114,6 +114,12 @@ def main():
         kill_program( args.kill)
         sys.exit()
 
+    if args.kill_all is not None:
+        checks = readin_config( args.config )
+        for check in checks:
+            kill_program([check[0]])
+        sys.exit()
+
 
     if args.example_config:
         write_example_config()
@@ -130,13 +136,6 @@ def main():
         parser.print_usage()
         sys.exit( 1 )
 
-    if args.kill_all is not None:
-        if checks == []:
-            print("-Kill command require a config file")
-            sys.exit( 1 )
-        for check in checks:
-            kill_program([check[0]])
-        sys.exit()
 
 
     try:
