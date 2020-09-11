@@ -94,7 +94,7 @@ def main():
     parser.add_argument('-l', '--logfile', default=None, help="Logfile to write to, default is stdout")
     parser.add_argument('-v', '--verbose', default=3, action="count", help="Increase the verbosity of logging output")
     parser.add_argument('-k', '--kill',   type=str,  help="programs to kill")
-    parser.add_argument('-k', '--kill-all',   type=str,  help="kill all programs in the config file")
+    parser.add_argument('-K', '--kill-all',   type=str,  help="kill all programs in the config file")
 
 
     args = parser.parse_args()
