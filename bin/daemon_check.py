@@ -115,7 +115,7 @@ def main():
         sys.exit()
 
     if args.kill_all is not None:
-        checks = readin_config( args.config )
+        checks = readin_config( args.kill_all )
         for check in checks:
             kill_program([check[0]])
         sys.exit()
