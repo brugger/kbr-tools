@@ -103,18 +103,18 @@ def utils_cmds(args) -> None:
         number = 5
         length = 16
         if len(args.command):
-            number = int(args.command.pop(0))
-        if len(args.command):
             length = int(args.command.pop(0))
+        if len(args.command):
+            number = int(args.command.pop(0))
         for _ in range(0, number):
             print(crypt_utils.create_uuid(length))
     elif command == 'passwd':
         length = 12
         use_special_chars = False
         if len(args.command):
-            length = int(args.command.pop(0))
-        if len(args.command):
             use_special_chars = True
+        if len(args.command):
+            length = int(args.command.pop(0))
         print(crypt_utils.create_password(length, use_special_chars))
 
     elif command == 'passwds':
