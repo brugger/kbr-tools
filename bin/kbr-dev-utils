@@ -33,9 +33,9 @@ def version_command(args) -> None:
     args_utils.valid_command(command, commands)
 
     if command == 'bump':
-        args_utils.count(1, len(args.command), msg="version bump requires; major/minor/patch")
+        args_utils.count(1, len(args.command), msg="version bump requires; major/minor/patch/dev")
         bump = args.command.pop(0)
-        args_utils.valid_command(bump, ['major', 'minor', 'patch'])
+        args_utils.valid_command(bump, ['major', 'minor', 'patch', 'dev'])
         version_utils.bump_version(bump)
     elif command == 'info':
         version_utils.info()
@@ -100,10 +100,13 @@ def utils_cmds(args) -> None:
             length = int(args.command.pop(0))
         print(crypt_utils.create_uuid(length))
     elif command == 'uuids':
+        number = 5
         length = 16
         if len(args.command):
+            number = int(args.command.pop(0))
+        if len(args.command):
             length = int(args.command.pop(0))
-        for _ in range(0, 5):
+        for _ in range(0, number):
             print(crypt_utils.create_uuid(length))
     elif command == 'passwd':
         length = 12
