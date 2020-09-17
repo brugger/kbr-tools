@@ -13,37 +13,15 @@ UPDATES_FILE = "updates.md"
 RELEASE_FILE = "docs/release-{}.md"
 
 
-
-def _bump_major( major:int, minor:int, patch:int ) -> []:
-
-    major += 1
-    minor = 0
-    patch = 0
-
-    return [major, minor, patch]
-
-
-def _bump_minor( major:int, minor:int, patch:int ) -> []:
-
-    minor += 1
-    patch  = 0
-
-    return [major, minor, patch]
-
-def _bump_patch( major:int, minor:int, patch:int ) -> []:
-
-    patch += 1
-
-    return [major, minor, patch]
-
-
-def bumping( bump:str, major:int, minor:int, patch:int ) -> []:
+def bumping( bump:str, major:int, minor:int, patch:int, dev:int=0 ) -> []:
     if bump == 'major':
-        return _bump_major( major, minor, patch)
+        return [major+1, 0, 0, 0]
     elif bump == 'minor':
-        return _bump_minor( major, minor, patch)
+        return [major, minor+1, 0, 0]
     elif bump == 'patch':
-        return _bump_patch( major, minor, patch)
+        return [major, minor, patch+1, 0]
+    elif bump == 'dev':
+        return [ major, minor, patch, dev+1]
 
     else:
         raise RuntimeError("Unkown bump {}".format( bump ))
@@ -54,10 +32,15 @@ def bump_version(bump:str) -> None:
     version_file = file_utils.find_first( VERSION_FILE )
     if version_file is not None:
         version = json_utils.read( version_file )
-        major, minor, patch = bumping( bump, version['major'], version['minor'], version['patch'] )
+        if 'dev' not in version:
+            version['dev'] = 0
+        major, minor, patch, dev = bumping( bump, version['major'], version['minor'], version['patch'], version['dev'] )
         version[ 'major' ] = major
         version[ 'minor' ] = minor
         version[ 'patch' ] = patch
+        version[ 'dev' ] = dev
+        if not version['dev']:
+            del version['dev']
         json_utils.write( version_file, version )
         info(mesg="Version after bump ")
         return
@@ -89,24 +72,10 @@ def set_ts_version(filename:str, major:int, minor:int, patch:int) -> []:
     data = re.sub(r"version: '(.*)'", version, data, re.MULTILINE)
     file_utils.write( filename, data)
 
-def _pretty_print( major:int, minor:int, patch:int, mesg:str="Version: " ) -> None:
-    print( "{}{}.{}.{}".format( mesg, major, minor, patch))
-
 
 def info(mesg:str="Version: ") -> None:
-    version_file = file_utils.find_first( VERSION_FILE )
-    if version_file is not None:
-        info = json_utils.read( version_file )
-        _pretty_print( info['major'], info['minor'], info['patch'], mesg=mesg)
-        return
-
-    version_file = file_utils.find_first( ANGULAR_SETUP )
-    if version_file is not None:
-        major, minor, patch = get_ts_version( version_file )
-        _pretty_print( major, minor, patch, mesg=mesg)
-        return
-
-    raise FileNotFoundError("version file '{}' or '{}' not found".format( VERSION_FILE, ANGULAR_SETUP))
+    v_string = as_string()
+    print(f"{mesg}{v_string}")
 
 
 
@@ -118,11 +87,13 @@ def as_string(module_name:str=None):
         except:
             pass
 
-
     version_file = file_utils.find_first( VERSION_FILE )
     if version_file is not None:
         info = json_utils.read( version_file )
-        return  "{}.{}.{}".format( info['major'], info['minor'], info['patch'])
+        if 'dev' in info and info['dev']:
+            return  "{}.{}.{}-{}".format( info['major'], info['minor'], info['patch'], info['dev'])
+        else:
+            return  "{}.{}.{}".format( info['major'], info['minor'], info['patch'])
 
     version_file = file_utils.find_first( ANGULAR_SETUP )
     if version_file is not None:
