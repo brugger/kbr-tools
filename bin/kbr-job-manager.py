@@ -49,7 +49,7 @@ def find_procs_by_name(name):
 
 def write_example_config():
     data = [['command-name', 'command', 'count'], ['command-name-2', 'command-2', 'count-2']]
-    filename = "daemon_check.json"
+    filename = "jobs.json"
     json_utils.write( filename, data )
     print( f"Example config file written to {filename}")
     sys.exit()
@@ -82,7 +82,7 @@ def main():
 
     checks = []
 
-    parser = argparse.ArgumentParser(description='Daemon checker, if not running re-start it ')
+    parser = argparse.ArgumentParser(description='job manager, if not running re-start it ')
 
     parser.add_argument('-n', '--name',     help="Name to check for")
     parser.add_argument('-c', '--command',  help="command to run if name is not found")
@@ -103,9 +103,9 @@ def main():
 
 
     if args.logfile:
-        logger.init(name='daemon_check', log_file=args.logfile)
+        logger.init(name='job-manager', log_file=args.logfile)
     else:
-        logger.init(name='daemon_check')
+        logger.init(name='job-manager')
     logger.set_log_level(args.verbose)
 
     logger.info(f"start up {version}")
