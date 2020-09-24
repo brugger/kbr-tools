@@ -91,7 +91,7 @@ def as_string(module_name:str=None):
     if version_file is not None:
         info = json_utils.read( version_file )
         if 'dev' in info and info['dev']:
-            return  "{}.{}.{}-{}".format( info['major'], info['minor'], info['patch'], info['dev'])
+            return  "{}.{}.{}.dev{}".format( info['major'], info['minor'], info['patch'], info['dev'])
         else:
             return  "{}.{}.{}".format( info['major'], info['minor'], info['patch'])
 
