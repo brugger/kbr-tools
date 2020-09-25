@@ -23,6 +23,7 @@ class Mq(object):
         self.uri        = None
 
     def connect(self,  uri:str, exchange:str='default', exchange_type:str='direct', prefetch_count=0):
+        logger.debug(f'connecting to {uri} exchange: {exchange} with prefetch: {prefetch_count}')
         self.connection = pika.BlockingConnection( pika.connection.URLParameters(uri) )
         self.channel    = self.connection.channel()
         self.exchange   = exchange
@@ -30,6 +31,7 @@ class Mq(object):
     
         self.channel.exchange_declare(exchange=self.exchange, exchange_type=exchange_type, durable=True)
         self.channel.basic_qos(prefetch_count=prefetch_count)
+
 
 
 
