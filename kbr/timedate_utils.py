@@ -67,7 +67,9 @@ def datestr_to_ts(datetime_str:str) -> any:
                         "%Y-%m-%d %H:%M:%S.%f%z",
                         "%Y-%m-%d %H:%M:%S.%f",
                         "%Y-%m-%d %H:%M:%S%z",
-                        "%Y-%m-%d %H:%M:%S"]:
+                        "%Y-%m-%d %H:%M:%S",
+                        "%a %Y-%m-%d%d %H:%M:%S %Z",
+                        "%a %Y-%m-%d%d %H:%M:%S"]:
         try:
             ts = datetime.datetime.strptime(datetime_str, time_string)
             return ts
