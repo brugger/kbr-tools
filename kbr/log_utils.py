@@ -32,7 +32,7 @@ def set_log_level(new_level:int) -> int:
     return new_level
 
 
-def init(name:str, log_file:str=None, rotate_logs:bool=False) -> None:
+def init(name:str, log_file:str=None, rotate_logs:bool=True) -> None:
 
     global logger
     logger = logging.getLogger( name )
@@ -53,7 +53,7 @@ def init(name:str, log_file:str=None, rotate_logs:bool=False) -> None:
         screen_handler.setFormatter(formatter)
         logger.addHandler(screen_handler)
 
-    set_log_level( 3 )
+    set_log_level( logging.WARNING )
 
     return logger
 
