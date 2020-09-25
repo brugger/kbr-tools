@@ -5,6 +5,7 @@
 
  Kim Brugger (25 Sep 2020), contact: kim@brugger.dk
 """
+import socket
 import subprocess
 import argparse
 import shlex
@@ -18,6 +19,10 @@ states = {'active': 1,
           'failed': 5,
           'not-found': 6,
           'dead': 7,}
+
+
+def get_host_name() -> str:
+    return socket.getfqdn()
 
 
 def get_state(service_name) -> int:
@@ -65,7 +70,7 @@ def main():
     for service in args.services:
         status = get_state(service)
         if args.telegraf:
-            line = f"service,name={service} status={status['status']},status_code={status['status_code']}"
+            line = f"service,host={get_host_name()},service={service} status_code={status['status_code']}"
             if 'uptime' in status:
                 line += f",uptime={status['uptime']}"
             print( line )
