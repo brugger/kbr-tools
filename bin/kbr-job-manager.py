@@ -89,18 +89,19 @@ def main():
 
     parser = argparse.ArgumentParser(description='job manager, if not running re-start it ')
 
-    parser.add_argument('-n', '--name',     help="Name to check for")
-    parser.add_argument('-c', '--command',  help="command to run if name is not found")
-    parser.add_argument('-N', '--number', type=int, default=1, help="number of processes to be running")
-    parser.add_argument('-C', '--config',  help="json file for multiple processes")
-    parser.add_argument('-X', '--example-config', action="store_true", default=False,   help="creates an example config file")
-    parser.add_argument('-s', '--sleep', type=int, default=0, help="to have it run continually set sleep")
-    parser.add_argument('-d', '--dry-run', action="store_true", default=False,   help="print changes")
-    parser.add_argument('-l', '--logfile', default=None, help="Logfile to write to, default is stdout")
-    parser.add_argument('-v', '--verbose', default=3, action="count", help="Increase the verbosity of logging output")
-    parser.add_argument('-k', '--kill',   type=str,  help="programs to kill")
-    parser.add_argument('-K', '--kill-all',   type=str,  help="kill all programs in the config file")
-    parser.add_argument('-S', '--status', type=str, help="Status for programs in config file")
+    parser.add_argument('-n',  '--name',     help="Name to check for")
+    parser.add_argument('-c',  '--command',  help="command to run if name is not found")
+    parser.add_argument('-N',  '--number', type=int, default=1, help="number of processes to be running")
+    parser.add_argument('-C',  '--config',  help="json file for multiple processes")
+    parser.add_argument('-X',  '--example-config', action="store_true", default=False,   help="creates an example config file")
+    parser.add_argument('-s',  '--sleep', type=int, default=0, help="to have it run continually set sleep")
+    parser.add_argument('-d',  '--dry-run', action="store_true", default=False,   help="print changes")
+    parser.add_argument('-l',  '--logfile', default=None, help="Logfile to write to, default is stdout")
+    parser.add_argument('-v',  '--verbose', default=3, action="count", help="Increase the verbosity of logging output")
+    parser.add_argument('-k',  '--kill',   type=str,  help="programs to kill")
+    parser.add_argument('-K',  '--kill-all',   type=str,  help="kill all programs in the config file")
+    parser.add_argument('-S',  '--status-all', type=str, help="Status for programs in config file")
+    parser.add_argument('-st', '--status', type=str, help="Status count for program by name")
 
 
     args = parser.parse_args()
@@ -120,14 +121,19 @@ def main():
         kill_program( args.kill)
         sys.exit()
 
+    if args.status:
+        kill_program( args.status, kill=False, verbose=True)
+        sys.exit()
+
+
     if args.kill_all is not None:
         checks = readin_config( args.kill_all )
         for check in checks:
             kill_program(check[0])
         sys.exit()
 
-    if args.status is not None:
-        checks = readin_config( args.status )
+    if args.status_all is not None:
+        checks = readin_config( args.status_all )
         for check in checks:
             kill_program(check[0], kill=False, verbose=True)
         sys.exit()
