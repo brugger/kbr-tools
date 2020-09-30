@@ -112,7 +112,7 @@ def main():
     if args.logfile:
         logger.init(name='job-manager', log_file=args.logfile)
     else:
-        logger.init(name='job-manager')
+        logger.init(name='job-manager', colour=True)
     logger.set_log_level(args.verbose)
 
     logger.info(f"start up {version}")

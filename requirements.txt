@@ -3,7 +3,9 @@ PyYAML
 records
 pika
 psutil
+colorlog
 SQLAlchemy
 munch
 requests
+tabulate
 pycryptodome

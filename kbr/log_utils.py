@@ -2,6 +2,7 @@ import sys
 import logging
 import traceback
 from logging import handlers
+import colorlog
 
 
 MAX_BYTES = 1024*1024  # 1M
@@ -33,13 +34,19 @@ def set_log_level(new_level:int) -> int:
     return new_level
 
 
-def init(name:str, log_file:str=None, rotate_logs:bool=True) -> None:
+def init(name:str, log_file:str=None, rotate_logs:bool=True, colour=False) -> None:
 
     global logger
-    logger = logging.getLogger( name )
 
-    formatter = logging.Formatter(fmt='%(asctime)s %(name)s.%(levelname)-8s %(message)s',
-                                  datefmt='%Y-%m-%d %H:%M:%S')
+    if colour:
+        logger = colorlog.getLogger( name )
+    else:
+        logger = logging.getLogger( name )
+
+    log_fmt = '%(asctime)s %(name)s.%(levelname)-8s %(message)s'
+    datefmt = '%Y-%m-%d %H:%M:%S'
+    formatter = logging.Formatter(fmt=log_fmt,
+                                  datefmt=datefmt)
 
     if log_file is not None:
         if rotate_logs:
@@ -50,9 +57,15 @@ def init(name:str, log_file:str=None, rotate_logs:bool=True) -> None:
         handler.setFormatter(formatter)
         logger.addHandler(handler)
     else:
-        screen_handler = logging.StreamHandler(stream=sys.stdout)
-        screen_handler.setFormatter(formatter)
-        logger.addHandler(screen_handler)
+        if colour:
+            colour_handler = colorlog.StreamHandler()
+            colour_handler.setFormatter(colorlog.ColoredFormatter(fmt=f'%(log_color)s{log_fmt}',
+                                                           datefmt=datefmt))
+            logger.addHandler(colour_handler)
+        else:
+            screen_handler = logging.StreamHandler(stream=sys.stdout)
+            screen_handler.setFormatter(formatter)
+            logger.addHandler(screen_handler)
 
     set_log_level( logging.WARNING )
 
@@ -65,7 +78,7 @@ def flush():
 def no_logger( fun):
     def wrapper( msg ):
         if logger is None:
-            print( msg )
+            print(f"  {msg}" )
         else:
             fun(msg)
 
