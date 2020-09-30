@@ -37,6 +37,15 @@ class EmailAttachment:
 
 def send_email( sender:str, recipients:list, subject:str, body:str, is_html:bool = False, attachments: List[EmailAttachment] = [], cc: list=[], bcc: list=[] ) -> None:
 
+    if isinstance(recipients, str):
+        recipients = [recipients]
+
+    if isinstance(cc, str):
+        cc = [cc]
+
+    if isinstance(bcc, str):
+        bcc = [bcc]
+
     msg = MIMEMultipart()
     msg.set_charset('UTF-8')
     msg['From'] = sender
