@@ -68,7 +68,7 @@ def kill_program(name, kill=True, list=False, verbose=False):
         print(f"Found {len(ls)} processes matching '{name}'" )
 #        print( ls )
 
-        if verbose >3 :
+        if verbose >3 and len(ls):
 #            print( ls )
             v = []
             for l in ls:
