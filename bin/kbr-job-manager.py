@@ -12,8 +12,9 @@ pp = pprint.PrettyPrinter(indent=4)
 
 import argparse
 import subprocess
-import shlex
+import tabulate
 import time
+import datetime
 
 import psutil
 
@@ -60,11 +61,22 @@ def readin_config(config):
     return json_utils.read(config)
 
 
-def kill_program(name, kill=True, verbose=False):
+def kill_program(name, kill=True, list=False, verbose=False):
     ls = find_procs_by_name( name )
 
-    if verbose:
+    if list:
         print(f"Found {len(ls)} processes matching '{name}'" )
+#        print( ls )
+
+        if verbose >3 :
+#            print( ls )
+            v = []
+            for l in ls:
+                print( l.status())
+                started = datetime.datetime.fromtimestamp(l.create_time()).strftime("%Y-%m-%d %H:%M:%S")
+                v.append([l.pid, l.name(), l.status(), started])
+
+            print( tabulate.tabulate( v , tablefmt='psql', headers=['pid', 'name', 'status', 'started']))
     else:
         logger.info( f"Found {len(ls)} processes matching '{name}'" )
 
@@ -122,7 +134,7 @@ def main():
         sys.exit()
 
     if args.status:
-        kill_program( args.status, kill=False, verbose=True)
+        kill_program( args.status, kill=False, list=True, verbose=args.verbose)
         sys.exit()
 
 
@@ -135,7 +147,7 @@ def main():
     if args.status_all is not None:
         checks = readin_config( args.status_all )
         for check in checks:
-            kill_program(check[0], kill=False, verbose=True)
+            kill_program(check[0], kill=False, list=True, verbose=args.verbose)
         sys.exit()
 
 
