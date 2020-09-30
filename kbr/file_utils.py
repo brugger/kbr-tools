@@ -50,9 +50,3 @@ def changed(filename:str):
     return st.st_mtime
 
 
-def readin_if_file(name:str) -> str:
-
-    if os.path.isfile( name):
-        name = file_utils.read( name )
-    return name
-
