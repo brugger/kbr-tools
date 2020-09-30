@@ -1,5 +1,6 @@
 import sys
 import logging
+import traceback
 from logging import handlers
 
 
@@ -93,3 +94,11 @@ def error(msg: str) -> None:
 @no_logger
 def critical(msg: str) -> None:
     logger.critical( msg )
+
+def exception(msg: str) -> None:
+    if logger is not None:
+        logger.exception( msg )
+    else:
+        print( traceback.format_exc() )
+
+
