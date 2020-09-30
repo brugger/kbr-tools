@@ -60,12 +60,17 @@ def readin_config(config):
     return json_utils.read(config)
 
 
-def kill_program(name):
+def kill_program(name, kill=True, verbose=False):
     ls = find_procs_by_name( name )
-    logger.info( f"Found {len(ls)} processes matching '{name}'" )
-    for p in ls:
-        os.kill(p.pid, 9)
 
+    if verbose:
+        print(f"Found {len(ls)} processes matching '{name}'" )
+    else:
+        logger.info( f"Found {len(ls)} processes matching '{name}'" )
+
+    if kill:
+        for p in ls:
+            os.kill(p.pid, 9)
 
 def main():
     """ main loop
@@ -95,6 +100,7 @@ def main():
     parser.add_argument('-v', '--verbose', default=3, action="count", help="Increase the verbosity of logging output")
     parser.add_argument('-k', '--kill',   type=str,  help="programs to kill")
     parser.add_argument('-K', '--kill-all',   type=str,  help="kill all programs in the config file")
+    parser.add_argument('-S', '--status', type=str, help="Status for programs in config file")
 
 
     args = parser.parse_args()
@@ -118,6 +124,12 @@ def main():
         checks = readin_config( args.kill_all )
         for check in checks:
             kill_program(check[0])
+        sys.exit()
+
+    if args.status is not None:
+        checks = readin_config( args.status )
+        for check in checks:
+            kill_program(check[0], kill=False, verbose=True)
         sys.exit()
 
 
