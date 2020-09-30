@@ -48,3 +48,11 @@ def size(filename:str, readable:bool=True) -> str:
 def changed(filename:str):
     st = os.stat(filename)
     return st.st_mtime
+
+
+def readin_if_file(name:str) -> str:
+
+    if os.path.isfile( name):
+        name = file_utils.read( name )
+    return name
+
