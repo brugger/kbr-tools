@@ -94,7 +94,7 @@ def main():
 
     if args.json:
         print(json.dumps( statuses))
-    else:
+    elif not args.telegraf:
         print(tabulate.tabulate( statuses, headers={'status_code': 'code'}, tablefmt='psql'))
 
 
