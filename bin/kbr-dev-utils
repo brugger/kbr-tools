@@ -20,6 +20,7 @@ import kbr.string_utils as string_utils
 import kbr.crypt_utils as crypt_utils
 import kbr.run_utils   as run_utils
 import kbr.timedate_utils   as timedate_utils
+import kbr.os_utils as os_utils
 
 version = version_utils.as_string('kbr')
 
@@ -86,6 +87,28 @@ def release_command(args) -> None:
         sys.exit()
 
 
+def init_cmds(args) -> None:
+
+    commands =['python', 'go', 'ansible-role', 'help']
+    if len(args.command) == 0:
+        args.command.append('help')
+
+    command = args.command.pop(0)
+    args_utils.valid_command(command, commands)
+
+    if command == 'python':
+         version_utils.init_python_env()
+    elif command == 'go':
+        version_utils.write_version_json_file()
+        os_utils.mkdirs(['cmd','pkg','internal'])
+    elif command == 'ansible-role':
+        version_utils.write_version_json_file()
+        os_utils.mkdirs(['defaults' 'handlers' 'meta' 'tasks' 'templates' 'vars'])
+    else:
+        print("init sub-commands: {}".format(", ".join(commands)))
+        sys.exit()
+        
+
 def utils_cmds(args) -> None:
     commands = ['uuid', 'uuids', 'passwd', 'passwds', 'help']
     if len(args.command) == 0:
@@ -148,7 +171,7 @@ def main():
         parser.print_help()
 
     if command == 'init':
-        version_utils.init_python_env()
+        init_commands( args )
     elif command == 'version':
         version_command(args)
     #    elif command == 'release':
