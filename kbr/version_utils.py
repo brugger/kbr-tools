@@ -146,7 +146,7 @@ def tag( release_file:str=None):
     else:
         cmd += " -m 'tagged version {}'".format( as_string())
 
-    cmd += " {} master".format( as_string() )
+    cmd += " {} ".format( as_string() )
 
     #print( cmd )
     run_utils.launch_cmd( cmd )
@@ -186,6 +186,11 @@ def release_prep():
 
     shutil.move(UPDATES_FILE, release_filename )
     write_update_file()
+
+
+def write_version_json_file():
+    if not os.path.isfile( VERSION_FILE ):
+        json_utils.write( VERSION_FILE, {'major':0, 'minor': 0, 'patch':0} )
 
 def init_python_env():
 
