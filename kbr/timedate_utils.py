@@ -99,5 +99,57 @@ def weekday(timestamp:str) -> []:
     return ts.weekday(), ts.hour, ts.minute
 
 
+def timedelta_to_epoc(timerange) -> int:
+    ''' 3h, 2d, 1w --> now - delta as epoc secs '''
+
+    if timerange == '' or timerange is None:
+        return 0
+
+    time_delta = 0
+    try:
+        g = re.match(r'(\d+)([hdw])', timerange)
+        num, range = g.groups(0)
+        ts = time.time()
+        if range == 'h':
+            time_delta = ts - 3600*int(num)
+        elif range == 'd':
+            time_delta = ts - 24*3600*int(num)
+        elif range == 'w':
+            time_delta = ts - 24*3600*7*int(num)
+    except Exception as e:
+        print( f"timerange {timerange} is invalid valid examples: 1d 2h 1w ")
+        sys.exit(1)
+
+    return time_delta
+
+
 #def time_delta(ts:int)
 #    tdelta = datetime.strptime(s2, FMT) - datetime.strptime(s1, FMT)
+
+
+
+def timedelta_to_sec(timerange) -> int:
+    ''' 1m, 3h, 2d, 1w --> now - delta as epoc secs '''
+
+    if timerange == '' or timerange is None:
+        return 0
+
+    time_delta = 0
+    try:
+        g = re.match(r'(\d+)([mhdw])', timerange)
+        num, range = g.groups(0)
+        if range == 'm':
+            time_delta = 60*int(num)
+        if range == 'h':
+            time_delta = 3600*int(num)
+        elif range == 'd':
+            time_delta = 24*3600*int(num)
+        elif range == 'w':
+            time_delta = 24*3600*7*int(num)
+        elif range == 'M':
+            time_delta = 30*24*3600*7*int(num)
+    except Exception as e:
+        print( f"timerange {timerange} is invalid valid examples: 1d 2h 1w 1M")
+        sys.exit(1)
+
+    return time_delta
