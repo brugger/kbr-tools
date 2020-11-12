@@ -23,6 +23,7 @@ sys.path.append(".")
 import kbr.log_utils as logger
 import kbr.json_utils as json_utils
 import kbr.version_utils as version_utils
+import kbr.daemon_utils as daemon_utils
 
 # python3+ is broken on centos 7, so add the /usr/local/paths by hand
 sys.path.append("/usr/local/lib/python{}.{}/site-packages/".format( sys.version_info.major, sys.version_info.minor))
@@ -84,6 +85,42 @@ def kill_program(name, kill=True, list=False, verbose=False):
         for p in ls:
             os.kill(p.pid, 9)
 
+
+class Daemon( daemon_utils.Daemon ):
+    def run(self) -> None:
+        sys.stderr.write("running!\n")
+        sys.stderr.write(f"Working dir {os.getcwd()}")
+#        sys.exit()
+#        try:
+        while True:
+            if args.config is not None:
+                checks = readin_config( args.config )
+                args.checks = checks
+
+            for check in args.checks:
+                name, command, number = check
+                number = int( number )
+                ls = find_procs_by_name( name )
+                running = len( ls )
+
+                logger.debug(f"{running} processes match {name}")
+                if ( running < number ):
+                    for _ in range(0, number - running ):
+                        if args.dry_run:
+                            print(command)
+                        else:
+                            logger.info(f"restarting {name}")
+                            subprocess.Popen(command, shell=True)
+            if args.sleep == 0:
+                break
+
+            time.sleep( args.sleep )
+
+#        except KeyboardInterrupt:
+#            logger.info("killed by the keyboard")
+
+
+
 def main():
     """ main loop
 
@@ -114,7 +151,13 @@ def main():
     parser.add_argument('-K',  '--kill-all',   type=str,  help="kill all programs in the config file")
     parser.add_argument('-S',  '--status-all', type=str, help="Status for programs in config file")
     parser.add_argument('-s', '--status', type=str, help="Status count for program by name")
+    parser.add_argument('-D',  '--daemon',  default=False, action="store_true", help="number of processes to be running")
+    parser.add_argument('--daemon-start',  default=False, action="store_true", help="start in daemon mode")
+    parser.add_argument('--daemon-stop',  default=False, action="store_true", help="stop daemon")
+    parser.add_argument('--daemon-restart',  default=False, action="store_true", help="restart daemon")
 
+
+    global args
 
     args = parser.parse_args()
     sleep = args.sleep
@@ -166,34 +209,25 @@ def main():
         parser.print_usage()
         sys.exit( 1 )
 
+    args.checks = checks
+    daemon = Daemon("kbr-job-manager.pid")
 
+    if args.daemon_start:
+        if args.sleep == 0:
+            args.sleep = 15
+        daemon.start()
+    elif args.daemon_restart:
+        if args.sleep == 0:
+            args.sleep = 15
+        daemon.restart()
+    elif args.daemon_stop:
+        if args.sleep == 0:
+            args.sleep = 15
+        daemon.stop()
+        sys.exit()
+    else:
+        daemon.run()
 
-    try:
-
-        while True:
-            if args.config is not None:
-                checks = readin_config( args.config )
-            for check in checks:
-                name, command, number = check
-                number = int( number )
-                ls = find_procs_by_name( name )
-                running = len( ls )
-
-                logger.debug(f"{running} processes match {name}")
-                if ( running < number ):
-                    for _ in range(0, number - running ):
-                        if args.dry_run:
-                            print(command)
-                        else:
-                            logger.info(f"restarting {name}")
-                            subprocess.Popen(command, shell=True)
-            if sleep == 0:
-                break
-
-            time.sleep( sleep )
-
-    except KeyboardInterrupt:
-        logger.info("killed by the keyboard")
 
 
 if __name__ == '__main__':
