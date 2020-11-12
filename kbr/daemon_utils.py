@@ -34,9 +34,9 @@ class Daemon:
             sys.exit(1)
 
         # decouple from parent environment
-        os.chdir("/")
+#        os.chdir("/")
+#        os.umask(0)
         os.setsid()
-        os.umask(0)
 
         # do second fork
         try:
@@ -48,7 +48,15 @@ class Daemon:
             sys.stderr.write("fork #2 failed: %d (%s)\n" % (e.errno, e.strerror))
             sys.exit(1)
 
-            # redirect standard file descriptors
+        # write pidfile
+        atexit.register(self.delpid)
+        pid = str(os.getpid())
+        print( f"PID :: {pid}")
+        self.pidfile = "/tmp/t.pid"
+        open(self.pidfile, 'w+').write("%s\n" % pid)
+
+
+        # redirect standard file descriptors
         sys.stdout.flush()
         sys.stderr.flush()
         si = open(self.stdin, 'r')
@@ -58,10 +66,6 @@ class Daemon:
         os.dup2(so.fileno(), sys.stdout.fileno())
         os.dup2(se.fileno(), sys.stderr.fileno())
 
-        # write pidfile
-        atexit.register(self.delpid)
-        pid = str(os.getpid())
-        open(self.pidfile, 'w+').write("%s\n" % pid)
 
     def delpid(self) -> None:
         os.remove(self.pidfile)
@@ -84,7 +88,11 @@ class Daemon:
             sys.exit(1)
 
         # Start the daemon
+        message = "Making a daemon\n"
+        sys.stderr.write(message )
         self.daemonize()
+        message = "starting the run\n"
+        sys.stderr.write(message )
         self.run()
 
     def stop(self) -> None:
@@ -130,3 +138,6 @@ class Daemon:
         You should override this method when you subclass Daemon. It will be called after the process has been
         daemonized by start() or restart().
         """
+        sys.stderr.write("daemon run function not overloaded!\n")
+        sys.exit()
+
