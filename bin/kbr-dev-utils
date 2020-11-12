@@ -145,9 +145,9 @@ def utils_cmds(args) -> None:
         length = 12
         use_special_chars = False
         if len(args.command):
-            number = int(args.command.pop(0))
-        if len(args.command):
             length = int(args.command.pop(0))
+        if len(args.command):
+            number = int(args.command.pop(0))
         if len(args.command):
             use_special_chars = True
 
