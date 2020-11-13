@@ -151,18 +151,13 @@ def main():
     parser.add_argument('-K',  '--kill-all',   type=str,  help="kill all programs in the config file")
     parser.add_argument('-S',  '--status-all', type=str, help="Status for programs in config file")
     parser.add_argument('-s', '--status', type=str, help="Status count for program by name")
-    parser.add_argument('-D',  '--daemon',  default=False, action="store_true", help="number of processes to be running")
     parser.add_argument('--daemon-start',  default=False, action="store_true", help="start in daemon mode")
     parser.add_argument('--daemon-stop',  default=False, action="store_true", help="stop daemon")
     parser.add_argument('--daemon-restart',  default=False, action="store_true", help="restart daemon")
 
 
     global args
-
     args = parser.parse_args()
-    sleep = args.sleep
-
-
 
     if args.logfile:
         logger.init(name='job-manager', log_file=args.logfile)
@@ -193,6 +188,11 @@ def main():
             kill_program(check[0], kill=False, list=True, verbose=args.verbose)
         sys.exit()
 
+    daemon = Daemon("kbr-job-manager.pid")
+
+    if args.daemon_stop:
+        daemon.stop()
+        sys.exit()
 
     if args.example_config:
         write_example_config()
@@ -210,7 +210,6 @@ def main():
         sys.exit( 1 )
 
     args.checks = checks
-    daemon = Daemon("kbr-job-manager.pid")
 
     if args.daemon_start:
         if args.sleep == 0:
@@ -220,11 +219,6 @@ def main():
         if args.sleep == 0:
             args.sleep = 15
         daemon.restart()
-    elif args.daemon_stop:
-        if args.sleep == 0:
-            args.sleep = 15
-        daemon.stop()
-        sys.exit()
     else:
         daemon.run()
 
