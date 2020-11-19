@@ -257,6 +257,20 @@ class BaseHandler( RequestHandler ):
         self.set_header("Authorization", f"Bearer {token}")
 
 
+    def access_token(self):
+        c_token = None
+        auth_header = self.request.headers.get('Authorization', None)
+#        print("Auth header: {}".format( auth_header ))
+        if auth_header:
+            c_token = auth_header[7:]
+
+        if c_token is None:
+            self.send_response_401( )
+
+        return c_token
+
+
+
     def check_token(self, tokens:[]=None):
         global token
         header_token = None
