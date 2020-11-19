@@ -53,7 +53,7 @@ def main():
         status = get_state(service)
 
         if args.telegraf:
-            line = f"service,service={name} status_code={status['code']},response_time={status['response_time']}"
+            line = f"service,http_service={name} status_code={status['code']},response_time={status['response_time']}"
             print( line )
         else:
             status['name'] = name
