@@ -4,6 +4,7 @@ records
 pika
 psutil
 colorlog
+tornado
 SQLAlchemy
 munch
 requests
