@@ -46,6 +46,14 @@ def to_sec_since_epoch(ts):
         raise ValueError("Cannot convert {} to an int".format(ts))
 
 
+def to_milli_sec_since_epoch(dt):
+    return to_sec_since_epoch(dt) * 1000000
+
+def to_nano_sec_since_epoch(dt):
+    return to_sec_since_epoch(dt) * 1000000000
+
+
+
 def to_days_since_epoch(ts: int) -> int:
     timestamp = datetime.datetime.fromtimestamp(ts)
     stime = "{}-{}-{} 00:00:00".format(timestamp.year, timestamp.month, timestamp.day)
@@ -69,6 +77,8 @@ def datestr_to_ts(datetime_str: str) -> any:
                         "%Y-%m-%d %H:%M:%S.%f",
                         "%Y-%m-%d %H:%M:%S%z",
                         "%Y-%m-%d %H:%M:%S",
+                        "%Y-%m-%d %Z",
+                        "%Y-%m-%d",
                         "%a %Y-%m-%d%d %H:%M:%S %Z",
                         "%a %Y-%m-%d%d %H:%M:%S"]:
         try:
@@ -125,6 +135,9 @@ def timedelta_to_epoc(timerange) -> int:
 #    tdelta = datetime.strptime(s2, FMT) - datetime.strptime(s1, FMT)
 
 
+
+
+
 def timedelta_to_sec(timerange) -> int:
     ''' 1m, 3h, 2d, 1w --> now - delta as epoc secs '''
 
@@ -133,11 +146,13 @@ def timedelta_to_sec(timerange) -> int:
 
     time_delta = 0
     try:
-        g = re.match(r'(\d+)([mhdwM])', timerange)
+        g = re.match(r'(\d+)([smhdwM])', timerange)
         num, range = g.groups(0)
-        if range == 'm':
+        if range == 's':
+            time_delta = int(num)
+        elif range == 'm':
             time_delta = 60 * int(num)
-        if range == 'h':
+        elif range == 'h':
             time_delta = 3600 * int(num)
         elif range == 'd':
             time_delta = 24 * 3600 * int(num)
