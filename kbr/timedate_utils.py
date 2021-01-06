@@ -15,6 +15,8 @@ import time
 import datetime
 import re
 
+print("Warning: the timedate_utls module is no longer being maintained, use kbr.datetime_utils instead")
+
 
 def now() -> float:
     """ retuns current time as seconds inc microseconds """
