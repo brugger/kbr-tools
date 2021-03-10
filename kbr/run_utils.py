@@ -25,7 +25,7 @@ def launch_cmd(cmd: str, cwd: str = "") -> ExecutionInfo:
     if cwd == '':
         p = subprocess.Popen(effective_command, stdout=subprocess.PIPE, shell=True, stderr=subprocess.PIPE)
     else:
-        subprocess.Popen(effective_command, stdout=subprocess.PIPE, shell=True, stderr=subprocess.PIPE, cwd=cwd)
+        p = subprocess.Popen(effective_command, stdout=subprocess.PIPE, shell=True, stderr=subprocess.PIPE, cwd=cwd)
 
     stdout, stderr = p.communicate()
     p_status = p.wait()
