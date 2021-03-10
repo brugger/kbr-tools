@@ -69,3 +69,6 @@ def read(filename:str) -> {}:
 def write (filename:str, data:dict) -> None:
     with open(filename, 'w') as outfile:
         json.dump(data, outfile)
+
+def from_string(string:str) -> dict:
+    return json.loads(string)
