@@ -48,7 +48,7 @@ def bump_version(bump:str) -> None:
     version_file = file_utils.find_first( ANGULAR_SETUP )
     if version_file is not None:
         major, minor, patch  = get_ts_version(version_file)
-        major, minor, patch = bumping( bump, major, minor, patch )
+        major, minor, patch, _ = bumping( bump, major, minor, patch )
         set_ts_version(version_file, major, minor, patch)
         info(mesg="Version after bump ")
         return
