@@ -19,7 +19,7 @@ import kbr.version_utils as version_utils
 import kbr.string_utils as string_utils
 import kbr.crypt_utils as crypt_utils
 import kbr.run_utils   as run_utils
-import kbr.timedate_utils   as timedate_utils
+import kbr.datetime_utils as datetime_utils
 import kbr.os_utils as os_utils
 
 version = version_utils.as_string('kbr')
@@ -57,7 +57,7 @@ def version_command(args) -> None:
             print(l)
     elif command == 'changed':
         ts = version_utils.changed()
-        ts = timedate_utils.to_string(ts)
+        ts = datetime_utils.to_string(ts)
         ts.replace(r'\.\d+', '')
         print(f"Version was last updated at {ts}")
     else:
