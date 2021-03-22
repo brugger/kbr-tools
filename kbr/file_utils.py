@@ -29,6 +29,18 @@ def find_first(name:str, path:str=".") -> str:
     return None
 
 
+def find_updir(name:str, path:str=".") -> str:
+    path = os.path.abspath(path)
+    if os.path.isfile( f"{path}/{name}"):
+        return f"{path}/{name}"
+    elif path == "/":
+        return None
+    else:
+        return find_updir( name, f"{path}/../")
+
+
+
+
 def write(filename:str, data:str) -> None:
     with open(filename, 'w') as outfile:
         outfile.write(data)
