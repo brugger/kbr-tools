@@ -27,7 +27,7 @@ version = version_utils.as_string('kbr')
 
 
 def version_command(args) -> None:
-    commands = ['bump', 'info', 'set', 'tag', 'unbumped', 'changed', 'help']
+    commands = ['bump', 'info', 'set', 'tag', 'unbumped', 'changed', 'file', 'help']
     if len(args.command) == 0:
         args.command.append('help')
 
@@ -41,6 +41,8 @@ def version_command(args) -> None:
         version_utils.bump_version(bump)
     elif command == 'info':
         version_utils.info()
+    elif command == 'file':
+        print(version_utils.find_version_file('version.json'))
     elif command == 'set':
         args_utils.count(1, len(args.command), msg="version set requires a version string (major.minor.patch)")
         version = args.command.pop(0)
