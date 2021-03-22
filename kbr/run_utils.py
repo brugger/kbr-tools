@@ -30,3 +30,11 @@ def launch_cmd(cmd: str, cwd: str = "") -> ExecutionInfo:
     stdout, stderr = p.communicate()
     p_status = p.wait()
     return ExecutionInfo(p_status, stdout, stderr)
+
+def print_outputs(e:ExecutionInfo) -> None:
+    if e.stdout != b'':
+        print(e.stdout.decode('utf-8').rstrip("\n"))
+
+    if e.stderr != b'':
+        print(e.stderr.decode('utf-8').rstrip("\n"))
+
