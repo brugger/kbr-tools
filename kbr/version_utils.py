@@ -29,7 +29,7 @@ def bumping( bump:str, major:int, minor:int, patch:int, dev:int=0 ) -> []:
 def bump_version(bump:str) -> None:
 
     info(mesg="Version before bump ")
-    version_file = file_utils.find_first( VERSION_FILE )
+    version_file = find_version_file( VERSION_FILE )
     if version_file is not None:
         version = json_utils.read( version_file )
         if 'dev' not in version:
@@ -45,7 +45,7 @@ def bump_version(bump:str) -> None:
         info(mesg="Version after bump ")
         return
 
-    version_file = file_utils.find_first( ANGULAR_SETUP )
+    version_file = find_version_file( ANGULAR_SETUP )
     if version_file is not None:
         major, minor, patch  = get_ts_version(version_file)
         major, minor, patch, _ = bumping( bump, major, minor, patch )
@@ -79,6 +79,13 @@ def info(mesg:str="Version: ") -> None:
 
 
 
+def find_version_file(name:str, path:str=".") -> str:
+    filename = file_utils.find_first(name, path)
+    if filename is None:
+        filename = file_utils.find_updir(name, path)
+
+    return filename
+
 def as_string(module_name:str=None):
 
     if module_name is not None:
@@ -87,7 +94,7 @@ def as_string(module_name:str=None):
         except:
             pass
 
-    version_file = file_utils.find_first( VERSION_FILE )
+    version_file = find_version_file( VERSION_FILE )
     if version_file is not None:
         info = json_utils.read( version_file )
         if 'dev' in info and info['dev']:
@@ -95,7 +102,7 @@ def as_string(module_name:str=None):
         else:
             return  "{}.{}.{}".format( info['major'], info['minor'], info['patch'])
 
-    version_file = file_utils.find_first( ANGULAR_SETUP )
+    version_file = find_version_file( ANGULAR_SETUP )
     if version_file is not None:
         major, minor, patch = get_ts_version( version_file )
         return  "{}.{}.{}".format(major, minor, patch)
@@ -104,11 +111,11 @@ def as_string(module_name:str=None):
 
 
 def changed():
-    version_file = file_utils.find_first( VERSION_FILE )
+    version_file = find_version_file( VERSION_FILE )
     if version_file is not None:
         return file_utils.changed( version_file)
 
-    version_file = file_utils.find_first( ANGULAR_SETUP )
+    version_file = find_version_file( ANGULAR_SETUP )
     if version_file is not None:
         return file_utils.changed( version_file)
 
@@ -120,7 +127,7 @@ def set(version:str) -> None:
     major, minor, patch = map( int, version.split('.'))
 
     info(mesg="Version before bump ")
-    version_file = file_utils.find_first( VERSION_FILE )
+    version_file = find_version_file( VERSION_FILE )
     if version_file is not None:
         version = json_utils.read( version_file )
         version[ 'major' ] = major
@@ -130,7 +137,7 @@ def set(version:str) -> None:
         info(mesg="Version after bump ")
         return
 
-    version_file = file_utils.find_first( ANGULAR_SETUP )
+    version_file = find_version_file( ANGULAR_SETUP )
     if version_file is not None:
         set_ts_version(version_file, major, minor, patch)
         info(mesg="Version after bump ")

@@ -13,6 +13,7 @@ pp = pprint.PrettyPrinter(indent=4)
 import argparse
 
 sys.path.append(".")
+#sys.path.append("..")
 
 import kbr.args_utils as args_utils
 import kbr.version_utils as version_utils
