@@ -74,7 +74,7 @@ def version_command(args) -> None:
 
 
 def git_command(args) -> None:
-    commands = ['bump', 'tag', 'unbumped', 'help']
+    commands = ['bump', 'tag', 'unbumped', 'history', 'help']
     if len(args.command) == 0:
         args.command.append('help')
 
@@ -94,6 +94,8 @@ def git_command(args) -> None:
         version_utils.tag()
     elif command == 'unbumped':
         git_utils.unbumped()
+    elif command == 'history':
+        git_utils.bump_history()
     else:
         print("git sub-commands: {}".format(", ".join(commands)))
         sys.exit()
