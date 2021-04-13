@@ -1,0 +1,207 @@
+#!/usr/bin/env python3
+
+import argparse
+import sys
+import re
+import time
+import os
+import json
+import subprocess
+import socket
+
+sys.path.append(".")
+
+
+import kbr.run_utils as run_utils
+import kbr.args_utils as args_utils
+import kbr.version_utils as version_utils
+
+
+version = version_utils.as_string('kbr')
+
+
+
+def comma_sep(elements:[]) -> str:
+    return ", ".join( map(str, elements))
+
+
+def docker_start(args:list, daemon:bool=False):
+
+    if 'help' in args.commands or len(args.commands) == 0:
+        print(f"Unknown command '{command}'")
+        print("docker run [container]")
+        print("docker run ['extra-flags'] [container]")
+        print("docker run ['extra-flags'] [container] ['command+flags']")
+        sys.exit(1)
+
+    else:
+
+        if daemon:
+            args.commands.insert(0,"-d")
+
+
+        cmd = f"docker run --rm  {' '.join(args.commands)} "
+
+        r = run_utils.launch_cmd( cmd )
+        run_utils.print_outputs(r)
+ 
+def get_log(container_id:str):
+    cmd = "docker logs  {}".format( container_id)
+    r = run_utils.launch_cmd( cmd )
+    return r.stdout.decode('utf-8')
+
+
+def container_stop(container_id):
+    cmd = "docker stop {}".format( container_id )
+    run_utils.launch_cmd( cmd )
+
+
+def container_logs(container_id):
+    print( get_log(container_id))
+
+
+def container_list(name:str=None) -> None:
+    cmd = "docker ps "
+    if name is not None:
+        cmd += f" | egrep '({name}|^CONTAINER)'  "
+
+    r = run_utils.launch_cmd( cmd )
+    run_utils.print_outputs(r)
+ 
+
+def get_container_id(name:str) -> str:
+    cmd = "docker ps | egrep {}".format( name)
+    r = run_utils.launch_cmd( cmd )
+    lines = r.stdout.decode('utf-8').split("\n")
+    lines = list(filter(None, lines))
+
+    if lines == []:
+        print("No container named {} is running".format( name))
+        sys.exit()
+
+    if len(lines) > 1:
+        print( "Multiple containers running, please provide id")
+        return None
+
+    fields = lines[0].split(r' ')
+    return fields[0]
+
+def docker_sub_commands(args:dict) -> None:
+    commands = ['run', 'start', 'stop', 'logs', 'list', 'build', 'export', 'import', 'help']
+
+    command = args_utils.get_or_default(args.commands, 'help')
+
+    if command not in commands:
+        print("Unknown sub-command {}".format(command))
+        command = "help"
+
+    if command == 'run':
+        docker_start(args)
+        sys.exit()
+    elif command == 'start':
+        docker_start(args, daemon=True)
+        sys.exit()
+    elif command == 'list':
+        name = args_utils.get_or_default(args.commands, None)
+        container_list(name)
+        sys.exit()
+    elif command == 'export':
+        name = args_utils.get_or_fail(args.commands, f"kbr-docket-cli {command} : requires a docker-name or container-id")
+        print(f"Saving image {name} to {name}.tgz")
+        cmd = "docker image save {id} | gzip -c > {id}.tgz"
+        run_utils.launch_cmd(cmd)
+        run_utils.print_outputs(r)
+        sys.exit()
+    elif command == 'import':
+        name = args_utils.get_or_fail(args.commands, f"kbr-docket-cli {command} : requires a docker image file")
+        cmd = f"docker load < {name}"
+        r = run_utils.launch_cmd(cmd)
+        run_utils.print_outputs(r)
+        sys.exit()
+    elif command == 'build':
+        name = args_utils.get_or_fail(args.commands, f"kbr-docket-cli {command} : requires a docker name")
+        cmd = f"docker build -t {name} ."
+        r = run_utils.launch_cmd(cmd)
+        run_utils.print_outputs(r)
+        sys.exit()
+    elif command == 'stop':
+        id = args_utils.get_or_fail(args.commands, f"kbr-docket-cli {command} : requires a docker id")
+        container_stop(id)
+    elif command == 'logs':
+        id = args_utils.get_or_fail(args.commands, f"kbr-docket-cli {command} : requires a docker id")
+        container_logs(id)
+    elif command == 'help':
+        print("The tool support the following commands: {}".format(comma_sep( commands )))
+        sys.exit( 1 )
+
+
+
+def singularity_start(args:list):
+
+    if 'help' in args.commands or len(args.commands) == 0:
+        print(f"Unknown command '{command}'")
+        print("singularity run [container]")
+        print("singularity run ['extra-flags'] [container]")
+        print("singularity run ['extra-flags'] [container] ['command+flags']")
+        sys.exit(1)
+
+    else:
+
+
+        cmd = f"/usr/local/bin/singularity  run {' '.join(args.commands)} "
+
+        r = run_utils.launch_cmd( cmd )
+        run_utils.print_outputs(r)
+
+
+
+def singularity_sub_commands(args:dict) -> None:
+    commands = ['run', 'start', 'stop', 'logs', 'list', 'build', 'export', 'import', 'help']
+
+    command = args_utils.get_or_default(args.commands, 'help')
+
+    if command not in commands:
+        print("Unknown sub-command {}".format(command))
+        command = "help"
+
+    if command == 'run':
+        singularity_start(args)
+        sys.exit()
+    if command == 'build':
+        name = args_utils.get_or_fail(args.commands, f"kbr-docket-cli {command} : requires a docker name")
+        target = args_utils.get_or_fail(args.commands, f"kbr-docket-cli {command} : requires a docker target, eg: bruggerk/nsm-tools")
+        cmd = f"/usr/local/bin/singularity build {name}.sif docker://{target}"
+        r = run_utils.launch_cmd(cmd)
+        run_utils.print_outputs(r)
+        sys.exit()
+
+
+
+
+def main():
+
+    commands = ['docker', 'singularity', 'help']
+
+    parser = argparse.ArgumentParser(description=f"kbr-docker-utils: wrappers for containers v{version}")
+
+    parser.add_argument('commands', nargs='+', help="{}".format(",".join(commands)))
+
+    args = parser.parse_args()
+
+    command = args_utils.get_or_default(args.commands, 'help')
+    if command not in commands:
+        print(f"Unknown command '{command}'")
+        command = "help"
+
+    if command == 'docker':
+        docker_sub_commands(args)
+    if command == 'singularity':
+        singularity_sub_commands(args)
+    elif command == 'help':
+        print("The tool support the following commands: {}".format(comma_sep( commands )))
+        sys.exit( 1 )
+
+
+if __name__ == "__main__":
+    main()
+
