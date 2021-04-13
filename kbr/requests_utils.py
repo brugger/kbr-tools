@@ -17,18 +17,20 @@ def set_verify(new_verify:any):
 def get(url:str, as_json:bool=True):
     return generic_request(url, as_json, call='GET')
 
-def post(url:str, data:{}):
-    return generic_request(url, call='POST', data=data)
+def post(url:str, data:{}, files:{}=None):
+    return generic_request(url, call='POST', data=data, files=files)
 
-def patch(url:str, data:{}):
-    return generic_request(url, call='PATCH', data=data)
+def patch(url:str, data:{}, files:{}=None):
+    return generic_request(url, call='PATCH', data=data, files=files)
 
-def delete(url:str, data:{}):
-    return generic_request(url, call='DELETE', data=data)
+def delete(url:str, data:{}, files:{}=None):
+    return generic_request(url, call='DELETE', data=data, files=files)
 
 
 
-def generic_request(url:str, as_json:bool=True, call='GET', data:{}=None):
+def generic_request(url:str, as_json:bool=True, call='GET', data:{}=None, files:{}=None):
+
+    print( files)
 
     global token, verify
 
@@ -36,9 +38,9 @@ def generic_request(url:str, as_json:bool=True, call='GET', data:{}=None):
     s.verify = verify
 
     if as_json and data is not None:
-        req = Request(call,  url, json=data)
+        req = Request(call,  url, json=data, files=files)
     else:
-        req = Request(call,  url, data=data)
+        req = Request(call,  url, data=data, files=files)
 
     prepped = s.prepare_request(req)
 

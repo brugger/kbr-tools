@@ -180,7 +180,7 @@ def singularity_sub_commands(args:dict) -> None:
 
 def main():
 
-    commands = ['docker', 'singularity', 'help']
+    commands = ['docker', 'd', 'singularity', 's', 'help', 'h']
 
     parser = argparse.ArgumentParser(description=f"kbr-docker-utils: wrappers for containers v{version}")
 
@@ -193,11 +193,11 @@ def main():
         print(f"Unknown command '{command}'")
         command = "help"
 
-    if command == 'docker':
+    if command == 'docker' or command == 'd':
         docker_sub_commands(args)
-    if command == 'singularity':
+    if command == 'singularity' or command == 's':
         singularity_sub_commands(args)
-    elif command == 'help':
+    elif command == 'help' or command == 'h':
         print("The tool support the following commands: {}".format(comma_sep( commands )))
         sys.exit( 1 )
 
