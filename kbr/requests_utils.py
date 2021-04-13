@@ -30,7 +30,7 @@ def delete(url:str, data:{}, files:{}=None):
 
 def generic_request(url:str, as_json:bool=True, call='GET', data:{}=None, files:{}=None):
 
-    print( files)
+    #print( files)
 
     global token, verify
 
