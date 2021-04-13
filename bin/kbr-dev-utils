@@ -95,7 +95,8 @@ def git_command(args) -> None:
     elif command == 'unbumped':
         git_utils.unbumped()
     elif command == 'history':
-        git_utils.bump_history()
+        length = args_utils.get_or_default(args.command, 10)
+        git_utils.bump_history(int(length))
     else:
         print("git sub-commands: {}".format(", ".join(commands)))
         sys.exit()
