@@ -37,7 +37,7 @@ def unbumped():
     print("")
 
 def bump_history(limit=10):
-    res = run_utils.launch_cmd(cmd='git log --pretty=format:"%ar, %s"')
+    res = run_utils.launch_cmd(cmd='git log --pretty=format:"%h: %ar, %s"')
     stdout = res.stdout.decode("utf-8")
     print("Bump history")
     print("=======================")
