@@ -1,5 +1,6 @@
 
 import os
+import re
 
 import kbr.string_utils as string_utils
 
@@ -39,6 +40,20 @@ def find_updir(name:str, path:str=".") -> str:
         return find_updir( name, f"{path}/../")
 
 
+def find_pattern(pattern:str, path:str=".") -> []:
+
+    if pattern.startswith("*"):
+        pattern = f".{pattern}"
+
+    pattern = re.compile(f"{pattern}$")
+
+    files = []
+    for root, dirs, filenames in os.walk(path):
+        for filename in filenames:
+            if pattern.search(filename):
+                files.append(os.path.join(root, filename))
+  
+    return files
 
 
 def write(filename:str, data:str) -> None:
