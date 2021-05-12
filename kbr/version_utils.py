@@ -13,15 +13,18 @@ UPDATES_FILE = "updates.md"
 RELEASE_FILE = "docs/release-{}.md"
 
 
-def bumping( bump:str, major:int, minor:int, patch:int, dev:int=0 ) -> []:
+def bumping( bump:str, major:int, minor:int, patch:int, dev:int=0, rc:int=0 ) -> []:
     if bump == 'major':
-        return [major+1, 0, 0, 0]
+        return [major+1, 0, 0, 0,0]
     elif bump == 'minor':
-        return [major, minor+1, 0, 0]
+        return [major, minor+1, 0, 0,0]
     elif bump == 'patch':
-        return [major, minor, patch+1, 0]
+        return [major, minor, patch+1, 0,0]
     elif bump == 'dev':
-        return [ major, minor, patch, dev+1]
+        return [ major, minor, patch, dev+1,0]
+    elif bump == 'rc':
+        return [ major, minor, patch, 0, rc+1]
+
 
     else:
         raise RuntimeError("Unkown bump {}".format( bump ))
@@ -34,13 +37,18 @@ def bump_version(bump:str) -> None:
         version = json_utils.read( version_file )
         if 'dev' not in version:
             version['dev'] = 0
-        major, minor, patch, dev = bumping( bump, version['major'], version['minor'], version['patch'], version['dev'] )
+        if 'rc' not in version:
+            version['rc'] = 0
+        major, minor, patch, dev, rc = bumping( bump, version['major'], version['minor'], version['patch'], version['dev'], version['rc'] )
         version[ 'major' ] = major
         version[ 'minor' ] = minor
         version[ 'patch' ] = patch
         version[ 'dev' ] = dev
+        version[ 'rc' ] = rc
         if not version['dev']:
             del version['dev']
+        if not version['rc']:
+            del version['rc']
         json_utils.write( version_file, version )
         info(mesg="Version after bump ")
         return
@@ -99,6 +107,8 @@ def as_string(module_name:str=None):
         info = json_utils.read( version_file )
         if 'dev' in info and info['dev']:
             return  "{}.{}.{}-dev{}".format( info['major'], info['minor'], info['patch'], info['dev'])
+        elif 'rc' in info and info['rc']:
+            return  "{}.{}.{}-rc{}".format( info['major'], info['minor'], info['patch'], info['rc'])
         else:
             return  "{}.{}.{}".format( info['major'], info['minor'], info['patch'])
 

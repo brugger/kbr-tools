@@ -39,7 +39,7 @@ def version_command(args) -> None:
     if command == 'bump':
         args_utils.count(1, len(args.command), msg="version bump requires; major/minor/patch/dev")
         bump = args.command.pop(0)
-        args_utils.valid_command(bump, ['major', 'minor', 'patch', 'dev'])
+        args_utils.valid_command(bump, ['major', 'minor', 'patch', 'dev', 'rc'])
         version_utils.bump_version(bump)
     elif command == 'info':
         version_utils.info()
@@ -82,9 +82,9 @@ def git_command(args) -> None:
     args_utils.valid_command(command, commands)
 
     if command == 'bump':
-        args_utils.count(1, len(args.command), msg="version bump requires; major/minor/patch/dev")
+        args_utils.count(1, len(args.command), msg="version bump requires; major/minor/patch/dev/rc")
         bump = args.command.pop(0)
-        args_utils.valid_command(bump, ['major', 'minor', 'patch', 'dev'])
+        args_utils.valid_command(bump, ['major', 'minor', 'patch', 'dev', 'rc'])
         version_utils.bump_version(bump)
 
         version_str = version_utils.as_string()
