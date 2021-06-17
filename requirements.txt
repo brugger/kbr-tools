@@ -1,11 +1,6 @@
-psycopg2-binary
 PyYAML
-records
 pika
-psutil
 colorlog
-tornado
-SQLAlchemy
 munch
 requests
 tabulate
