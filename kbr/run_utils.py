@@ -1,6 +1,7 @@
 import subprocess
 
 import sys
+import os
 
 
 class ExecutionInfo:
@@ -20,12 +21,18 @@ def exit_ok(msg: str = "") -> None:
     sys.exit(0)
 
 
-def launch_cmd(cmd: str, cwd: str = "") -> ExecutionInfo:
+def launch_cmd(cmd: str, cwd: str = "", use_shell_env:bool=False) -> ExecutionInfo:
     effective_command = cmd
+
+    d = None
+    if use_shell_env:
+        d = dict(os.environ)
+
+
     if cwd == '':
-        p = subprocess.Popen(effective_command, stdout=subprocess.PIPE, shell=True, stderr=subprocess.PIPE)
+        p = subprocess.Popen(effective_command, stdout=subprocess.PIPE, shell=True, stderr=subprocess.PIPE, env=d)
     else:
-        p = subprocess.Popen(effective_command, stdout=subprocess.PIPE, shell=True, stderr=subprocess.PIPE, cwd=cwd)
+        p = subprocess.Popen(effective_command, stdout=subprocess.PIPE, shell=True, stderr=subprocess.PIPE, cwd=cwd, env=d)
 
     stdout, stderr = p.communicate()
     p_status = p.wait()
