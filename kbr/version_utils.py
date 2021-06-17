@@ -13,7 +13,7 @@ UPDATES_FILE = "updates.md"
 RELEASE_FILE = "docs/release-{}.md"
 
 
-def bumping( bump:str, major:int, minor:int, patch:int, dev:int=0, rc:int=0 ) -> []:
+def bumping( bump:str, major:int, minor:int, patch:int, dev:int=0, rc:int=0 ) -> list:
     if bump == 'major':
         return [major+1, 0, 0, 0,0]
     elif bump == 'minor':
@@ -65,7 +65,7 @@ def bump_version(bump:str) -> None:
     raise RuntimeError('Could not find version file')
 
 
-def get_ts_version(filename:str) -> []:
+def get_ts_version(filename:str) -> list:
     data = file_utils.read(filename)
     match = re.search(r"version: '(\d+)\.(\d+).(\d+)'", data, re.MULTILINE)
     if match:
@@ -74,7 +74,7 @@ def get_ts_version(filename:str) -> []:
     raise RuntimeError( "Could not find version string in {}".format(filename))
 
 
-def set_ts_version(filename:str, major:int, minor:int, patch:int) -> []:
+def set_ts_version(filename:str, major:int, minor:int, patch:int) -> list:
     data = file_utils.read(filename)
     version = "version: '{}.{}.{}'".format( major, minor, patch)
     data = re.sub(r"version: '(.*)'", version, data, re.MULTILINE)
@@ -223,7 +223,7 @@ def init_python_env():
 #        write_update_file()
 
 
-def _git_tags() -> []:
+def _git_tags() -> list:
     info = run_utils.launch_cmd("git tags -l")
     tags = info.stdout.decode('utf-8')
     return tags
