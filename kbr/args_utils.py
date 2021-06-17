@@ -1,6 +1,8 @@
 import argparse
 import os
 import sys
+import re
+import sys
 
 def basic_parser():
     parser = argparse.ArgumentParser(description='cli for user management')
@@ -55,6 +57,38 @@ def valid_command(command:int, commands:int, msg:str=None):
         print("Invalid command name: '{}', allowed commands are {}".format( command, ", ".join(commands)))
         sys.exit()
 
+
+def pretty_commands(commands:any) -> str:
+
+    if isinstance(commands, list):
+        return ", ".join( commands )
+    elif isinstance(commands, dict):
+        cs = []
+        for c in commands:
+            cs.append(re.sub(rf'{c}(.*)',rf'\033[1m{c}\033[0m\1', commands[c]))
+            return ", ".join( cs )
+
+    raise RuntimeError(f"Cannot handle {commands}")
+
+
+def valid_command(command:str, commands:any, msg:str=None) -> str:
+
+    full_commands = commands
+
+    if isinstance(commands, dict) and command in commands:
+        command = commands[ command ]
+        full_commands = commands.values()
+
+    if command not in full_commands:
+        if msg is not None:
+            print( msg )
+        else:
+            print(f"Invalid command name: '{command}', allowed commands are {pretty_commands(commands)}")
+        sys.exit()
+
+    return command
+
+
 def get_or_default(args:list, default:any):
     if len( args):
         return args.pop(0)
@@ -70,7 +104,7 @@ def get_env_var(name:str, default:str=None) -> str:
     return os.getenv(name, default)
 
 
-def group_args(args) -> {}:
+def group_args(args) -> dict:
     ''' args like i:input1 i:input2 o:output'''
     res = {'':[]}
     for arg in args:
