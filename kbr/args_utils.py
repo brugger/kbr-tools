@@ -52,21 +52,20 @@ def min_count_subcommand(required:int, count:int, name:str=None, msg:str=None):
     return min_count(required=required, count=count, name=name, msg=msg)
 
 
-def valid_command(command:int, commands:int, msg:str=None):
-    if command not in commands:
-        print("Invalid command name: '{}', allowed commands are {}".format( command, ", ".join(commands)))
-        sys.exit()
-
-
 def pretty_commands(commands:any) -> str:
 
     if isinstance(commands, list):
         return ", ".join( commands )
+
     elif isinstance(commands, dict):
+
         cs = []
         for c in commands:
-            cs.append(re.sub(rf'{c}(.*)',rf'\033[1m{c}\033[0m\1', commands[c]))
-            return ", ".join( cs )
+            highlighted_cmd = commands[c]
+            for key in list(c):
+                highlighted_cmd =re.sub(rf'(.*?){key}(.*)',rf'\1\033[1m{key}\033[0m\2', highlighted_cmd)
+            cs.append(highlighted_cmd)
+        return ", ".join( cs )
 
     raise RuntimeError(f"Cannot handle {commands}")
 
