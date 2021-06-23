@@ -74,9 +74,11 @@ def valid_command(command:str, commands:any, msg:str=None) -> str:
 
     full_commands = commands
 
-    if isinstance(commands, dict) and command in commands:
-        command = commands[ command ]
+    if isinstance(commands, dict):
         full_commands = commands.values()
+        if  command in commands:
+            command = commands[ command ]
+        
 
     if command not in full_commands:
         if msg is not None:
