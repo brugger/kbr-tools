@@ -2,6 +2,7 @@ import re
 import os
 import sys
 import shutil
+from pathlib import Path
 
 import kbr.json_utils as json_utils
 import kbr.run_utils  as run_utils
@@ -218,6 +219,9 @@ def init_python_env():
 
     if not os.path.isfile( VERSION_FILE ):
         json_utils.write( VERSION_FILE, {'major':0, 'minor': 0, 'patch':0} )
+
+    if not os.path.isfile( 'requirements.txt'):
+        Path('requirements.txt').touch()
 
 #    if not os.path.isfile( UPDATES_FILE ):
 #        write_update_file()
