@@ -17,7 +17,7 @@ pp = pprint.PrettyPrinter(indent=4)
 
 time_strings = ["%Y-%m-%dT%H:%M:%S.%f%z",
                 "%Y-%m-%dT%H:%M:%S.%f",
-                "%Y-%m-%dT%H:%M:%S.%fZ" # cromwell
+                "%Y-%m-%dT%H:%M:%S.%fZ", # cromwell
                 "%Y-%m-%dT%H:%M:%S%z",
                 "%Y-%m-%dT%H:%M:%S",
                 "%Y-%m-%d %H:%M:%S.%f%z",
