@@ -89,11 +89,15 @@ def info(mesg:str="Version: ") -> None:
 
 
 def find_version_file(name:str, path:str=".") -> str:
-    filename = file_utils.find_first(name, path)
-    if filename is None:
-        filename = file_utils.find_updir(name, path)
-
-    return filename
+    if name == VERSION_FILE:
+        if os.path.isfile(VERSION_FILE):
+            return VERSION_FILE
+        else:
+            return file_utils.find_updir(name, path)
+        
+    else:
+        filename = file_utils.find_first(name, path)
+        return filename
 
 def as_string(module_name:str=None):
 
