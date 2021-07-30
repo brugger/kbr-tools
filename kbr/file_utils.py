@@ -14,7 +14,7 @@ def read(filename:str) -> str:
     return content
 
 
-def find_all(name:str, path:str='.') -> []:
+def find_all(name:str, path:str='.') -> list:
     result = []
     for root, dirs, files in os.walk(path):
         if name in files:
@@ -40,7 +40,7 @@ def find_updir(name:str, path:str=".") -> str:
         return find_updir( name, f"{path}/../")
 
 
-def find_pattern(pattern:str, path:str=".") -> []:
+def find_pattern(pattern:str, path:str=".") -> list:
 
     if pattern.startswith("*"):
         pattern = f".{pattern}"
@@ -75,5 +75,15 @@ def size(filename:str, readable:bool=True) -> str:
 def changed(filename:str):
     st = os.stat(filename)
     return st.st_mtime
+
+
+def exists(filename:str) -> bool:
+    return os.path.isfile( filename )
+
+
+def delete(*files) -> None:
+    for f in files:
+        if f is not None and os.path.isfile( f ):
+            os.remove(f)
 
 
