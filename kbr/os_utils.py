@@ -1,7 +1,7 @@
 import os
 
 
-def mkdirs(dirs:[]) -> None:
+def mkdirs(dirs:list) -> None:
     for d in dirs:
         os.mkdir( d )
 
