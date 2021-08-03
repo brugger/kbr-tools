@@ -63,7 +63,7 @@ def pretty_commands(commands:any) -> str:
         for c in commands:
             highlighted_cmd = commands[c]
             for key in list(c):
-                highlighted_cmd =re.sub(rf'(.*?){key}(.*)',rf'\1\033[1m{key}\033[0m\2', highlighted_cmd)
+                highlighted_cmd =re.sub(rf'(.*?){key}(.*)',rf'\1\033[36m{key}\033[0m\2', highlighted_cmd)
             cs.append(highlighted_cmd)
         return ", ".join( cs )
 
