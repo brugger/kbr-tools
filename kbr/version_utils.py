@@ -66,6 +66,23 @@ def bump_version(bump:str) -> None:
     raise RuntimeError('Could not find version file')
 
 
+def remove_rc() -> None:
+
+    info(mesg="Version before rc removal ")
+    version_file = find_version_file( VERSION_FILE )
+    if version_file is not None:
+        version = json_utils.read( version_file )
+        if 'dev' in version and not version['dev']:
+            del version['dev']
+        if 'rc' in version and not version['rc']:
+            del version['rc']
+        json_utils.write( version_file, version )
+        info(mesg="Version after bump ")
+        return
+
+    raise RuntimeError('Could not find version file')
+
+
 def get_ts_version(filename:str) -> list:
     data = file_utils.read(filename)
     match = re.search(r"version: '(\d+)\.(\d+).(\d+)'", data, re.MULTILINE)
