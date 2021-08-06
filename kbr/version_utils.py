@@ -72,9 +72,9 @@ def remove_rc() -> None:
     version_file = find_version_file( VERSION_FILE )
     if version_file is not None:
         version = json_utils.read( version_file )
-        if 'dev' in version and not version['dev']:
+        if 'dev' in version:
             del version['dev']
-        if 'rc' in version and not version['rc']:
+        if 'rc' in version:
             del version['rc']
         json_utils.write( version_file, version )
         info(mesg="Version after bump ")
