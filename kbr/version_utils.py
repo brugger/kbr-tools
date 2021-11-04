@@ -116,7 +116,7 @@ def find_version_file(name:str, path:str=".") -> str:
         filename = file_utils.find_first(name, path)
         return filename
 
-def as_string(module_name:str=None):
+def as_string(module_name:str=None, version_file:str=None):
 
     if module_name is not None:
         try:
@@ -124,7 +124,8 @@ def as_string(module_name:str=None):
         except:
             pass
 
-    version_file = find_version_file( VERSION_FILE )
+    if version_file is None:
+        version_file = find_version_file( VERSION_FILE )
     if version_file is not None:
         info = json_utils.read( version_file )
         if 'dev' in info and info['dev']:
