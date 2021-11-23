@@ -126,6 +126,7 @@ def as_string(module_name:str=None, version_file:str=None):
 
     if version_file is None:
         version_file = find_version_file( VERSION_FILE )
+        
     if version_file is not None:
         info = json_utils.read( version_file )
         if 'dev' in info and info['dev']:
