@@ -105,17 +105,20 @@ def get_env_var(name:str, default:str=None) -> str:
     return os.getenv(name, default)
 
 
-def group_args(args) -> dict:
-    ''' args like i:input1 i:input2 o:output'''
-    res = {'':[]}
+def group_args(args, mapping:dict=None) -> dict:
+    ''' args like i:input1 input:input2,input3 o:output'''
+    res = {'rest':[]}
     for arg in args:
-        m = re.match(r'(\w):(\w+)', arg)
+        m = re.match(r'(\w+):(\w+.*)', arg)
         if m is not None:
             k, v = m.group(1), m.group(2)
+            if mapping is not None and k in mapping:
+                k = mapping[ k ]
+
             if k not in res:
                 res[ k ] = []
-            res[ k ].append(v)
+            res[ k ] += v.split(',')
         else:
-            res[ 'rest' ].append(v)
+            res[ 'rest' ].append(arg)
             
     return res
