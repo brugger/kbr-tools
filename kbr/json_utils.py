@@ -10,6 +10,7 @@ import sys
 import pprint
 pp = pprint.PrettyPrinter(indent=4)
 import json
+import gzip
 
 import typing
 
