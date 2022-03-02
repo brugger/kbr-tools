@@ -60,15 +60,27 @@ def validate_json(json_body, template:dict) -> bool:
 
 
 
-def read(filename:str) -> {}:
+def read(filename:str) -> dict:
+
+    if "gz" in filename:
+        with gzip.open(filename, 'r') as json_file:
+            data = json.loads(json_file.read().decode('utf-8'))
+        return data
+
+
     with open(filename) as json_file:
         data = json.load(json_file)
         return data
 
 
 def write (filename:str, data:dict) -> None:
-    with open(filename, 'w') as outfile:
-        json.dump(data, outfile)
+
+    if "gz" in filename:
+        with gzip.open(jsonfilename, 'w') as outfile:
+            outfile.write(json.dumps(data).encode('utf-8')) 
+    else:
+        with open(filename, 'w') as outfile:
+            json.dump(data, outfile)
 
 def from_string(string:str) -> dict:
     return json.loads(string)
