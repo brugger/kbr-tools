@@ -2,6 +2,6 @@ PyYAML
 pika
 colorlog
 munch
-requests
+#requests
 tabulate
 pycryptodome
