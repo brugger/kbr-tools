@@ -77,7 +77,7 @@ def read(filename:str) -> dict:
 def write (filename:str, data:dict) -> None:
 
     if "gz" in filename:
-        with gzip.open(jsonfilename, 'w') as outfile:
+        with gzip.open(filename, 'w') as outfile:
             outfile.write(json.dumps(data).encode('utf-8')) 
     else:
         with open(filename, 'w') as outfile:
