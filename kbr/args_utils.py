@@ -58,13 +58,23 @@ def pretty_commands(commands:any) -> str:
         return ", ".join( commands )
 
     elif isinstance(commands, dict):
-
         cs = []
-        for c in commands:
-            highlighted_cmd = commands[c]
-            for key in list(c):
-                highlighted_cmd =re.sub(rf'(.*?){key}(.*)',rf'\1\033[36m{key}\033[0m\2', highlighted_cmd)
+
+        for command in commands:
+            highlighted_cmd = ""#commands[command]
+            key_chars = list(command)
+            key_char = key_chars.pop(0)
+
+            for char in list(commands[command]):
+                if char == key_char:
+                    char = f'\033[36m{char}\033[0m'
+                    if len(key_chars):
+                        key_char = key_chars.pop(0)
+                    else:
+                        key_char = ""
+                highlighted_cmd += char
             cs.append(highlighted_cmd)
+
         return ", ".join( cs )
 
     raise RuntimeError(f"Cannot handle {commands}")
