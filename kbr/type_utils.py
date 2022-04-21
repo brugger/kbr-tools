@@ -1,8 +1,11 @@
 def is_string( value ) -> bool:
     return isinstance(value, str)
 
-
 def is_int( value ) -> bool:
+    # because some classes can become an int, and we dont want those!
+    if 'class' in str(type(value)):
+        return False
+
     try:
         int(value)
         return True
@@ -23,6 +26,10 @@ def is_number( value ) -> bool:
 def is_positive_number( value ) -> bool:
     return is_number( value ) and float( value ) > 0
 
+
+def is_negative_number( value ) -> bool:
+    return is_number( value ) and float( value ) < 0
+
 def none_or_contains_value( data, value ):
     """ return true if data is not set, or value is in data """
     if ( data is None or
@@ -32,4 +39,3 @@ def none_or_contains_value( data, value ):
 
     return False
 
-#def is_type( value, types[] ) -> bool:
