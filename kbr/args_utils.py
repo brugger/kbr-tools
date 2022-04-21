@@ -132,3 +132,23 @@ def group_args(args, mapping:dict=None) -> dict:
             res[ 'rest' ].append(arg)
             
     return res
+
+
+def named_args(args, mapping:dict=None) -> dict:
+    ''' args like i:input1 output:output2 name:output No duplicates!'''
+    res = {'rest':[]}
+    for arg in args:
+        m = re.match(r'(\w+):(\w+.*)', arg)
+        if m is not None:
+            k, v = m.group(1), m.group(2)
+            if mapping is not None and k in mapping:
+                k = mapping[ k ]
+
+            if k in res:
+                raise RuntimeError( f"{k} was defined twice as an argument")
+                
+            res[ k ] = v
+        else:
+            res[ 'rest' ].append(arg)
+            
+    return res
