@@ -1,3 +1,4 @@
+import re
 
 email_match = '[a-zA-Z0-9_\-\.]+@[a-zA-Z0-9_\-\.]+\.[a-zA-Z]{2,5}'
 email_regex = r'^([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})$'
@@ -37,3 +38,18 @@ def readable_bytes(value:float) -> str:
     else:
         return f"{value}B"
 
+
+def snake2CamelCase(name):
+    return re.sub(r'(?:^|_)([a-z])', lambda x: x.group(1).upper(), name)
+ 
+def snake2camelBack(name):
+    return re.sub(r'_([a-z])', lambda x: x.group(1).upper(), name)
+ 
+def CamelCase2snake(name):
+    return name[0].lower() + re.sub(r'(?!^)[A-Z]', lambda x: '_' + x.group(0).lower(), name[1:])
+ 
+def CamelBack2snake(name):
+    return re.sub(r'[A-Z]', lambda x: '_' + x.group(0).lower(), name)
+
+def minus2CamelCase(name):
+    return re.sub(r'(?:^|_)([a-z])', lambda x: x.group(1).upper(), name)

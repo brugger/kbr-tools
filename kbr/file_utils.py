@@ -1,6 +1,8 @@
 
 import os
+import sys
 import re
+import gzip
 
 import kbr.string_utils as string_utils
 
@@ -12,6 +14,29 @@ def read(filename:str) -> str:
     file_handle.close()
 
     return content
+
+
+def open_read(filename:str) -> int:
+
+    if "gz" in filename:
+        fh = gzip.open(filename, 'rb')
+    elif filename == '-':
+        fh = sys.stdin
+    else:
+        fh = open(filename, 'r')
+
+    return fh
+
+
+def open_write(filename:str) -> int:
+
+    if "gz" in filename:
+        fh = gzip.open(filename, 'wb')
+    else:
+        fh = open(filename, 'w')
+
+    return fh
+
 
 
 def find_all(name:str, path:str='.') -> list:

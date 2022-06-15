@@ -1,4 +1,14 @@
 import socket
+import sys
+
+
+def prefix_path() -> str:
+  return sys.prefix
+
+
+def share_path(project:str='') -> str:
+  return f"{prefix_path}/{project}"
+
 
 
 def get_host_ip() -> str:
