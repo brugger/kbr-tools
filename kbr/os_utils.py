@@ -11,7 +11,7 @@ def file_path(filename:str=None) -> str:
     if filename is None:
         filename = __file__
         
-    return os.path.realpath(__file__) 
+    return os.path.realpath(filename) 
 
 
 def file_dir(filename:str=None) -> str:
