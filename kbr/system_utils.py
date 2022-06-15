@@ -7,7 +7,7 @@ def prefix_path() -> str:
 
 
 def share_path(project:str='') -> str:
-  return f"{prefix_path}/{project}"
+  return f"{prefix_path()}/share/{project}"
 
 
 
