@@ -39,17 +39,36 @@ def readable_bytes(value:float) -> str:
         return f"{value}B"
 
 
-def snake2CamelCase(name):
+
+def snake2CamelCase(name): #col_nav --> ColNav
     return re.sub(r'(?:^|_)([a-z])', lambda x: x.group(1).upper(), name)
  
-def snake2camelBack(name):
+def snake2camelBack(name): #col_nav --> colNav
     return re.sub(r'_([a-z])', lambda x: x.group(1).upper(), name)
  
-def CamelCase2snake(name):
+def CamelCase2snake(name): #ColNav -> col_nav
     return name[0].lower() + re.sub(r'(?!^)[A-Z]', lambda x: '_' + x.group(0).lower(), name[1:])
  
-def CamelBack2snake(name):
+def camelBack2snake(name): # colNav -> col_nav
     return re.sub(r'[A-Z]', lambda x: '_' + x.group(0).lower(), name)
 
-def minus2CamelCase(name):
-    return re.sub(r'(?:^|_)([a-z])', lambda x: x.group(1).upper(), name)
+def minus2CamelCase(name): #colum-navigator --> ColumNavigator
+    return re.sub(r'(?:^|-)([a-z])', lambda x: x.group(1).upper(), name)
+
+def minus2camelBack(name): #colum-navigator --> columNavigator
+    return re.sub(r'-([a-z])', lambda x: x.group(1).upper(), name)
+
+
+# These surely could be done more intelligent, like this one:
+
+def to_CamelCase(name): #col_nav --> ColNav, col-NAV --> ColNav
+    return re.sub(r'(?:^|_|-)([a-z])', lambda x: x.group(1).upper(), name.lower())
+
+def to_camelBack(name): #col_nav --> colNav, Col-Nav -> colNav
+    name = name.lower().replace('-', '_')
+    return re.sub(r'_([a-z])', lambda x: x.group(1).upper(), name)
+
+#def to_snake(name:str) -> str:
+#    name = name.replace('-', '_')
+#    return name[0].lower() + re.sub(r'(?!^)[A-Z]', lambda x: '_' + x.group(0).lower(), name[1:])
+
