@@ -56,9 +56,9 @@ def bump_version(bump:str) -> None:
 
     version_file = find_version_file( ANGULAR_SETUP )
     if version_file is not None:
-        major, minor, patch  = get_ts_version(version_file)
-        major, minor, patch, _ = bumping( bump, major, minor, patch )
-        set_ts_version(version_file, major, minor, patch)
+        (major, minor, patch, dev, rc) = get_ts_version(version_file)
+        (major, minor, patch, dev, rc) = bumping( bump, major, minor, patch, dev, rc )
+        set_ts_version(version_file, major, minor, patch, dev, rc)
         info(mesg="Version after bump ")
         return
 
@@ -85,16 +85,27 @@ def remove_rc() -> None:
 
 def get_ts_version(filename:str) -> list:
     data = file_utils.read(filename)
-    match = re.search(r"version: '(\d+)\.(\d+).(\d+)'", data, re.MULTILINE)
-    if match:
-        return int(match.group(1)), int(match.group(2)), int(match.group(3))
 
-    raise RuntimeError( "Could not find version string in {}".format(filename))
+    if match := re.search(r"version: '(\d+)\.(\d+)\.(\d+)-rc(\d+)'", data, re.MULTILINE):
+        return int(match.group(1)), int(match.group(2)), int(match.group(3)), 0, int(match.group(4))
+    elif match := re.search(r"version: '(\d+)\.(\d+)\.(\d+)-rc(\d+)'", data, re.MULTILINE):
+        return int(match.group(1)), int(match.group(2)), int(match.group(3)), int(match.group(4), 0)
+    elif match:= re.search(r"version: '(\d+)\.(\d+)\.(\d+)'", data, re.MULTILINE):
+        return int(match.group(1)), int(match.group(2)), int(match.group(3)), 0, 0
+    else:
+        raise RuntimeError( "Could not find version string in {}".format(filename))
 
 
-def set_ts_version(filename:str, major:int, minor:int, patch:int) -> list:
+def set_ts_version(filename:str, major:int, minor:int, patch:int, dev:int=0, rc:int=0) -> list:
     data = file_utils.read(filename)
-    version = "version: '{}.{}.{}'".format( major, minor, patch)
+
+    if rc:
+        version = "version: '{}.{}.{}-rc{}'".format( major, minor, patch, rc)
+    elif dev:
+        version = "version: '{}.{}.{}-dev{}'".format( major, minor, patch, dev)
+    else:
+        version = "version: '{}.{}.{}'".format( major, minor, patch)
+
     data = re.sub(r"version: '(.*)'", version, data, re.MULTILINE)
     file_utils.write( filename, data)
 
@@ -138,9 +149,13 @@ def as_string(module_name:str=None, version_file:str=None):
 
     version_file = find_version_file( ANGULAR_SETUP )
     if version_file is not None:
-        major, minor, patch = get_ts_version( version_file )
-        return  "{}.{}.{}".format(major, minor, patch)
-
+        major, minor, patch, dev, rc =  get_ts_version( version_file )
+        if dev:
+            return  f"{major}.{minor}.{patch}-dev{dev}"
+        elif rc:
+            return  f"{major}.{minor}.{patch}-rc{rc}"
+        else:
+            return  f"{major}.{minor}.{patch}"
     raise FileNotFoundError("version file '{}' or '{}' not found".format( VERSION_FILE, ANGULAR_SETUP))
 
 
