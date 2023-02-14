@@ -68,14 +68,23 @@ def minus2camelBack(name): #colum-navigator --> columNavigator
 
 def _format_type(name:str) -> str:
 
+    if "_" in name and "-" in name:
+        raise RuntimeError("String is a mixture of minus and snake format")
+
+
+    uppercase_letters = sum(1 for c in name if c.isupper())
+    lowercase_letters = sum(1 for c in name if c.isupper())
+
     if "_" in name:
         return "snake"
     elif "-" in name:
         return "minus"
-    elif name[0] == name[0].upper():
+    elif name[0] == name[0].upper() and lowercase_letters:
         return "CamelCase"
-    else:
+    elif uppercase_letters and lowercase_letters:
         return "camelBack"
+    else:
+        return 'string'
 
 
 def to_CamelCase(name): #col_nav --> ColNav, col-NAV --> ColNav

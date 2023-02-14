@@ -1,5 +1,6 @@
 import pytest
 
+
 import kbr.string_utils as string_utils
 
 
@@ -89,7 +90,8 @@ def test_to_CamelCase_002():
     assert string_utils.to_CamelCase("anyBadDAnts") == "AnyBadDAnts"
 
 def test_to_CamelCase_003():
-    assert string_utils.to_CamelCase("Any--Bad_D_Ants") == "AnyBadDAnts"
+    with pytest.raises( RuntimeError ):
+        string_utils.to_CamelCase("Any--Bad_D_Ants")
 
 def test_to_CamelCase_004():
     assert string_utils.to_CamelCase("AnyBadDAnts") == "AnyBadDAnts"
@@ -102,7 +104,8 @@ def test_to_camelBack_002():
     assert string_utils.to_camelBack("anyBadDAnts") == "anyBadDAnts"
 
 def test_to_camelBack_003():
-    assert string_utils.to_camelBack("Any--Bad_D_Ants") == "anyBadDAnts"
+    with pytest.raises( RuntimeError ):
+        string_utils.to_camelBack("Any--Bad_D_Ants")
 
 def test_to_camelBack_004():
     assert string_utils.to_camelBack("AnyBadDAnts") == "anyBadDAnts"
@@ -115,7 +118,8 @@ def test_to_snake_002():
     assert string_utils.to_snake("anyBadDAnts") == "any_bad_d_ants"
 
 def test_to_snake_003():
-    assert string_utils.to_snake("Any__Bad_D-Ants") == "any_bad_d_ants"
+    with pytest.raises( RuntimeError ):
+        string_utils.to_snake("Any__Bad_D-Ants")
 
 def test_to_snake_003():
     assert string_utils.to_snake("Any--Bad-D-Ants") == "any_bad_d_ants"
