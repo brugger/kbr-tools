@@ -38,11 +38,10 @@ def yellow(string:str) -> str:
 def white(string:str) -> str:
     return WHITE+string+RESET
 
-import re
+#import re
 
-
-highlighted_cmd = "masterworkflows"
-for key in list("wfsm"):
-    highlighted_cmd =re.sub(rf'(.*?){key}(.*)',rf'\1\033[36m{key}\033[0m\2', highlighted_cmd)
-print( highlighted_cmd)
+#highlighted_cmd = "masterworkflows"
+#for key in list("wfsm"):
+#    highlighted_cmd =re.sub(rf'(.*?){key}(.*)',rf'\1\033[36m{key}\033[0m\2', highlighted_cmd)
+#print( highlighted_cmd)
 
