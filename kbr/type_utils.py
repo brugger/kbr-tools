@@ -2,22 +2,9 @@ def is_string( value ) -> bool:
     return isinstance(value, str)
 
 def is_int( value ) -> bool:
-    # because some classes can become an int, and we dont want those!
-    if 'class' in str(type(value)):
-        return False
-
-    try:
-        int(value)
-        return True
-    except:
-        return isinstance(value, int)
-
+    return isinstance(value, int)
 
 def is_float( value ) -> bool:
-    try:
-        float(value)
-        return True
-    except:
         return isinstance(value, float)
 
 def is_number( value ) -> bool:
@@ -25,7 +12,6 @@ def is_number( value ) -> bool:
 
 def is_positive_number( value ) -> bool:
     return is_number( value ) and float( value ) > 0
-
 
 def is_negative_number( value ) -> bool:
     return is_number( value ) and float( value ) < 0

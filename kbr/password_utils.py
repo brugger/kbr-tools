@@ -1,9 +1,11 @@
 import hashlib
 import uuid
 
-def hash_password(password):
+def hash_password(password:str, salt:str=None):
     # uuid is used to generate a random number
-    salt = uuid.uuid4().hex
+    if salt is None:
+        salt = uuid.uuid4().hex
+
     return hashlib.sha512(salt.encode() + password.encode()).hexdigest() + ':' + salt
 
 def check_password(hashed_password, user_password):
