@@ -82,3 +82,7 @@ def test_minus2camelBack_001():
     assert string_utils.minus2camelBack("Any--Bad-D-Ants") == "anyBadDAnts"
 
 
+def test_to_CamelCase_001():
+    assert string_utils.to_CamelCase("Any--Bad-D-Ants") == "anyBadDAnts"
+
+
