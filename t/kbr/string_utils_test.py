@@ -83,6 +83,59 @@ def test_minus2camelBack_001():
 
 
 def test_to_CamelCase_001():
-    assert string_utils.to_CamelCase("Any--Bad-D-Ants") == "anyBadDAnts"
+    assert string_utils.to_CamelCase("Any--Bad-D-Ants") == "AnyBadDAnts"
+
+def test_to_CamelCase_002():
+    assert string_utils.to_CamelCase("anyBadDAnts") == "AnyBadDAnts"
+
+def test_to_CamelCase_003():
+    assert string_utils.to_CamelCase("Any--Bad_D_Ants") == "AnyBadDAnts"
+
+def test_to_CamelCase_004():
+    assert string_utils.to_CamelCase("AnyBadDAnts") == "AnyBadDAnts"
+
+
+def test_to_camelBack_001():
+    assert string_utils.to_camelBack("Any--Bad-D-Ants") == "anyBadDAnts"
+
+def test_to_camelBack_002():
+    assert string_utils.to_camelBack("anyBadDAnts") == "anyBadDAnts"
+
+def test_to_camelBack_003():
+    assert string_utils.to_camelBack("Any--Bad_D_Ants") == "anyBadDAnts"
+
+def test_to_camelBack_004():
+    assert string_utils.to_camelBack("AnyBadDAnts") == "anyBadDAnts"
+
+
+def test_to_snake_001():
+    assert string_utils.to_snake("Any--Bad-D-Ants") == "any_bad_d_ants"
+
+def test_to_snake_002():
+    assert string_utils.to_snake("anyBadDAnts") == "any_bad_d_ants"
+
+def test_to_snake_003():
+    assert string_utils.to_snake("Any__Bad_D-Ants") == "any_bad_d_ants"
+
+def test_to_snake_003():
+    assert string_utils.to_snake("Any--Bad-D-Ants") == "any_bad_d_ants"
+
+
+
+def test_to_minus_001():
+    assert string_utils.to_minus("Any--Bad-D-Ants") == "any-bad-d-ants"
+
+def test_to_minus_002():
+    assert string_utils.to_minus("anyBadDAnts") == "any-bad-d-ants"
+
+def test_to_minus_003():
+    assert string_utils.to_minus("Any__Bad_D-Ants") == "any-bad-d-ants"
+
+def test_to_minus_003():
+    assert string_utils.to_minus("Any--Bad-D-Ants") == "any-bad-d-ants"
+
+
+def test_to_minus_004():
+    assert string_utils.to_minus("AnyBadDAnts") == "any-bad-d-ants"
 
 

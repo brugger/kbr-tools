@@ -66,30 +66,61 @@ def minus2camelBack(name): #colum-navigator --> columNavigator
 
 # These surely could be done more intelligent, like these ones:
 
+def _format_type(name:str) -> str:
+
+    if "_" in name:
+        return "snake"
+    elif "-" in name:
+        return "minus"
+    elif name[0] == name[0].upper():
+        return "CamelCase"
+    else:
+        return "camelBack"
+
+
 def to_CamelCase(name): #col_nav --> ColNav, col-NAV --> ColNav
+
+    ft = _format_type(name)
+    if ft == 'CamelCase':
+        return name
+    elif ft == 'camelBack':
+        name = to_snake(name)
+
+    name = name.replace("--", "-").replace("__", "_")
     return re.sub(r'(?:^|_|-)([a-z])', lambda x: x.group(1).upper(), name.lower())
 
 def to_camelBack(name): #col_nav --> colNav, Col-Nav -> colNav
+
+    ft = _format_type(name)
+    if ft == 'camelBack':
+        return name
+    elif ft == 'CamelCase':
+        name = to_snake(name)
+
+    name = name.replace("--", "-").replace("__", "_")
+
     name = name.lower().replace('-', '_')
     return re.sub(r'_([a-z])', lambda x: x.group(1).upper(), name)
 
 def to_snake(name:str) -> str:
-    if '_' in name:
-        return name
 
-    if '-' in name:
-        return name.replace('-', '_').lower()
+    ft = _format_type(name)
+    if ft == 'snake':
+        return name.lower().replace("__", "_")
+    elif ft == 'minus':
+        return name.replace("--", "-").replace('-', '_').lower()
 
     name = name[0].upper() + name[1:]
     return name[0].lower() + re.sub(r'(?!^)[A-Z]', lambda x: '_' + x.group(0).lower(), name[1:])
 
 
 def to_minus(name:str) -> str:
-    if '-' in name:
-        return name
 
-    if '_' in name:
-        return name.replace('_', '-').lower()
+    ft = _format_type(name)
+    if ft == 'minus':
+        return name.lower().replace("--", "-")
+    elif ft == 'snake':
+        return name.replace("__", "_").replace('_', '-').lower()
 
     name = name[0].upper() + name[1:]
     return name[0].lower() + re.sub(r'(?!^)[A-Z]', lambda x: '-' + x.group(0).lower(), name[1:])
