@@ -36,26 +36,31 @@ def readable_bytes(value:float) -> str:
     elif value > KB:
         return f"{value/KB:.2f} KB"
     else:
-        return f"{value}B"
+        return f"{int(value)}B"
 
 
 
 def snake2CamelCase(name): #col_nav --> ColNav
+    name = name.lower().replace("__", "_")
     return re.sub(r'(?:^|_)([a-z])', lambda x: x.group(1).upper(), name)
  
 def snake2camelBack(name): #col_nav --> colNav
+    name = name.lower().replace("__", "_")
     return re.sub(r'_([a-z])', lambda x: x.group(1).upper(), name)
  
 def CamelCase2snake(name): #ColNav -> col_nav
     return name[0].lower() + re.sub(r'(?!^)[A-Z]', lambda x: '_' + x.group(0).lower(), name[1:])
  
 def camelBack2snake(name): # colNav -> col_nav
+    name = name[0].lower() + name[1:]
     return re.sub(r'[A-Z]', lambda x: '_' + x.group(0).lower(), name)
 
 def minus2CamelCase(name): #colum-navigator --> ColumNavigator
+    name = name.lower().replace("--", "-")
     return re.sub(r'(?:^|-)([a-z])', lambda x: x.group(1).upper(), name)
 
 def minus2camelBack(name): #colum-navigator --> columNavigator
+    name = name.lower().replace("--", "-")
     return re.sub(r'-([a-z])', lambda x: x.group(1).upper(), name)
 
 

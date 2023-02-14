@@ -72,3 +72,39 @@ def readin_xlsx(xlsx_filename:str) -> dict:
         i += 1
 
     return res
+
+
+
+
+def read_headers(xlsx_filename:str) -> dict:
+
+    res = {}
+
+    wb = Workbook()
+    wb = load_workbook(xlsx_filename)
+
+
+    for ws in wb.worksheets:
+        ws_title = ws.title
+        res[ ws_title ] =  {}
+        i = 1
+        ducks = 0
+        while True:
+            cell_name = f"{int_to_letters(i)}1"
+            cell_value = ws[ cell_name ].value
+
+            if cell_value in [None, '']:
+                ducks += 1
+            else:
+                ducks = 0
+                res[ ws_title ][ cell_name] = cell_value 
+            
+            if ducks >= 5:
+                break
+
+            i += 1
+
+        if res[ ws_title ] ==  {}:
+            del res[ ws_title ] 
+
+    return res
