@@ -30,8 +30,8 @@ def create_uuid(length=16):
     # Length 16 --> 128 bit 
     return codecs.encode(get_random_bytes(length), 'hex').decode("utf-8")
 
-def create_guid():
-    return create_uuid()
+def create_guid(length=16):
+    return create_uuid(length)
 
 
 def create_password(length=12, special_chars:bool=False) -> str:
