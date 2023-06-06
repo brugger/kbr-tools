@@ -53,6 +53,4 @@ setup(name='kbr',
         'Programming Language :: Python :: 3'
         ],      
       scripts=scripts(),
-#      data_files=[('share/kbr-tools/', package_files('share/'))],
-#      include_package_data=True,
       zip_safe=False)
