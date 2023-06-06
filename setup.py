@@ -47,20 +47,12 @@ setup(name='kbr',
       license='MIT',
       packages=['kbr'],
       install_requires=get_requirements(),
-      old_req=[
-          'records',
-          'requests',
-          'tabulate', 
-          'munch',
-          'psycopg2-binary',
-          'pycryptodome',
-      ],
       classifiers=[
         "Development Status :: 0.0.1".format( get_version()),
         'License :: MIT License',
         'Programming Language :: Python :: 3'
         ],      
       scripts=scripts(),
-      data_files=[('share/kbr-tools/', package_files('share/'))],
-      include_package_data=True,
+#      data_files=[('share/kbr-tools/', package_files('share/'))],
+#      include_package_data=True,
       zip_safe=False)
