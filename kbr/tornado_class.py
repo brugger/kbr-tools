@@ -198,6 +198,9 @@ class BaseHandler( RequestHandler ):
 
 
     def raise_error(self, status:int, msgs:any=None):
+        if environment == 'development':
+            self.set_ACAO_header()
+            
         self.send_error(status_code=status, msgs=msgs)
         raise HTTPError
 
