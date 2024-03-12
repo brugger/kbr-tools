@@ -37,3 +37,29 @@ def readable_bytes(value:float) -> str:
     else:
         return f"{value}B"
 
+# an explanation: https://realpython.com/python-encodings-guide/
+def reencode(s, from_encoding:str='iso-8859-1', to_encoding:str='utf-8') -> str:
+    return bytes(s, from_encoding).decode(to_encoding)
+
+def reencodings(s):
+
+    encodings = ['utf-8', 'ascii',
+                 'iso-8859-1', 'iso-8859-2', 'iso-8859-3', 'iso-8859-4', 
+                 'iso-8859-5', 'iso-8859-6', 'iso-8859-7', 'iso-8859-8', 
+                 'iso-8859-9', 'iso-8859-10','iso-8859-11', 'iso-8859-12', 
+                 'iso-8859-13', 'iso-8859-14', 'iso-8859-15', 'iso-8859-16']
+
+
+    for f in encodings:
+        for t in encodings:
+            if f == t:
+                continue
+
+            try:
+                print(f" {f} --> {t} ==> {reencode(s, f, t)}")
+            except:
+                pass
+
+
+#reencodings("LemminkÃ¤inen")
+
