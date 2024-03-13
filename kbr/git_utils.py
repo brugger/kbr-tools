@@ -4,16 +4,18 @@ import kbr.run_utils as run_utils
 
 def commit(msg:str, filename:str=None) -> None:
 
-    cmd = f"git commit -m'{msg}'"
+    cmd = f'git commit -m"{msg}"'
     if filename is not None:
         cmd += f" {filename}"
 
-    run_utils.launch_cmd(cmd)
+    cmd_res = run_utils.launch_cmd(cmd)
+    run_utils.print_outputs( cmd_res )
 
 def push() -> None:
 
     cmd = f"git push"
-    run_utils.launch_cmd(cmd)
+    cmd_res = run_utils.launch_cmd(cmd)
+    run_utils.print_outputs( cmd_res )
 
 
 def commit_and_push(msg:str, filename:str=None) -> None:

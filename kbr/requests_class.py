@@ -1,4 +1,9 @@
+import json 
+from urllib.parse import urljoin
+
+
 from requests import Request, Session
+
 
 class KBRRequests( object ):
     def __init__(self, base_url:str, token:str=None, verify:any=True):
@@ -7,6 +12,8 @@ class KBRRequests( object ):
         self._verify = verify
 
     def _generic_request(self, url:str, as_json:bool=True, call='GET', data:{}=None, send_as_json:bool=True):
+
+#        print(":::: URL ::::: " , url, flush=True)
 
         s = Session()
         s.verify = self._verify
@@ -31,18 +38,18 @@ class KBRRequests( object ):
 
 
     def _get(self, url:str, as_json:bool=True, data:{}=None):
-        return self._generic_request(url, as_json, call='GET', data=data, send_as_json=False)
+        return self._generic_request(urljoin(self._base_url, url), as_json, call='GET', data=data, send_as_json=False)
 
     def _post(self, url:str, data:{}):
-        return self._generic_request(url, call='POST', data=data)
+        return self._generic_request(urljoin(self._base_url, url), call='POST', data=data)
 
     def _patch(self, url:str, data:{}):
-        return self._generic_request(url, call='PATCH', data=data)
+        return self._generic_request(urljoin(self._base_url, url), call='PATCH', data=data)
 
     def _delete(self, url:str, data:{}):
-        return self._generic_request(url, call='DELETE', data=data)
+        return self._generic_request(urljoin(self._base_url, url), call='DELETE', data=data)
 
-    def set_token(new_token:str):
+    def set_token(self, new_token:str):
         self._token = new_token
 
 
