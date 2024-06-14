@@ -5,3 +5,4 @@ munch
 #requests
 tabulate
 pycryptodome
+python-dateutil
