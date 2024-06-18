@@ -252,12 +252,12 @@ def next_time(minute:str="*", hour:str="*", day:str="*", month:str="*", weekday:
 
 
 def next_cron(cron:str):
-    return next_time(cron.split(":| "))
+    return next_time(*cron.split(":"))
 
 
-next_pull = next_time(minute='5', hour='*', day='15-19/2', month=11,weekday='mon,fri')
-next_pull = next_time(minute='0,15,30,45', hour='*',  weekday='mon,wed,fri')
-print( "NextPull at:", next_pull)
+#next_pull = next_time(minute='5', hour='*', day='15-19/2', month=11,weekday='mon,fri')
+#next_pull = next_time(minute='0,15,30,45', hour='*',  weekday='mon,wed,fri')
+#print( "NextPull at:", next_pull)
 
 
 
